@@ -1,0 +1,8 @@
+/storage/framework
+/storage/logs
+/public/build
+/node_modules
+/public/hot
+/public/storage
+/vendor
+

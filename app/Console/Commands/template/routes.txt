@@ -1,0 +1,8 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use Modules\{Module}\Http\Controllers\{Module}Controller;
+
+Route::middleware(['web','auth'])->prefix('/{module}')->name('{module}.')->group(function(){
+    Route::get('/', [{Module}Controller::class,'index'])->name('index');
+});

@@ -1,0 +1,48 @@
+[
+    {
+        "header": "ACCOUNT SETTINGS"
+    },
+    {
+        "text": "Manage Users",
+        "url": "admin\/users",
+        "icon": "fas fa-fw fa-user",
+        "can": "admin-create"
+    },
+    {
+        "text": "Manage Role",
+        "url": "admin\/roles",
+        "icon": "fas fa-fw fa-user-shield",
+        "can": "role-list"
+    },
+    {
+        "header": "MANAGER SETTINGS"
+    },
+    {
+        "text": "Manager Settings",
+        "url": "#",
+        "icon": "fas fa-fw fa-user",
+        "can": "settings-list",
+        "submenu": [
+            {
+                "text": "Cài đặt hệ thống",
+                "url": "settings",
+                "icon": "fas fa-fw fa-user",
+                "can": "settings-list",
+                "submenu": [
+                    {
+                        "text": "Hướng dẫn sử dụng Admin",
+                        "url": "settings\/help",
+                        "icon": "fas fa-fw fa-user",
+                        "can": "settings-list"
+                    }
+                ]
+            },
+            {
+                "text": "Hướng dẫn sử dụng Admin",
+                "url": "settings\/help",
+                "icon": "fas fa-fw fa-user",
+                "can": "settings-list"
+            }
+        ]
+    }
+]
