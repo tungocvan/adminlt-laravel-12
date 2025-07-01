@@ -4,19 +4,19 @@
     },
     {
         "text": "Manage Products",
-        "url": "admin\/products",
+        "url": "\/products",
         "icon": "fas fa-fw fa-user",
         "can": "admin-create"
     },
     {
         "text": "Add new product",
-        "url": "admin\/products\/add-product",
+        "url": "\/products\/add",
         "icon": "fas fa-fw fa-user",
         "can": "admin-create"
     },
     {
-        "text": "Products Categories ",
-        "url": "admin\/products\/categories",
+        "text": "Manager Categories ",
+        "url": "\/categories",
         "icon": "fas fa-fw fa-user",
         "can": "admin-create"
     },

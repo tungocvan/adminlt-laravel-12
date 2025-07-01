@@ -1,11 +1,11 @@
 <?php
 
-namespace Modules\Products\Models;
+namespace Modules\Categories\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Products extends Model
+class Categories extends Model
 {
     use HasFactory;
     // protected $connection = 'wordpress';

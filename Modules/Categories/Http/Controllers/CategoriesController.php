@@ -1,24 +1,24 @@
 <?php
 
-namespace Modules\Products\Http\Controllers;
+namespace Modules\Categories\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class ProductsController extends Controller
+class CategoriesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function __construct()
     {
-         $this->middleware('permission:products-list|products-create|products-edit|products-delete', ['only' => ['index','show']]);
-         $this->middleware('permission:products-create', ['only' => ['create','store']]);
-         $this->middleware('permission:products-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:products-delete', ['only' => ['destroy']]);
+         $this->middleware('permission:categories-list|categories-create|categories-edit|categories-delete', ['only' => ['index','show']]);
+         $this->middleware('permission:categories-create', ['only' => ['create','store']]);
+         $this->middleware('permission:categories-edit', ['only' => ['edit','update']]);
+         $this->middleware('permission:categories-delete', ['only' => ['destroy']]);
     }
     public function index()
     {
-        return view('Products::index');
+        return view('Categories::index');
     }
 
     /**
@@ -26,7 +26,7 @@ class ProductsController extends Controller
      */
     public function create()
     {
-        return view('Products::create');
+        return view('Categories::create');
     }
 
     /**
@@ -67,5 +67,5 @@ class ProductsController extends Controller
     public function destroy(string $id)
     {
         //
-    }    
+    }
 }

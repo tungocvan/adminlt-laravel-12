@@ -25,12 +25,13 @@ class AdminController extends Controller
     public function component()
     {
         // Ví dụ sử dụng hàm
-        $questionDetails = '[Chọn những thành phố ở Việt Nam][Hà Nội|Tokyo|Hồ Chí Minh|Seoul][0,2]';
-        $parsed = parseQuestionDetails($questionDetails);
+        // $questionDetails = '[Chọn những thành phố ở Việt Nam][Hà Nội|Tokyo|Hồ Chí Minh|Seoul][0,2]';
+        // $parsed = parseQuestionDetails($questionDetails);
 
-        // In ra kết quả
-        dd($parsed);
-        return view('Admin::component');
+        // // In ra kết quả
+        // dd($parsed);
+        // return view('Admin::component');
+        return 'component';
     }
     public function datatables()
     {
