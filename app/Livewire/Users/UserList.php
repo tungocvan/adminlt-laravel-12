@@ -33,10 +33,11 @@ class UserList extends Component
     public $showModalRole = false;
     public $isEdit = false;
     public $name;
+    public $username;
     public $email;
     public $password;
     public $userId;
-    public $role = 'User';
+    public $role;
 
     public function toggleSelectAll()
     {
@@ -105,11 +106,13 @@ class UserList extends Component
         $validated = $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
+            'username' => 'required|string|max:255',
             'password' => 'required|string|min:8',
         ]);        
         $validated['password'] = Hash::make($validated['password']);             
         $user = User::create($validated);
         $roleId = Role::where('name',$this->role)->get()[0]->id ?? null;  
+        dd($this->role);
         $user->assignRole([$roleId]);
         $this->reset(['name', 'email', 'password']);
         $this->showModal = false;
@@ -119,6 +122,7 @@ class UserList extends Component
     public function edit($userId)
     {
         $user = User::find($userId);
+        dd($user->getRoleNames());
         $roleId = Role::all();        
         if ($user) {
             $this->userId = $user->id;

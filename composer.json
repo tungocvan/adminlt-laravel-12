@@ -17,6 +17,7 @@
         "livewire/livewire": "^3.6",
         "livewire/volt": "^1.7",
         "maatwebsite/excel": "^3.1",
+        "pusher/pusher-php-server": "^7.2",
         "spatie/laravel-permission": "^6.7",
         "unisharp/laravel-filemanager": "^2.10"
     },

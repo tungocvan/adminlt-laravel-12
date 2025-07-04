@@ -144,6 +144,10 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <input type="text" wire:model="username" class="form-control" placeholder="User Name">
+                            @error('username') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="form-group">
                             <input type="password" wire:model="password" class="form-control" placeholder="Password">
                             @error('password') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
