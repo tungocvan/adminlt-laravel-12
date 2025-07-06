@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Mail;
 
 class User extends Authenticatable
 {
@@ -48,5 +49,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    protected static function booted(): void
+    {
+        static::created(function (User $user) {         
+            $to='tungocvan@gmail.com';
+            $content = "<h3>Xin chào, $user->name </h3>";
+            $subject = 'Email sent from Admin';
+            Mail::html($content, function ($message) use ($to, $subject) {
+                $message->to($to);
+                $message->subject($subject);
+            });
+        });
     }
 }

@@ -22,11 +22,9 @@ class PhotoUpload extends Component
 
         $filepath = $this->photo->store("photos");
 
-        $image = Image::create([
-            "title" => "Test",
-            "filepath" => $filepath
+        $image = Image::create([        
+            "name" => $filepath
         ]);
-
-        info($image);
+        return back()->with('success', 'Uploaded successfully!');
     }
-}
+} 
