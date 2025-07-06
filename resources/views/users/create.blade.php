@@ -24,56 +24,42 @@
     </div>
 @endif
 
-<form method="POST" action="{{ route('users.store') }}">
-    @csrf
+<form wire:submit.prevent="save">
     <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="col-md-12">
             <div class="form-group">
                 <strong>Name:</strong>
-                <input type="text" name="name" placeholder="Name" class="form-control">
+                <input type="text" class="form-control" wire:model="name">
             </div>
-        </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>Email:</strong>
-                <input type="email" name="email" placeholder="Email" class="form-control">
+                <input type="email" class="form-control" wire:model="email">
             </div>
-        </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>User Name:</strong>
-                <input type="text" name="username" placeholder="User Name" class="form-control">
+                <input type="text" class="form-control" wire:model="username">
             </div>
-        </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>Password:</strong>
-                <input type="password" name="password" placeholder="Password" class="form-control">
+                <input type="password" class="form-control" wire:model="password">
             </div>
-        </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group">
-                <strong>Confirm Password:</strong>
-                <input type="password" name="confirm-password" placeholder="Confirm Password" class="form-control">
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>Role:</strong>
-                <select name="roles[]" class="form-control" multiple="multiple">
+                <select class="form-control" multiple wire:model="role">
                     @foreach ($roles as $value => $label)
-                        <option value="{{ $value }}">
-                            {{ $label }}
-                        </option>
-                     @endforeach
+                        <option value="{{ $value }}">{{ $label }}</option>
+                    @endforeach
                 </select>
             </div>
-        </div>
-        <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-            <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3"><i class="fa-solid fa-floppy-disk"></i> Submit</button>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3">
+                    <i class="fa-solid fa-floppy-disk"></i> Submit
+                </button>
+            </div>
         </div>
     </div>
 </form>
+
 
 {{-- <p class="text-center text-primary"><small>Tutorial by Từ Ngọc Vân</small></p> --}}
 @endsection

@@ -11,7 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
-class UserCreate
+class UserCreate implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public $user;
@@ -31,7 +31,7 @@ class UserCreate
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('users'),
+            new Channel('users'),
         ];
     }
     public function broadcastAs()
@@ -41,7 +41,7 @@ class UserCreate
     public function broadcastWith(): array
     {
         return [
-            'message' => "[{$this->user->created_at}] New User Received with email '{$this->post->email}'."
+            'message' => "[{$this->user->created_at}] New User Received with email '{$this->user->email}'."
         ];
     }
 }

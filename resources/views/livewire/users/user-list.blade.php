@@ -109,7 +109,7 @@
     </div>
     <!-- /.card-body -->
     <div class="card-footer clearfix">
-        <div class="row">           
+        <div class="row">            
             <div class="col-sm-12 col-md-12">
                 {{ $this->users->links(data: ['scrollTo' => false]) }}
             </div>
@@ -144,7 +144,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <input type="text" wire:model="username" class="form-control" placeholder="User Name">
+                            <input type="text" {{ $isEdit ? 'disabled' : '' }} wire:model="username" class="form-control" placeholder="User Name">
                             @error('username') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-group">
@@ -185,7 +185,9 @@
             </div>
         </div>
     </div>
-
+    <div id="notification">
+                     
+    </div>
 </div>
 <script>
     window.addEventListener('open-print-window', event => {
@@ -203,4 +205,30 @@
     });
 
 </script>
+
+{{-- @if(auth()->user()->is_admin)
+    <script type="module">
+        console.log('aaa');
+            window.Echo.channel('users')
+                .listen('.create', (data) => {
+                    console.log('Order status updated: ', data);
+                    var d1 = document.getElementById('notification');
+                    d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
+                });
+    </script>
+@endif --}}
+
+<script type="module">   
+
+    if(window.Echo) {
+        console.log('echo js');
+    window.Echo.channel('users')
+        .listen('.create', (data) => {
+            console.log('Order status updated: ', data);
+            var d1 = document.getElementById('notification');
+            d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
+        });
+    }
+</script>
+
 </div>

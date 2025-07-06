@@ -15,6 +15,7 @@ use App\Exports\UsersExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use App\Events\UserCreate;
 
 class UserList extends Component
 {
@@ -37,7 +38,7 @@ class UserList extends Component
     public $email;
     public $password;
     public $userId;
-    public $role;
+    public $role=['admin'];
 
     public function toggleSelectAll()
     {
@@ -83,11 +84,15 @@ class UserList extends Component
     }
     public function getRolesProperty()
     {
+        
         return Role::pluck('name','name')->all();
     }
+  
+   
 
     public function render()
     {
+        
         return view('livewire.users.user-list');
     }
     public function delete($userId)
@@ -103,6 +108,7 @@ class UserList extends Component
 
     public function save()
     {
+        
         $validated = $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
@@ -112,22 +118,25 @@ class UserList extends Component
         $validated['password'] = Hash::make($validated['password']);             
         $user = User::create($validated);
         $roleId = Role::where('name',$this->role)->get()[0]->id ?? null;  
-        dd($this->role);
+        //dd($this->role); 
         $user->assignRole([$roleId]);
+        event(new UserCreate($user));
         $this->reset(['name', 'email', 'password']);
         $this->showModal = false;
         session()->flash('message', 'User created successfully!');
+
     }
 
     public function edit($userId)
     {
         $user = User::find($userId);
-        dd($user->getRoleNames());
+        //dd($user->getRoleNames());
         $roleId = Role::all();        
         if ($user) {
             $this->userId = $user->id;
             $this->name = $user->name;
             $this->email = $user->email;
+            $this->username = $user->username;
             $this->isEdit = true;
             $this->showModal = true;
             $this->role = $user->getRoleNames()[0];
@@ -155,7 +164,7 @@ class UserList extends Component
         $user->removeRole($user->getRoleNames()[0]);             
         $user->update($validated);           
         $user->assignRole([$roleId]);
-        $this->reset(['name', 'email', 'password', 'userId', 'isEdit']);
+        $this->reset(['name', 'email', 'password', 'userId', 'isEdit','role']);
         $this->showModal = false;
         session()->flash('message', 'User updated successfully!');
     }
@@ -184,7 +193,7 @@ class UserList extends Component
 
     public function openModal()
     {
-        $this->reset(['name', 'email', 'password', 'userId', 'isEdit']);
+        $this->reset(['name', 'email', 'password', 'userId', 'isEdit', 'role']);
         $this->showModal = true;
     }
     public function closeModal()
@@ -194,6 +203,7 @@ class UserList extends Component
 
     public function updateRole()
     {
+
         $roleId = Role::where('name',$this->role)->get()[0]->id ?? null;  
         //$this->reset(['name', 'email', 'password', 'userId', 'isEdit']);
         //dd($this->selectedUsers);       

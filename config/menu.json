@@ -63,6 +63,18 @@
                 "can": "settings-list"
             },
             {
+                "text": "Qu\u1ea3n tr\u1ecb Upload",
+                "url": "upload",
+                "icon": "fas fa-fw fa-user",
+                "can": "settings-list"
+            },
+            {
+                "text": "Qu\u1ea3n tr\u1ecb EMAIL",
+                "url": "\/mail",
+                "icon": "far fa-envelope",
+                "can": "settings-list"
+            },
+            {
                 "text": "C\u00e2u l\u1ec7nh Artisan",
                 "url": "settings\/artisan",
                 "icon": "fas fa-fw fa-user",
