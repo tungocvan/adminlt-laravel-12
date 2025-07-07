@@ -36,6 +36,7 @@ class UploadImage extends Component
     public function deleteImage()
     {
         $this->photo = null;
+        
     }
 
     public function render()

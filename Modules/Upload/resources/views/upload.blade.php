@@ -7,10 +7,16 @@
 @stop
 
 @section('content')
-      @livewire('upload.upload-image')
+      {{-- @livewire('upload.upload-image')
       @livewire('upload.upload-images')
-      @livewire('upload.photo-upload')
- 
+      @livewire('upload.photo-upload') --}}
+
+      {{-- <livewire:volt-image-upload multi /> --}}
+      <div x-data @image-uploaded.window="alert('Đã upload: ' + $event.detail.join(', '))">
+        <h3>Chọn ảnh và tải lên</h3>
+        <livewire:volt-image-upload />
+    </div>
+    
 @stop
 
 @section('css')
