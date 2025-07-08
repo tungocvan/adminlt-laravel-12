@@ -7,6 +7,7 @@ if [ -z "$param1" ]; then
   echo "Vui long nhap ten de commit"
   exit 1
 fi
+cp .env .env.example
 git add . 
 git commit -m"$param1"
 git push
