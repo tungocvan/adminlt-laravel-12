@@ -45,3 +45,31 @@ git branch -M main
 git remote add origin git@github.com:tungocvan/laravel-12.git
 // đẩy lên kho git
 git push -u origin main
+
+Hướng dãn cài đặt hàng đợi laravel queues
+- trên ubuntu cài đặt pm2:
+npm install -g pm2
+pm2 --version
+Tạo file tên queue-worker.sh ở gốc project Laravel:
+touch queue-worker.sh
+chmod +x queue-worker.sh
+Nội dung queue-worker.sh:
+
+#!/bin/bash
+# Chạy từ thư mục hiện tại
+cd /path/to/your/laravel/project
+# Đảm bảo dùng đúng PHP, ví dụ php8.3
+php artisan queue:work --sleep=3 --tries=3 --timeout=60
+
+Dùng pm2 chạy script:
+pm2 start queue-worker.sh --name laravel-queue
+Lưu lại cấu hình để tự chạy lại khi khởi động máy
+pm2 save
+pm2 startup
+
+Câu lệnh quản lý pm2
+pm2 start queue-worker.sh	Khởi động
+pm2 stop laravel-queue	Dừng
+pm2 restart laravel-queue	Khởi động lại
+pm2 delete laravel-queue	Xóa tiến trình
+pm2 logs laravel-queue	Xem log

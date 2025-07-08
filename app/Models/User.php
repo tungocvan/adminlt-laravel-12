@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeUserMail;
 
 class User extends Authenticatable
 {
@@ -52,14 +53,9 @@ class User extends Authenticatable
     }
     protected static function booted(): void
     {
-        static::created(function (User $user) {         
-            $to='tungocvan@gmail.com';
-            $content = "<h3>Xin chào, $user->name </h3>";
-            $subject = 'Email sent from Admin';
-            Mail::html($content, function ($message) use ($to, $subject) {
-                $message->to($to);
-                $message->subject($subject);
-            });
+        static::created(function (User $user) {
+            Mail::to($user->email)
+                ->queue(new WelcomeUserMail($user)); // Gửi vào hàng đợi
         });
     }
 }
