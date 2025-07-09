@@ -114,3 +114,15 @@
     <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
 
 @stop
+@section('script')
+@if(auth()->user()->is_admin)
+    <script type="module">
+            window.Echo.channel('posts')
+                .listen('.create', (data) => {
+                    console.log('Order status updated: ', data);
+                    var d1 = document.getElementById('notification');
+                    d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
+                });
+    </script>
+@endif
+@endsection

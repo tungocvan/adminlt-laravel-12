@@ -41,6 +41,10 @@ class SettingsController extends Controller
     {
         return view('Settings::form');
     }
+    public function tabs()
+    {
+        return view('Settings::tabs');
+    }
     public function email()
     {
         return view('Settings::email');
