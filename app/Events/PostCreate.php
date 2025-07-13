@@ -11,7 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
-class PostCreate
+class PostCreate implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -30,10 +30,10 @@ class PostCreate
      */
     public function broadcastOn(): array
     {
-        return new Channel('posts');
-        // return [
-        //     new PrivateChannel('posts'),
-        // ];
+        //return new Channel('posts');
+        return [
+            new PrivateChannel('posts'),
+        ];
     }
     public function broadcastAs()
     {

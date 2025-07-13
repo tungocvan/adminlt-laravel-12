@@ -89,6 +89,22 @@ return [
             ],
         ],
 
+        'socket' => [
+                'host' => env('REVERB_HOST', 'adminlt.laravel.tk'),
+                'port' => env('REVERB_PORT', 6001),
+                'scheme' => 'https', // ✅ phải là https để bật wss
+        ],
+        'ssl' => [
+                    'local_cert' => '/etc/.cert/laravel.tk-cert.pem',
+                    'local_pk' => '/etc/.cert/laravel.tk-key.pem',
+                    'passphrase' => null,
+                ],
+        'client_options' => [
+                                'verify' => false,
+                                'timeout' => 5,
+                            ],
+
+
     ],
 
 ];

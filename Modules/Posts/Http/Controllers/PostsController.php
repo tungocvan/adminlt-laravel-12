@@ -50,6 +50,7 @@ class PostsController extends Controller
        ]);
        
        event(new PostCreate($post));
+       //PostCreate::dispatch($post);
        return back()->with('success','Post created successfully.');
     }
 
