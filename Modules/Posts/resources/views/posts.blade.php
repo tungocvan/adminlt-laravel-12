@@ -115,7 +115,7 @@
 @section('js')
      {{-- https://www.daterangepicker.com/#examples  --}}
     <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
-    @if(auth()->user()->is_admin)
+    {{-- @if(auth()->user()->is_admin)
     <script type="module">        
         window.Echo.channel('posts')
         
@@ -125,7 +125,7 @@
                 d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
             });
     </script>
-    @endif
+    @endif --}}
 
 @stop
 

@@ -5,7 +5,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Notifications\PostApproved;
-use App\Events\PostCreate;
+// use App\Events\PostCreate;
 
 class PostsController extends Controller
 {
@@ -49,7 +49,7 @@ class PostsController extends Controller
            'body' => $request->body
        ]);
        
-       event(new PostCreate($post));
+       // event(new PostCreate($post));
        //PostCreate::dispatch($post);
        return back()->with('success','Post created successfully.');
     }
