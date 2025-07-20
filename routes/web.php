@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\SearchController;
+use Illuminate\Support\Facades\Mail;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -32,8 +33,10 @@ Route::middleware(['auth'])->prefix('/admin')->name('admin.')->group(function(){
     Route::patch('/profile', [ProfileController::class,'update'])->name('profile-update');
     Route::put('/profile', [ProfileController::class,'updatePassword'])->name('profile-password');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile-destroy');
+    
 });
 
+Route::get('user-notify', [NotificationsController::class, 'index']);
 Route::get('notifications/get',[NotificationsController::class, 'getNotificationsData'])->name('notifications.get');
 Route::get('navbar/search',[SearchController::class,'showNavbarSearchResults']);
 Route::post('navbar/search',[SearchController::class,'showNavbarSearchResults']);
@@ -41,3 +44,11 @@ Route::post('navbar/search',[SearchController::class,'showNavbarSearchResults'])
 Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
     \UniSharp\LaravelFilemanager\Lfm::routes();
 });
+
+// Route::get('/mail-test', function () {
+//     Mail::raw('Gửi thử mail từ Laravel', function ($msg) {
+//         $msg->to('tungocvan@gmail.com')->subject('Test Mail');
+//     });
+
+//     return 'Đã gửi mail!';
+// });

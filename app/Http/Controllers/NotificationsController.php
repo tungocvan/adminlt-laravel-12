@@ -3,9 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Notifications\BirthdayWish;
 
 class NotificationsController extends Controller
 {
+    public function index(Request $request)
+    {
+        $user = User::find(1);
+  
+        $messages["hi"] = "Hey, Happy Birthday {$user->name}";
+        $messages["wish"] = "On behalf of the entire company I wish you a very happy birthday and send you my best wishes for much happiness in your life.";
+          
+        $user->notify(new BirthdayWish($messages));
+  
+        dd('Done');
+    }
     public function getNotificationsData(Request $request)
     {
         // For the sake of simplicity, assume we have a variable called

@@ -18,6 +18,7 @@
                         <p class="mt-1 text-sm text-gray-600">
                             {{ __("Update your account's profile information and email address.") }}
                         </p>
+                        
                         <form method="POST" action="{{ route('admin.profile-update') }}">
                             @csrf
                             @method('patch')
@@ -35,7 +36,9 @@
                                 </div>
                             </div>
                         </form>
-
+                        <strong class="mt-1 text-sm text-gray-600">
+                            {{ __("User Created At: ").$newDate }}
+                        </strong>
                 </div>
             </div>
 
@@ -137,6 +140,7 @@
 
 
 
-
-{{-- <p class="text-center text-primary"><small>Tutorial by Từ Ngọc Vân</small></p> --}}
+<p class="text-center text-primary"><small>Tutorial by Từ Ngọc Vân.</small><strong class="mt-1 text-sm text-gray-600">
+    {{ __("IP your address: "). $clientIP }}
+</strong></p>
 @endsection

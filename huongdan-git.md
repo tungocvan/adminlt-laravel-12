@@ -69,7 +69,14 @@ pm2 startup
 
 Câu lệnh quản lý pm2
 pm2 start queue-worker.sh	Khởi động
+hoặc chạy nền: ./pm2queue.sh
 pm2 stop laravel-queue	Dừng
 pm2 restart laravel-queue	Khởi động lại
 pm2 delete laravel-queue	Xóa tiến trình
 pm2 logs laravel-queue	Xem log
+
+
+hướng dẫn gửi mail từ dòng lệnh cmd sử dụng tinker:
+
+php artisan tinker
+> Mail::raw('Test Gmail', function ($m) {$m->to('tungocvan@gmail.com')->subject('Test từ Laravel');});

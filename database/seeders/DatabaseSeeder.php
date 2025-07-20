@@ -5,9 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Database\Seeders\PermissionTableSeeder;
 use Database\Seeders\CreateAdminUserSeeder;
-use Database\Seeders\CreateTopicsSeeder;
-use Database\Seeders\QuestionSeeder;
-use Database\Seeders\QuestionSetSeeder;
+use Database\Seeders\ProductSeeder;
+
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,6 +18,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PermissionTableSeeder::class,
             CreateAdminUserSeeder::class,
+            ProductSeeder::class,
+            
         ]);
     }
 }

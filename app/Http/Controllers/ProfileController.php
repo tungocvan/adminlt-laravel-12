@@ -15,7 +15,9 @@ class ProfileController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        return view('profile.account',compact('user'));
+        $clientIP = $request->ip(); 
+        $newDate = $user->created_at->format('d-m-Y');
+        return view('profile.account',compact('user','clientIP','newDate'));
     }
 
     /**

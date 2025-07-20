@@ -12,6 +12,9 @@ Route::middleware(['web','auth'])->prefix('/upload')->name('upload.')->group(fun
     Route::post('image-upload', [UploadImage::class,'store'])->name('image.store');
     Route::get('images-upload', UploadImages::class);
     Route::post('images-upload', [UploadImages::class,'store'])->name('images.store');
+
+    Route::get('image-upload-resize', [UploadController::class, 'imageResize']);
+    Route::post('image-upload-resize', [UploadController::class, 'storeImageResize'])->name('image-resize.store');
 });
 
 Route::middleware(['web','auth'])->prefix('/dropzone')->name('dropzone.')->group(function(){
