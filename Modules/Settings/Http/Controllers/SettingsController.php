@@ -57,6 +57,10 @@ class SettingsController extends Controller
     {
         return view('Settings::tables');
     }
+    public function posts()
+    {
+        return view('Settings::posts');       
+    }
 
 }
  

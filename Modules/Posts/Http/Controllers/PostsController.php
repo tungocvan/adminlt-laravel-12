@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Notifications\PostApproved;
+use Illuminate\Http\RedirectResponse;
 // use App\Events\PostCreate;
 
 class PostsController extends Controller
@@ -30,7 +31,7 @@ class PostsController extends Controller
      */
     public function create()
     {
-        //
+        return view('Posts::postsCreate');
     }
 
     /**
@@ -54,6 +55,22 @@ class PostsController extends Controller
        return back()->with('success','Post created successfully.');
     }
 
+    public function storePost(Request $request): RedirectResponse
+    {
+        $this->validate($request, [
+             'title' => 'required',
+             'body' => 'required'
+        ]);
+        
+        $post = Post::create([
+            'title' => $request->title,
+            'body' => $request->body,
+            'user_id' => auth()->id(),
+        ]);
+   
+        return back()
+                ->with('success','Post created successfully.');
+    }
     /**
      * Display the specified resource.
      */

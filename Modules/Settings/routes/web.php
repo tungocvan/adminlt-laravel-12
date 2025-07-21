@@ -11,6 +11,7 @@ Route::middleware(['web','auth'])->prefix('/settings')->name('settings.')->group
     Route::get('/components', [SettingsController::class,'components'])->name('components');
     Route::get('/components/tabs', [SettingsController::class,'tabs'])->name('components.tabs');
     Route::get('/components/form', [SettingsController::class,'form'])->name('components.form');
+    Route::get('/components/posts', [SettingsController::class,'posts'])->name('components.posts');
     Route::get('/components/email', [SettingsController::class,'email'])->name('components.email');
     Route::get('/components/file-manager', [SettingsController::class,'fileManager'])->name('components.file-manager');
     Route::get('/components/tables', [SettingsController::class,'tables'])->name('components.tables');

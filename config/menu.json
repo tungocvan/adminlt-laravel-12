@@ -101,6 +101,12 @@
                 "can": "admin-list"
             },
             {
+                "text": "POSTS CRUD",
+                "url": "settings\/components\/posts",
+                "icon": "far fa-caret-square-right",
+                "can": "admin-list"
+            },
+            {
                 "text": "Tabs Panel",
                 "url": "settings\/components\/tabs",
                 "icon": "far fa-caret-square-right",
@@ -121,6 +127,12 @@
             {
                 "text": "Upload Dropzone",
                 "url": "dropzone",
+                "icon": "far fa-caret-square-right",
+                "can": "admin-list"
+            },
+            {
+                "text": "Upload Image Gallery",
+                "url": "upload\/image-gallery",
                 "icon": "far fa-caret-square-right",
                 "can": "admin-list"
             },
