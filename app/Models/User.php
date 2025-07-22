@@ -58,4 +58,6 @@ class User extends Authenticatable
                 ->queue(new WelcomeUserMail($user)); // Gửi vào hàng đợi
         });
     }
+
+ 
 }

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
@@ -11,29 +10,46 @@ use Spatie\Permission\Models\Permission;
 
 class CreateAdminUserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        if (User::count() == 0) {
+        if (User::count() > 0) {
+            echo "User table already has data. Skipping...\n";
+            return;
+        }
+
+        // Tạo role Admin nếu chưa có
+        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
+        $userRole  = Role::firstOrCreate(['name' => 'User']);
+
+        // Gán toàn bộ permission cho Admin
+        $permissions = Permission::pluck('id', 'id')->all();
+        $adminRole->syncPermissions($permissions);
+
+        // Tạo admin user
+        $admin = User::withoutEvents(function () use ($adminRole) {
             $user = User::create([
                 'name' => 'Từ Ngọc Vân',
                 'email' => 'tungocvan@gmail.com',
                 'username' => 'tungocvan',
                 'password' => Hash::make('123456'),
-                'is_admin' => 1
+                'is_admin' => 1,
             ]);
+            $user->assignRole($adminRole);
+            return $user;
+        });
 
-            $role = Role::create(['name' => 'Admin']);
+        // Tạo user thường
+        User::withoutEvents(function () use ($userRole) {
+            $user01 = User::create([
+                'name' => 'User 01',
+                'email' => 'user01@gmail.com',
+                'username' => 'user01',
+                'password' => Hash::make('123456'),
+                'is_admin' => 0,
+            ]);
+            $user01->assignRole($userRole);
+        });
 
-            $permissions = Permission::pluck('id','id')->all();
-
-            $role->syncPermissions($permissions);
-
-            $user->assignRole([$role->id]);
-        }else {
-            echo "Table already has data, skipping seeding.\n";
-        }
+        echo "Admin and sample user created successfully.\n";
     }
 }

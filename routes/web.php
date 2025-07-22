@@ -12,6 +12,7 @@ use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\CkeditorController;
 
+
 // Route::get('/', function () {
 //     return view('welcome');
 // });
@@ -59,3 +60,6 @@ Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']
 
 //     return 'Đã gửi mail!';
 // });
+
+Route::get('demo-search', [SearchController::class, 'index']);
+Route::get('autocomplete', [SearchController::class, 'autocomplete'])->name('autocomplete');
