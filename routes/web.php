@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\CkeditorController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -40,6 +41,12 @@ Route::get('user-notify', [NotificationsController::class, 'index']);
 Route::get('notifications/get',[NotificationsController::class, 'getNotificationsData'])->name('notifications.get');
 Route::get('navbar/search',[SearchController::class,'showNavbarSearchResults']);
 Route::post('navbar/search',[SearchController::class,'showNavbarSearchResults']);
+
+
+Route::get('ckeditor', [CkeditorController::class, 'index']);
+Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])->name('ckeditor.upload');
+Route::post('ckeditor', [CkeditorController::class, 'store'])->name('ckeditor.store');
+
 
 Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
     \UniSharp\LaravelFilemanager\Lfm::routes();

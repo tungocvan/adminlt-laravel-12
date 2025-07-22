@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Database\Seeders\PermissionTableSeeder;
 use Database\Seeders\CreateAdminUserSeeder;
 use Database\Seeders\ProductSeeder;
+use Database\Seeders\VnAdministrativeUnitSeeder;
 
 
 class DatabaseSeeder extends Seeder
@@ -19,7 +20,7 @@ class DatabaseSeeder extends Seeder
             PermissionTableSeeder::class,
             CreateAdminUserSeeder::class,
             ProductSeeder::class,
-            
+            VnAdministrativeUnitSeeder::class
         ]);
     }
 }

@@ -15,6 +15,7 @@ class PostsList extends Component
     public function render()
     {
         $this->posts = Post::all();
+        //$this->posts = Post::paginate(5);
         return view('livewire.posts.posts-list');
     }
     private function resetInputFields(){

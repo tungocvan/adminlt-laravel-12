@@ -4,7 +4,8 @@ namespace Modules\Upload\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Spatie\Image\Image;
+// use Spatie\Image\Image;
+use Intervention\Image\Laravel\Facades\Image;
 
 class UploadController extends Controller
 {
@@ -26,23 +27,29 @@ class UploadController extends Controller
     {
         return view('Upload::imageUpload');
     }
+
+
     public function storeImageResize(Request $request): RedirectResponse
     {
-        $this->validate($request, [
-            'image' => ['required'],
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-        
-        $imageName = time().'.'.$request->image->extension();  
-
-        Image::load($request->image->path())
-                ->optimize()
-                ->save(public_path('images/'). $imageName);
-        
-        return back()->with('success', 'You have successfully upload image.')
-                     ->with('image', $imageName); 
+   
+        $image = $request->file('image');
+        $imageName = time().'.'.$image->extension();
+       
+        $destinationPathThumbnail = public_path('images/thumbnail');
+        $img = Image::read($image->path());
+        $img->resize(100, 100, function ($constraint) {
+            $constraint->aspectRatio();
+        })->save($destinationPathThumbnail.'/'.$imageName);
+     
+        $destinationPath = public_path('/images');
+        $image->move($destinationPath, $imageName);
+     
+        return back()->with('success', 'Image Uploaded successfully!')
+                     ->with('imageName', $imageName);
     }
-
-
 
     /**
      * Show the form for creating a new resource.

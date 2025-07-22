@@ -7,7 +7,7 @@
 @stop
 
 @section('content')
-      
+    @livewire('ckeditor')   
 @stop
 
 @section('css')

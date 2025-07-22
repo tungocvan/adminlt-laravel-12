@@ -22,7 +22,8 @@ class PostsController extends Controller
     }
     public function index(Request $request)
     {
-        $posts = Post::get();
+        //$posts = Post::get();
+        $posts = Post::paginate(3);
         return view('Posts::posts',compact('posts'));
     }
 

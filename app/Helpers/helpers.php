@@ -116,3 +116,21 @@ function getCategories($taxonomy)
         ->get();
 }
 
+if (! function_exists('convertYmdToDmy')) {
+    function convertYmdToDmy($date)
+    {
+        return Carbon::createFromFormat('Y-m-d', $date)->format('d-m-Y');
+    }
+}
+  
+/**
+ * Write code on Method
+ *
+ * @return response()
+ */
+if (! function_exists('convertMdyToYmd')) {
+    function convertMdyToDmy($date)
+    {
+        return Carbon::createFromFormat('m-d-Y', $date)->format('d-m-Y');
+    }
+}
