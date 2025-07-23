@@ -80,3 +80,4 @@ hướng dẫn gửi mail từ dòng lệnh cmd sử dụng tinker:
 
 php artisan tinker
 > Mail::raw('Test Gmail', function ($m) {$m->to('tungocvan@gmail.com')->subject('Test từ Laravel');});
+

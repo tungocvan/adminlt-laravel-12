@@ -18,12 +18,17 @@ class CreateAdminUserSeeder extends Seeder
         }
 
         // Tạo role Admin nếu chưa có
-        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
-        $userRole  = Role::firstOrCreate(['name' => 'User']);
-
+        $adminRole = Role::firstOrCreate(['name' => 'Admin']);        
         // Gán toàn bộ permission cho Admin
         $permissions = Permission::pluck('id', 'id')->all();
         $adminRole->syncPermissions($permissions);
+        // Tạo role User nếu chưa có
+
+        $userRole  = Role::firstOrCreate(['name' => 'User']);
+        // Gán toàn bộ permission cho Admin
+        $permissions = Permission::where('name', 'admin-list')->pluck('id');
+
+        $userRole->syncPermissions($permissions);
 
         // Tạo admin user
         $admin = User::withoutEvents(function () use ($adminRole) {

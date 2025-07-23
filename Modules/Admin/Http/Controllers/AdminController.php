@@ -14,11 +14,19 @@ class AdminController extends Controller
          $this->middleware('permission:admin-list|admin-create|admin-edit|admin-delete', ['only' => ['index','show']]);
          $this->middleware('permission:admin-create', ['only' => ['create','store']]);
          $this->middleware('permission:admin-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:admin-delete', ['only' => ['destroy']]);
+         $this->middleware('permission:admin-delete', ['only' => ['destroy']]);    
+         $this->middleware('permission:admin-list', ['only' => ['user']]);
     }
     public function index()
     {
         //return redirect()->route('student');
+        return view('Admin::admin');
+
+    }
+    public function user()
+    {
+        //return redirect()->route('student');
+        dd('user');
         return view('Admin::admin');
 
     }

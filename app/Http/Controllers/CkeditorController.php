@@ -15,7 +15,8 @@ class CkeditorController extends Controller
      */
     public function index(): View
     {
-        return view('livewire.ckeditor');
+        
+        return view('ckeditor');
     }
     
     /**

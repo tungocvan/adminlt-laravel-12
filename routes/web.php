@@ -12,6 +12,7 @@ use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\CkeditorController;
 
+use App\Http\Controllers\GoogleController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -63,3 +64,8 @@ Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']
 
 Route::get('demo-search', [SearchController::class, 'index']);
 Route::get('autocomplete', [SearchController::class, 'autocomplete'])->name('autocomplete');
+
+Route::controller(GoogleController::class)->group(function(){
+    Route::get('auth/google', 'redirectToGoogle')->name('auth.google');
+    Route::get('auth/google/callback', 'handleGoogleCallback');
+});

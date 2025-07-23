@@ -21,6 +21,7 @@
 @section('auth_header', __('adminlte::adminlte.login_message'))
 
 @section('auth_body')
+    
     <form action="{{ $login_url }}" method="post">
         @csrf
 
@@ -78,12 +79,20 @@
                     {{ __('adminlte::adminlte.sign_in') }}
                 </button>
             </div>
+            <div class="row mb-0">
+                <div class="col-md-8 offset-md-4">
+                    <br/>
+                    <a href="{{ route('auth.google') }}">
+                        <img src="https://developers.google.com/identity/images/btn_google_signin_dark_normal_web.png">
+                    </a>
+                </div>
+            </div>
         </div>
 
     </form>
 @stop
 
-@section('auth_footer')
+@section('auth_footer') 
     {{-- Password reset link --}}
     @if($password_reset_url)
         <p class="my-0">

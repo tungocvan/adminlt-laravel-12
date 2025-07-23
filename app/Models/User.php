@@ -26,7 +26,8 @@ class User extends Authenticatable
         'username',
         'password',
         'is_admin',
-        'birthdate'
+        'birthdate',
+        'google_id'
     ];
 
     /**
@@ -58,6 +59,4 @@ class User extends Authenticatable
                 ->queue(new WelcomeUserMail($user)); // Gửi vào hàng đợi
         });
     }
-
- 
 }

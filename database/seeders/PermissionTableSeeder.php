@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\File;
 
 class PermissionTableSeeder extends Seeder
 {
@@ -13,31 +13,30 @@ class PermissionTableSeeder extends Seeder
      */
     public function run(): void
     {
-        if (Permission::count() == 0) {
-            $permissions = [
-            'role-list',
-            'role-create',
-            'role-edit',
-            'role-delete',
-            'admin-list',
-            'admin-create',
-            'admin-edit',
-            'admin-delete',
-            'user-list',
-            'user-create',
-            'user-edit',
-            'user-delete',
-            'settings-list',
-            'settings-create',
-            'settings-edit',
-            'settings-delete'
-            ];
+        $modulesPath = base_path('Modules');
 
-            foreach ($permissions as $permission) {
-                Permission::create(['name' => $permission]);
-            }
-        }else {
-            echo "Table already has data, skipping seeding.\n";
+        if (!File::exists($modulesPath)) {
+            $this->command->error("Modules folder not found.");
+            return;
         }
+
+        $defaultPermissions = ['list', 'create', 'edit', 'delete'];
+
+        $modules = collect(File::directories($modulesPath))
+            ->map(fn($path) => strtolower(basename($path)))
+            ->unique()
+            ->values();
+        // Nếu chưa có 'role', thêm vào danh sách
+        if (!$modules->contains('role')) {
+            $modules->push('role');
+        }
+        foreach ($modules as $module) {
+            foreach ($defaultPermissions as $perm) {
+                $permissionName = "{$module}-{$perm}";
+                Permission::firstOrCreate(['name' => $permissionName]);
+            }
+        }
+
+        $this->command->info("Permissions generated for modules: " . $modules->implode(', '));
     }
 }

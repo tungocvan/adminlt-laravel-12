@@ -16,7 +16,7 @@ class SearchController extends Controller
      */
     public function index(): View
     {
-        return view('livewire.user-search');
+        return view('search');
     }
       
     /**
@@ -26,11 +26,19 @@ class SearchController extends Controller
      */
     public function autocomplete(Request $request): JsonResponse
     {
-        $data = User::select("name as value", "id")
+        $users = User::select("name", "id","email")
                     ->where('name', 'LIKE', '%'. $request->get('search'). '%')
                     ->take(10)
                     ->get();
-      
+        $data = $users->map(function ($user) {
+            $html = $user->name . '<strong>(' . $user->email . ')'.'</strong>';// trả kết quả danh sách tìm được
+            return [
+                'label' => $html,
+                'value' => $user->name,
+                'email' => $user->email,
+                'id' => $user->id,
+            ];
+        });
         return response()->json($data);
     }
 }

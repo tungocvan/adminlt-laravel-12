@@ -39,7 +39,7 @@
         "text": "Manage Role",
         "url": "admin\/roles",
         "icon": "fas fa-fw fa-user-shield",
-        "can": "role-list"
+        "can": "admin-list"
     },
     {
         "header": "MANAGER SETTINGS"
@@ -137,8 +137,26 @@
                 "can": "admin-list"
             },
             {
+                "text": "Upload Image Resize",
+                "url": "upload\/image-upload-resize",
+                "icon": "far fa-caret-square-right",
+                "can": "admin-list"
+            },
+            {
                 "text": "Tables Manager",
                 "url": "settings\/components\/tables",
+                "icon": "far fa-caret-square-right",
+                "can": "admin-list"
+            },
+            {
+                "text": "Demo User Search",
+                "url": "\/demo-search",
+                "icon": "far fa-caret-square-right",
+                "can": "admin-list"
+            },
+            {
+                "text": "Demo CKEditor",
+                "url": "\/ckeditor",
                 "icon": "far fa-caret-square-right",
                 "can": "admin-list"
             }
