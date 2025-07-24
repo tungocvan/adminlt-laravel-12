@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-12">
@@ -14,12 +15,7 @@
                 <div class="card-header"><i class="fa fa-list"></i> {{ __('Posts List') }}</div>
 
                 <div class="card-body">
-                    @session('success')
-                        <div class="alert alert-success" role="alert"> 
-                            {{ $value }}
-                        </div>
-                    @endsession
-
+                    @include('layouts.flash-messages')
                     
                     <div id="notification">
                         

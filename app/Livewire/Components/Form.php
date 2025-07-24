@@ -6,7 +6,7 @@ use Livewire\Component;
 class Form extends Component
 {
     public $category='Sports';
-    public $showModal = false;
+    public $showModal = false; 
     public $content = '';
     public $email = '';
     public $password = '';

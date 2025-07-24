@@ -46,6 +46,10 @@ git remote add origin git@github.com:tungocvan/laravel-12.git
 // đẩy lên kho git
 git push -u origin main
 
+// cách hủy các lệnh commit
+git reset --soft HEAD~5 // thay the so 5
+
+
 Hướng dãn cài đặt hàng đợi laravel queues
 - trên ubuntu cài đặt pm2:
 npm install -g pm2
