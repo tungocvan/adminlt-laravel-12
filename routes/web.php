@@ -70,4 +70,5 @@ Route::controller(GoogleController::class)->group(function(){
     Route::get('auth/google/callback', 'handleGoogleCallback');
 });
 
+
 Route::post('/submit-form', [App\Http\Controllers\FormController::class, 'store'])->name('form.store');
