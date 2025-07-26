@@ -3,7 +3,7 @@
 $filePath = config_path('menu.json');
 $menuArray = loadMenuFromJson($filePath);
 
-$menuNavbar = [
+$menuNavbar = [    
     [
         'type' => 'navbar-search',
         'text' => 'search',
@@ -46,6 +46,7 @@ $menuNavbar = [
         'icon_color' => 'primary',
         'can' => 'user-list',
     ],  
+    
 ];
 
 $menuSidebar = [
@@ -56,8 +57,9 @@ $menuSidebar = [
     ...$menuArray,
 ];
 
-$menu = [
-    // Navbar items:
+$menu = [    
+    // Navbar items:    
+    
      ...$menuNavbar,
     // Sidebar items:
     ...$menuSidebar
@@ -80,8 +82,8 @@ return [
 
     'title' => 'Quản trị hệ thống',
     'title_prefix' => '',
-    'title_postfix' => '',
-
+    'title_postfix' => '',    
+    'custom_menu' => true,
     /*
     |--------------------------------------------------------------------------
     | Favicon

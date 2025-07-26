@@ -61,6 +61,10 @@ class SettingsController extends Controller
     {
         return view('Settings::posts');       
     }
+    public function vnAddress()
+    {
+        return view('Settings::vn-address');       
+    }
 
 }
  

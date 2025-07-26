@@ -135,3 +135,9 @@ if (! function_exists('convertMdyToYmd')) {
     }
 }
 
+if (! function_exists('lang_label')) {
+    function lang_label()
+    {
+        return app()->getLocale() == 'vi' ? '🇻🇳 VI' : '🇺🇸 EN';
+    }
+}

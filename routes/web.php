@@ -11,7 +11,7 @@ use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\CkeditorController;
-
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\GoogleController;
 
 // Route::get('/', function () {
@@ -28,6 +28,15 @@ Route::post('roles/permission',[RoleController::class,'storePermission'])->name(
 Route::group(['middleware' => ['auth']], function() {
     Route::resource('admin/roles', RoleController::class);
     Route::resource('admin/users', UserController::class);
+    Route::get('lang/{lang}', function ($lang) {
+        if (!in_array($lang, ['en', 'vi'])) {
+            abort(400);
+        }
+        session()->put('locale', $lang);
+        app()->setLocale($lang);
+        return redirect()->back();
+    })->name('change.lang');
+
 });
 
 
@@ -41,6 +50,7 @@ Route::middleware(['auth'])->prefix('/admin')->name('admin.')->group(function(){
 
 Route::get('user-notify', [NotificationsController::class, 'index']);
 Route::get('notifications/get',[NotificationsController::class, 'getNotificationsData'])->name('notifications.get');
+Route::get('language/get',[NotificationsController::class, 'getLanguage'])->name('language.get');
 Route::get('navbar/search',[SearchController::class,'showNavbarSearchResults']);
 Route::post('navbar/search',[SearchController::class,'showNavbarSearchResults']);
 

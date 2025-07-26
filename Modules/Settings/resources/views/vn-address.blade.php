@@ -1,20 +1,19 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'TABLES MANAGER')
 
 @section('content_header')
-<h1>{{ __('messages.dashboard') }}</h1>
-<h3>{{ __('messages.language') }}</h3>
+    <h1>Địa chỉ các tỉnh thành</h1>
 @stop
 
 @section('content')
-    {{-- @livewire('vn-address')    --}}
+    @livewire('vn-address')  
 @stop
 
 @section('css')
     {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
-
+    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bs-stepper/dist/css/bs-stepper.min.css"> --}}
+    
 @stop
 
 @section('js')

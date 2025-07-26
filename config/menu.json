@@ -159,6 +159,12 @@
                 "url": "\/ckeditor",
                 "icon": "far fa-caret-square-right",
                 "can": "admin-list"
+            },
+            {
+                "text": "VN Address",
+                "url": "\/settings\/components\/vnAddress",
+                "icon": "far fa-caret-square-right",
+                "can": "admin-list"
             }
         ]
     }

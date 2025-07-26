@@ -16,4 +16,5 @@ return [
     'Important' => 'Quan trọng',
     'Warning' => 'Cảnh báo',
     'Information' => 'Thông tin',
+    'Language' => 'Ngôn Ngữ',
 ];

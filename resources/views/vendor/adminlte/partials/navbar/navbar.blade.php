@@ -35,6 +35,11 @@
         @if(config('adminlte.right_sidebar'))
             @include('adminlte::partials.navbar.menu-item-right-sidebar-toggler')
         @endif
+                {{-- Custom topnav menu items (your custom dropdown like language switcher) --}}
+                @if(config('adminlte.custom_menu', false))
+                @includeIf('adminlte::partials.navbar.custom')
+            @endif
+    
     </ul>
 
 </nav>

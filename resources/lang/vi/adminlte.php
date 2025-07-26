@@ -19,4 +19,5 @@ return [
     'password_reset_message' => 'Đặt lại mật khẩu',
     'reset_password' => 'Đặt lại mật khẩu',
     'send_password_reset_link' => 'Gửi liên kết đặt lại mật khẩu',
+    'Language' => 'Ngôn Ngữ',
 ];
