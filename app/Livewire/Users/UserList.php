@@ -139,7 +139,8 @@ class UserList extends Component
             $this->username = $user->username;
             $this->isEdit = true;
             $this->showModal = true;
-            $this->role = $user->getRoleNames()[0];
+            //dd($user->getRoleNames()[0]);
+            $this->role = $user->getRoleNames()[0] ?? 'User';
         } else {
             session()->flash('error', 'User not found!');
         }
@@ -160,8 +161,9 @@ class UserList extends Component
         }
 
         $user = User::find($this->userId);
-        $roleId = Role::where('name',$this->role)->get()[0]->id ;          
-        $user->removeRole($user->getRoleNames()[0]);             
+        $roleId = Role::where('name',$this->role)->get()[0]->id ;  
+        if(isset($user->getRoleNames()[0]))  $user->removeRole($user->getRoleNames()[0]);    
+                    
         $user->update($validated);           
         $user->assignRole([$roleId]);
         $this->reset(['name', 'email', 'password', 'userId', 'isEdit','role']);

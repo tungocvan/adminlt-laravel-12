@@ -10,6 +10,8 @@ use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeUserMail;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -58,5 +60,13 @@ class User extends Authenticatable
             Mail::to($user->email)
                 ->queue(new WelcomeUserMail($user)); // Gửi vào hàng đợi
         });
+    }
+    public function phone(): HasOne
+    {
+        return $this->hasOne(Phone::class);
+    }
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'role_user');
     }
 }

@@ -4,6 +4,8 @@ namespace Modules\Posts\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\Phone;
+use App\Models\User;
 use App\Notifications\PostApproved;
 use Illuminate\Http\RedirectResponse;
 // use App\Events\PostCreate;
@@ -22,8 +24,8 @@ class PostsController extends Controller
     }
     public function index(Request $request)
     {
-        //$posts = Post::get();
-        $posts = Post::paginate(3);
+        
+        $posts = Post::paginate(3);        
         return view('Posts::posts',compact('posts'));
     }
 
