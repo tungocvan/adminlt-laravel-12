@@ -9,10 +9,16 @@
         "@popperjs/core": "^2.11.6",
         "axios": "^1.6.4",
         "bootstrap": "^5.2.3",
-        "laravel-echo": "^2.1.6",
+        "laravel-echo": "^2.1.7",
+        "laravel-echo-server": "^1.6.3",
         "laravel-vite-plugin": "^1.0",
         "pusher-js": "^8.4.0",
         "sass": "^1.56.1",
         "vite": "^5.0"
+    },
+    "dependencies": {
+        "ioredis": "^5.7.0",
+        "socket.io": "^4.8.1",
+        "socket.io-client": "^4.8.1"
     }
 }

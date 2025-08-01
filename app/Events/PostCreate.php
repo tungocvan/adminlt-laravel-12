@@ -32,7 +32,7 @@ class PostCreate implements ShouldBroadcastNow
     {
         //return new Channel('posts');
         return [
-            new PrivateChannel('posts'),
+            new Channel('posts'),
         ];
     }
     public function broadcastAs()

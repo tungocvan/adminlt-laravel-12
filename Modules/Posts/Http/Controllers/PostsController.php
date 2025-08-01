@@ -8,6 +8,7 @@ use App\Models\Phone;
 use App\Models\User;
 use App\Notifications\PostApproved;
 use Illuminate\Http\RedirectResponse;
+use App\Events\PostCreate;
 // use App\Events\PostCreate;
 
 class PostsController extends Controller
@@ -52,7 +53,7 @@ class PostsController extends Controller
            'title' => $request->title,
            'body' => $request->body
        ]);
-       
+       event(new PostCreate($post));
        // event(new PostCreate($post));
        //PostCreate::dispatch($post);
        return back()->with('success','Post created successfully.');
@@ -70,7 +71,7 @@ class PostsController extends Controller
             'body' => $request->body,
             'user_id' => auth()->id(),
         ]);
-   
+        
         return back()
                 ->with('success','Post created successfully.');
     }
