@@ -86,3 +86,6 @@ php artisan tinker
 > Mail::raw('Test Gmail', function ($m) {$m->to('tungocvan@gmail.com')->subject('Test từ Laravel');});
 
 phan-quyen.sh config
+
+cách tại 20 user
+php artisan db:seed:users 20
