@@ -125,6 +125,18 @@
 
 </script>
 @endif
-
+<script>
+    document.addEventListener('DOMContentLoaded', function () {   
+           
+        window.Echo.channel('chat')
+            .listen('MessageSent', (e) => {
+                console.log('Tin nhắn nhận được:', e.message);
+            })
+            .error((error) => {
+                console.error('❌ Lỗi WebSocket:', error);
+            });
+            console.log('✅ Echo đã được khởi tạo');
+    });
+</script>
 @stop
 

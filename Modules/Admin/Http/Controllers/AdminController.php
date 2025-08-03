@@ -3,6 +3,7 @@
 namespace Modules\Admin\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Events\MessageSent;
 
 class AdminController extends Controller
 {
@@ -20,6 +21,7 @@ class AdminController extends Controller
     public function index()
     {
         //return redirect()->route('student');
+        event(new MessageSent("Hello from Laravel!"));
         return view('Admin::admin');
 
     }

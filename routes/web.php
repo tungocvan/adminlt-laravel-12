@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\CkeditorController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\GoogleController;
-
+use App\Events\MessageSent;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
@@ -82,3 +82,8 @@ Route::controller(GoogleController::class)->group(function(){
 
 
 Route::post('/submit-form', [App\Http\Controllers\FormController::class, 'store'])->name('form.store');
+
+Route::get('/test-broadcast', function () {
+    broadcast(new MessageSent('Tin nhắn test từ route'));
+    return 'Gửi xong!';
+});

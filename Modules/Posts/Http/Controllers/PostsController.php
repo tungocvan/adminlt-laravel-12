@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Notifications\PostApproved;
 use Illuminate\Http\RedirectResponse;
 use App\Events\PostCreate;
+use App\Events\MessageSent;
+
 // use App\Events\PostCreate;
 
 class PostsController extends Controller
@@ -25,7 +27,7 @@ class PostsController extends Controller
     }
     public function index(Request $request)
     {
-        
+        event(new MessageSent('Tin nhắn test từ post'));
         $posts = Post::paginate(3);        
         return view('Posts::posts',compact('posts'));
     }
@@ -53,9 +55,10 @@ class PostsController extends Controller
            'title' => $request->title,
            'body' => $request->body
        ]);
-       event(new PostCreate($post));
+       //event(new PostCreate($post));
        // event(new PostCreate($post));
        //PostCreate::dispatch($post);
+       event(new MessageSent('Tin nhắn test từ post'));
        return back()->with('success','Post created successfully.');
     }
 
