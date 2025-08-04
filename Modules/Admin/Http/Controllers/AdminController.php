@@ -21,7 +21,7 @@ class AdminController extends Controller
     public function index()
     {
         //return redirect()->route('student');
-        event(new MessageSent("Hello from Laravel!"));
+        //event(new MessageSent("Hello from Laravel!"));
         return view('Admin::admin');
 
     }

@@ -108,7 +108,7 @@
 
 @stop
 
-@section('js')
+{{-- @section('js')
 @if(auth()->user()->is_admin)
 <script type="module">
 
@@ -138,5 +138,5 @@
             console.log('✅ Echo đã được khởi tạo');
     });
 </script>
-@stop
+@stop --}}
 

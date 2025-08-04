@@ -4,9 +4,12 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow; // ✅ Gửi ngay lập tức
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
 class MessageSent implements ShouldBroadcastNow
 {
@@ -20,14 +23,17 @@ class MessageSent implements ShouldBroadcastNow
         $this->message = $message;
     }
 
-    public function broadcastOn(): Channel
+    public function broadcastOn(): array
     {
-
-        return new Channel('chat');
+        //return new Channel('posts');
+        
+        return [
+            new Channel('chat'),
+        ];
     }
 
     public function broadcastAs()
-    {
+    {   
         
         return 'MessageSent';
     }
