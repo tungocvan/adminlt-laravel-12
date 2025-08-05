@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use App\Events\UserCreate;
+//use App\Events\UserRegistered;
 
 class UserList extends Component
 {
@@ -148,6 +149,7 @@ class UserList extends Component
 
     public function update()
     {
+        
         $validated = $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $this->userId,
@@ -166,6 +168,7 @@ class UserList extends Component
                     
         $user->update($validated);           
         $user->assignRole([$roleId]);
+        //event(new UserRegistered($user));
         $this->reset(['name', 'email', 'password', 'userId', 'isEdit','role']);
         $this->showModal = false;
         session()->flash('message', 'User updated successfully!');

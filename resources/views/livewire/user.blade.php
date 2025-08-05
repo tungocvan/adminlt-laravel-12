@@ -36,6 +36,7 @@ new class extends Component {
 
     public function save()
     {
+        
         $validated = $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
@@ -74,6 +75,7 @@ new class extends Component {
 
     public function update()
     {
+        
         $validated = $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $this->userId,

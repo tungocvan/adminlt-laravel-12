@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+
 use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
@@ -53,6 +54,8 @@ class UserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+    
+    //    event(new UserRegistered($user));
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
@@ -68,7 +71,7 @@ class UserController extends Controller
 
         $user = User::create($input);
         $user->assignRole($request->input('roles'));
-    
+       
         return redirect()->route('users.index')
                         ->with('success','User created successfully');
     }
@@ -109,6 +112,7 @@ class UserController extends Controller
      */
     public function update(Request $request, $id): RedirectResponse
     {
+        
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
@@ -127,8 +131,8 @@ class UserController extends Controller
         $user->update($input);
         DB::table('model_has_roles')->where('model_id',$id)->delete();
     
-        $user->assignRole($request->input('roles'));
-    
+        $user->assignRole($request->input('roles'));     
+     
         return redirect()->route('users.index')
                         ->with('success','User updated successfully');
     }

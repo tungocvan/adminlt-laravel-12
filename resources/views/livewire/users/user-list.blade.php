@@ -218,7 +218,7 @@
     </script>
 @endif --}}
 
-<script type="module">   
+{{-- <script type="module">   
 
     if(window.Echo) {
         console.log('echo js');
@@ -229,6 +229,17 @@
             d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
         });
     }
-</script>
+</script> --}}
+
+{{-- <script type="module">   
+
+    if(window.Echo) {
+        console.log('echo Registered users js');
+        window.Echo.channel('users')
+        .listen('.UserRegistered', (e) => {
+            console.log('Người dùng mới đăng ký:', e);
+        });
+    }
+</script> --}}
 
 </div>
