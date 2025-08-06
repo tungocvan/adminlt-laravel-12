@@ -231,7 +231,7 @@
     }
 </script> --}}
 
-{{-- <script type="module">   
+<script type="module">   
 
     if(window.Echo) {
         console.log('echo Registered users js');
@@ -240,6 +240,6 @@
             console.log('Người dùng mới đăng ký:', e);
         });
     }
-</script> --}}
+</script>
 
 </div>

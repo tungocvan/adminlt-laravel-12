@@ -1,7 +1,13 @@
 {
 	"authHost": "https://adminlt.laravel.tk",
 	"authEndpoint": "/broadcasting/auth",
-	"clients": [],
+	"clients": [
+		{
+			"appId": "347845",
+			"key": "kji6al41jtiilhxgzueh",
+			"secret": "some-secret"
+		  }
+	],
 	"database": "redis",
 	"databaseConfig": {
 		"redis": {},
@@ -10,7 +16,7 @@
 		}
 	},
 	"devMode": false,
-	"host": "0.0.0.0", 
+	"host": "adminlt.laravel.tk", 
 	"port": 6001,
 	"protocol": "https",
 	"socketio": {},
@@ -25,7 +31,7 @@
 	},
 	"apiOriginAllow": {
 		"allowCors": true,
-		"allowOrigin": "https://adminlt.laravel.tk",
+		"allowOrigin": "*",
 		"allowMethods": "GET, POST",
 		"allowHeaders": "Origin, Content-Type, X-Auth-Token, Authorization, X-Requested-With"
 	}

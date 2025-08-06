@@ -4,13 +4,14 @@ namespace App\Events;
 
 use App\Models\User;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
-class UserRegistered implements ShouldBroadcast
+class UserRegistered implements ShouldBroadcastNow
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $user;
 
@@ -22,29 +23,14 @@ class UserRegistered implements ShouldBroadcast
         $this->user = $user;
     }
 
-    /**
-     * Tên channel để broadcast (kênh công khai).
-     */
     public function broadcastOn(): array
     {
         return [new Channel('users')];
     }
 
-    /**
-     * Dữ liệu gửi đi cho frontend khi broadcast.
-     */
-    public function broadcastWith(): array
-    {
-        return [
-            'id' => 'oki',          
-        ];
-    }
-
-    /**
-     * Tên của event gửi đi (mặc định là tên class).
-     */
     public function broadcastAs(): string
     {
         return 'UserRegistered';
     }
+
 }

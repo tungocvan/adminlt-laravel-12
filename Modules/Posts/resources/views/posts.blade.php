@@ -107,36 +107,37 @@
     {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
 
 @stop
-
 {{-- @section('js')
-@if(auth()->user()->is_admin)
-<script type="module">
+<script>    
+   document.addEventListener("DOMContentLoaded", function () {
+    console.log('✅ DOM loaded');
 
-        window.Echo.connector.socket.on('connect', () => {
-            console.log('Successfully connected to Socket.IO server');
-        });
+    const socket = window.Echo.connector.socket;
 
-        window.Echo.channel('posts')
-            .listen('.create', (data) => {
-                console.log('Order status updated: ', data);
-                var d1 = document.getElementById('notification');
-                d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
-            });
+    if (socket && socket.connected) {
+        console.log('✅ Socket.IO đã kết nối sẵn');
+    }
 
-</script>
-@endif
-<script>
-    document.addEventListener('DOMContentLoaded', function () {   
-           
-        window.Echo.channel('chat')
-            .listen('MessageSent', (e) => {
-                console.log('Tin nhắn nhận được:', e.message);
-            })
-            .error((error) => {
-                console.error('❌ Lỗi WebSocket:', error);
-            });
-            console.log('✅ Echo đã được khởi tạo');
+    // Lắng nghe sự kiện kết nối
+    socket.on('connect', () => {
+        console.log('✅ Đã kết nối thành công tới Socket.IO server');
     });
+
+    // Nghe sự kiện trên channel
+    window.Echo.channel('posts')
+        .listen('.create', (data) => {
+            console.log('📨 Nhận sự kiện:', data);
+            const d1 = document.getElementById('notification');
+            d1.insertAdjacentHTML('beforeend', `
+                <div class="alert alert-success alert-dismissible fade show">
+                    <span><i class="fa fa-circle-check"></i> ${data.message}</span>
+                </div>
+            `);
+        });
+});
+
+   
 </script>
 @stop --}}
+
 
