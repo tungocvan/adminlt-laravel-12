@@ -57,6 +57,12 @@ class CategoriesManager extends Component
         $this->selected = $value ? $this->currentPageIds : [];
     }
 
+    public function updatedSearch($value)
+    {
+        //dd($value);
+        $this->search = $value;
+    }
+
     public function updatedSelected()
     {
         $this->selectAll = count(array_intersect($this->selected, $this->currentPageIds)) === count($this->currentPageIds);

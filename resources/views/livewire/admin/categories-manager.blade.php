@@ -3,7 +3,7 @@
         <h3 class="card-title">Product Categories</h3>
 
         <div class="d-flex">
-            <input wire:model.debounce.500ms="search" type="text" class="form-control mr-2" placeholder="Tìm kiếm danh mục...">
+            <input wire:model.live.debounce.500ms="search" type="text" class="form-control mr-2" placeholder="Tìm kiếm danh mục...">
 
             <select wire:model="bulkAction" class="form-control mr-2">
                 <option value="">Hành động hàng loạt</option>
