@@ -44,7 +44,7 @@
     }
  
     </style>
-     {{-- @livewireStyles --}}
+     @livewireStyles
 </head>
 <body>
     <div id="app">
@@ -127,6 +127,6 @@
     </div>
     {{-- <script src="//unpkg.com/alpinejs" defer></script> --}}
     @yield('js')
-    {{-- @livewireScripts --}}
+    @livewireScripts
 </body>
 </html>

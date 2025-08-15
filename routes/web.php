@@ -14,9 +14,12 @@ use App\Http\Controllers\CkeditorController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\GoogleController;
 use App\Events\MessageSent;
+use App\Livewire\SearchStudent;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+
+Route::get('search-student', SearchStudent::class)->name('search.student');
 
 Route::get('/', [HomeController::class, 'index']);
 
