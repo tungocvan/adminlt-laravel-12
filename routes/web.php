@@ -14,15 +14,17 @@ use App\Http\Controllers\CkeditorController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\GoogleController;
 use App\Events\MessageSent;
-use App\Livewire\SearchStudent;
+use App\Http\Controllers\StudentController;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
 
-Route::get('search-student', SearchStudent::class)->name('search.student');
-
 Route::get('/', [HomeController::class, 'index']);
-
+Route::get('/students/search', [StudentController::class, 'index'])->name('students.index');
+Route::post('/students/search', [StudentController::class, 'search'])->name('students.search');
+Route::get('/tra-cuu-ho-so', function(){
+    return view('students.lookup');
+})->name('students.lookup');
 Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
