@@ -27,7 +27,7 @@
     <form wire:submit.prevent="search" class="w-full max-w-md bg-white bg-opacity-90 rounded-xl shadow p-4 flex flex-col sm:flex-row gap-3">
         <input
             wire:model.defer="keyword"
-            type="text"
+            type="number"
             placeholder="Nhập mã định danh"
             class="flex-1 rounded-lg border-gray-300 focus:ring-0 focus:border-sky-500 text-center text-lg font-semibold">
         <button type="submit"
@@ -36,12 +36,12 @@
         </button>
     </form>
     @error('keyword')
-        <p class="text-yellow-200 mt-2">{{ $message }}</p>
+        <p class="text-red-600 mt-2">{{ $message }}</p>
     @enderror
 
     {{-- Kết quả --}}
     <div class="w-full max-w-4xl mt-8">
-        @if($searched)
+        @if($searched &&  !$errors->has('keyword'))
             @if($student)
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm text-center border border-white">

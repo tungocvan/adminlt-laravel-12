@@ -16,7 +16,16 @@ class StudentLookup extends Component
     public bool $searched = false;
 
     protected $rules = [
-        'keyword' => 'required|string|min:4',
+        'keyword' => 'required|digits:12',
+    ];
+
+    protected $messages = [
+        'keyword.required' => 'Vui lòng nhập mã định danh học sinh',
+        'keyword.digits'   => 'Mã định danh phải gồm đúng 12 chữ số',
+    ];
+    
+    protected $validationAttributes = [
+        'keyword' => 'mã định danh',
     ];
 
     public function search()
