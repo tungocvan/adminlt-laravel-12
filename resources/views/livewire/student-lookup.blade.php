@@ -1,13 +1,27 @@
-<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-sky-400 to-sky-600 p-6">
+<div class="min-h-screen flex flex-col items-center bg-gradient-to-b from-sky-400 to-sky-600 p-6">
     {{-- Header --}}
-    <div class="text-center mb-6">
-        <img width="100" src="{{ asset('storage/logo.png') }}" alt="Logo" class="h-20 mx-auto mb-2">
-        <h2 class="text-white font-semibold">ỦY BAN NHÂN DÂN PHƯỜNG TÂN THUẬN</h2>
-        <h3 class="text-white font-semibold mb-4">TRƯỜNG TIỂU HỌC NGUYỄN THỊ ĐỊNH</h3>
-        <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">TRA CỨU HỌC SINH LỚP 1</h1>
-        <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">NĂM HỌC 2025 - 2026</h1>
-        <p class="text-white">PHỤ HUYNH VUI LÒNG NHẬP MÃ ĐỊNH DANH HỌC SINH</p>
+    <div class="flex flex-col md:flex-row items-center justify-center gap-6 mb-6 text-white">
+        <!-- Logo -->
+        <div class="flex-shrink-0">
+            <img width="90" src="{{ asset('storage/logo.png') }}" alt="Logo" class="mx-auto md:mx-0">
+        </div>
+    
+        <!-- Nội dung chữ -->
+        <div class="text-center md:text-left">
+            <h2 class="font-semibold">ỦY BAN NHÂN DÂN PHƯỜNG TÂN THUẬN</h2>
+            <h3 class="font-semibold mb-4">TRƯỜNG TIỂU HỌC NGUYỄN THỊ ĐỊNH</h3>         
+        </div>
     </div>
+    <div class="flex flex-col md:flex-row items-center justify-center gap-6 mb-6 text-white">     
+        <!-- Nội dung chữ -->
+        <div class="text-center md:text-center">
+            <h1 class="text-2xl sm:text-3xl font-bold mb-2">TRA CỨU HỌC SINH LỚP 1</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold mb-2">NĂM HỌC 2025 - 2026</h1>
+        <p class="mt-2">PHỤ HUYNH VUI LÒNG NHẬP MÃ ĐỊNH DANH HỌC SINH</p>       
+        </div>
+    </div>
+    
+    
 
     {{-- Form Tra cứu --}}
     <form wire:submit.prevent="search" class="w-full max-w-md bg-white bg-opacity-90 rounded-xl shadow p-4 flex flex-col sm:flex-row gap-3">
@@ -48,6 +62,11 @@
                             </tr>
                         </tbody>
                     </table>
+
+                </div>
+                <div class="mt-4 bg-white bg-opacity-90 rounded-lg p-4 text-center">
+                    <p class="font-medium text-blue-600">GVCN: {{ $student['gvcn'] ?? '' }}</p>
+                    <p class="font-medium text-blue-600">Bảo Mẫu: {{ $student['bao_mau'] ?? '' }}</p>
                 </div>
             @else
                 <div class="mt-4 bg-white bg-opacity-90 rounded-lg p-4 text-center">

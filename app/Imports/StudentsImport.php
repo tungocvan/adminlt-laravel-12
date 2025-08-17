@@ -25,6 +25,8 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 'ngay_sinh'    => $this->formatDate($row['ngay_sinh'] ?? null),
                 'lop'          => trim((string)($row['lop'] ?? '')),
                 'gioi_tinh'    => trim((string)($row['gioi_tinh'] ?? '')),
+                'gvcn'    => trim((string)($row['gvcn'] ?? '')),
+                'bao_mau'    => trim((string)($row['bao_mau'] ?? '')),
             ]);
         }
     }
