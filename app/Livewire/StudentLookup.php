@@ -3,7 +3,10 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel; 
+use Maatwebsite\Excel\Excel as ExcelType;
 use App\Imports\StudentsImport;
 
 class StudentLookup extends Component
@@ -30,8 +33,10 @@ class StudentLookup extends Component
             $this->addError('keyword', 'Không tìm thấy file dữ liệu: dsk1.xlsx trong storage/app/public');
             return;
         }
-
+ 
         Excel::import($import, $filePath);
+
+
 
         // So khớp theo mã định danh (cột F / alias: ma_dinh_danh_hoc_sinh)
         $needle = $this->normalize($this->keyword);

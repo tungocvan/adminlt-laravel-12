@@ -57,7 +57,7 @@
                             <tr>
                                 <td class="border px-4 py-2">{{ $student['lop'] ?? '' }}</td>
                                 <td class="border px-4 py-2">{{ $student['ho_ten'] ?? '' }}</td>
-                                <td class="border px-4 py-2">{{ $student['ngay_sinh'] ?? '' }}</td>
+                                <td class="border px-4 py-2">{{ \Carbon\Carbon::parse($student['ngay_sinh'])->format('d/m/Y') ?? '' }}</td>
                                 <td class="border px-4 py-2">{{ $student['gioi_tinh'] ?? '' }}</td>
                             </tr>
                         </tbody>
