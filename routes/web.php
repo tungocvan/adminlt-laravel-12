@@ -22,9 +22,11 @@ use App\Http\Controllers\StudentController;
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/students/search', [StudentController::class, 'index'])->name('students.index');
 Route::post('/students/search', [StudentController::class, 'search'])->name('students.search');
+
 Route::get('/tra-cuu-ho-so', function(){
     return view('students.lookup');
 })->name('students.lookup');
+
 Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
