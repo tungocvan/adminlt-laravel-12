@@ -15,9 +15,25 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\GoogleController;
 use App\Events\MessageSent;
 use App\Http\Controllers\StudentController;
+use Illuminate\Support\Facades\Http;
+
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+Route::get('/send-message', function () {
+    // Gửi event sang Socket.IO
+    $data = ['user' => 'Laravel', 'message' => 'Xin chào từ Laravel 🚀'];
+
+    // Dùng socket.io-client phát sự kiện
+    // -> nhưng tốt nhất dùng package pusher-like cho Laravel
+    //Log::info("Test gửi tin nhắn:", $data);
+
+    return response()->json($data);
+});
+
+Route::get('/chat', function () {
+    return view('chat');
+});
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/students/search', [StudentController::class, 'index'])->name('students.index');

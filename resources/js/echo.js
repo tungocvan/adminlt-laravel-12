@@ -1,13 +1,29 @@
-import Echo from 'laravel-echo';
-import { io } from 'socket.io-client';
+import Echo from "laravel-echo";
+import { io } from "socket.io-client";
 
-window.io = io;
-
-window.Echo = new Echo({
-    broadcaster: 'socket.io',
-    host: 'https://adminlt.laravel.tk:6001',
-    path: '/socket.io',
-    transports: ['websocket'],
-    forceTLS: true,
+// Khởi tạo trực tiếp client
+const socket = io("https://node.laravel.tk", {
+    transports: ["websocket", "polling"],
+    withCredentials: false,
 });
 
+window.io = io;
+// Tạo socket client toàn cục
+window.socket = io("https://node.laravel.tk", {
+    transports: ["websocket", "polling"],
+});
+
+// Nếu muốn dùng Laravel Echo:
+window.Echo = new Echo({
+    broadcaster: "socket.io",
+    client: io,
+    host: "https://node.laravel.tk",
+});
+
+socket.on("connect", () => {
+    console.log("✅ Socket.IO connected:", socket.id);
+});
+
+socket.on("disconnect", () => {
+    console.log("❌ Socket.IO disconnected");
+});
