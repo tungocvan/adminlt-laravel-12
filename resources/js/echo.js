@@ -21,9 +21,12 @@ window.Echo = new Echo({
 });
 
 socket.on("connect", () => {
-    console.log("✅ Socket.IO connected:", socket.id);
+    console.log("✅ Socket.IO connected (echo.js):", socket.id);
 });
 
 socket.on("disconnect", () => {
-    console.log("❌ Socket.IO disconnected");
+    console.log("❌ Socket.IO disconnected (echo.js)");
 });
+
+
+// xem log nodejs: pm2 monit 

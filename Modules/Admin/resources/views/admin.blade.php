@@ -9,6 +9,10 @@
 
 @section('content')
     {{-- @livewire('vn-address')    --}}
+    @if(Auth::check())    
+        @include('components.chat-private')
+        @include('components.chat-public')
+    @endif
 @stop
 
 @section('css')
@@ -20,6 +24,7 @@
 @section('js')
      {{-- https://www.daterangepicker.com/#examples  --}}
 
-    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
+    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>   
+        
 
 @stop

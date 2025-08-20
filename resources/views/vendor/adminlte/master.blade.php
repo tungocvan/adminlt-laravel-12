@@ -82,6 +82,15 @@
     {{-- Body Content --}}
     @yield('body')
 
+    @if(Auth::check())
+        <script>
+            window.Laravel = {!! json_encode([
+                'csrfToken' => csrf_token(),
+                'user' => Auth::user(),
+            ]) !!};
+        </script>        
+    @endif
+
     {{-- Base Scripts --}}
     @if(!config('adminlte.enabled_laravel_mix'))
         <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
@@ -103,7 +112,7 @@
             <livewire:scripts />
         @endif
     @endif
-
+    
     {{-- Custom Scripts --}}
     @yield('adminlte_js')
 

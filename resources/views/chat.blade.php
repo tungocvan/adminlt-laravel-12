@@ -24,7 +24,7 @@
             }
 
             socket.on("connect", () => {
-                console.log("✅ Connected:", socket.id);
+                console.log("✅ Connected (blade):", socket.id);
             });
 
             socket.on("disconnect", () => {
