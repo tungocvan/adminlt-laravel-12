@@ -82,14 +82,7 @@
     {{-- Body Content --}}
     @yield('body')
 
-    @if(Auth::check())
-        <script>
-            window.Laravel = {!! json_encode([
-                'csrfToken' => csrf_token(),
-                'user' => Auth::user(),
-            ]) !!};
-        </script>        
-    @endif
+    
 
     {{-- Base Scripts --}}
     @if(!config('adminlte.enabled_laravel_mix'))

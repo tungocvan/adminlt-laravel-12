@@ -6,10 +6,16 @@
 <h1>{{ __('messages.dashboard') }}</h1>
 <h3>{{ __('messages.language') }}</h3>
 @stop
-
+  
 @section('content')
-    {{-- @livewire('vn-address')    --}}
+    {{-- @livewire('vn-address')    --}}    
     @if(Auth::check())    
+        <script>
+            window.Laravel = {!! json_encode([
+                'csrfToken' => csrf_token(),
+                'user' => Auth::user(),
+            ]) !!};
+        </script>
         @include('components.chat-private')
         @include('components.chat-public')
     @endif
