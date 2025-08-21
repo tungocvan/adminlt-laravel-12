@@ -35,17 +35,18 @@
             document.getElementById("form").addEventListener("submit", (e) => {
                 e.preventDefault();
                 let msg = document.getElementById("message").value;
-                socket.emit("chat message", msg);
+                socket.emit("public-message", msg);
                 document.getElementById("message").value = "";
             });
 
             // Nhận tin nhắn từ server.js
-            socket.on("chat message", (msg) => {
+            socket.on("public-message", (msg) => {
                 let li = document.createElement("li");
                 li.textContent = msg;
                 document.getElementById("messages").appendChild(li);
             });
         });
+        
     </script>
 </body>
 </html>

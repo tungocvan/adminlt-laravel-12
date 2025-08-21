@@ -18,6 +18,9 @@
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
         const userList = document.getElementById("userList");
         const chatWindows = document.getElementById("chatWindows");
     
@@ -49,8 +52,10 @@
     
         // Hàm mở cửa sổ chat riêng
         function openChatWindow(user, incomingMsg = null) {
+            let isNewWindow = false;
             let win = document.getElementById("chat-" + user.id);
             if (!win) {
+                isNewWindow = true;
                 win = document.createElement("div");
                 win.className = "card shadow";
                 win.id = "chat-" + user.id;
@@ -111,7 +116,35 @@
                 li.textContent = incomingMsg;
                 msgList.appendChild(li);
                 msgList.scrollTop = msgList.scrollHeight;
+                // Nếu cửa sổ này mới tạo (chưa được mở trước đó) => báo notification
+                if (isNewWindow) {
+                    showToast(`Tin nhắn từ ${user.name}`, incomingMsg);
+
+                    if (document.hidden) {
+                        showBrowserNotification(user.name, incomingMsg);
+                    }
+                }
             }
         }
     });
+    function showBrowserNotification(user, message) {
+        if (!("Notification" in window)) return;
+
+        if (Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+
+        if (Notification.permission === "granted") {
+            const notification = new Notification("Tin nhắn mới", {
+                body: `${user}: ${message}`,
+                icon: "/images/chat-icon.png", // logo app
+            });
+
+            notification.onclick = function () {
+                window.focus();
+                this.close();
+            };
+        }
+    }
+
 </script>
