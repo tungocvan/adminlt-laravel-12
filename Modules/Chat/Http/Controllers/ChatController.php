@@ -13,7 +13,7 @@ class ChatController extends Controller
      */
     public function __construct()
     {
-         $this->middleware('permission:chat-list|chat-create|chat-edit|chat-delete', ['only' => ['index','show']]);
+         $this->middleware('permission:chat-list|chat-create|chat-edit|chat-delete|admin-list', ['only' => ['index','show']]);
          $this->middleware('permission:chat-create', ['only' => ['create','store']]);
          $this->middleware('permission:chat-edit', ['only' => ['edit','update']]);
          $this->middleware('permission:chat-delete', ['only' => ['destroy']]);
