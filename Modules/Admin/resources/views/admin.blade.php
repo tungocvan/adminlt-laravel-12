@@ -9,7 +9,7 @@
   
 @section('content')
     {{-- @livewire('vn-address')    --}}    
-    @if(Auth::check())    
+    {{-- @if(Auth::check())    
         <script>
             window.Laravel = {!! json_encode([
                 'csrfToken' => csrf_token(),
@@ -18,7 +18,7 @@
         </script>
         @include('components.chat-private')
         @include('components.chat-public')
-    @endif
+    @endif --}}
 @stop
 
 @section('css')

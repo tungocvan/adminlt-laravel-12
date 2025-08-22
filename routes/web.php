@@ -31,10 +31,6 @@ Route::get('/send-message', function () {
     return response()->json($data);
 });
 
-Route::get('/chat', function () {
-    return view('chat');
-});
-
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/students/search', [StudentController::class, 'index'])->name('students.index');
 Route::post('/students/search', [StudentController::class, 'search'])->name('students.search');

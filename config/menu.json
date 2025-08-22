@@ -1,9 +1,15 @@
 [
     {
+        "text": "Chat",
+        "url": "\/chat",
+        "icon": "fab fa-rocketchat",
+        "can": "admin-create"
+    },
+    {
         "header": "MANAGER  WEBSITES"
     },
     {
-        "text": "Manage Posts",
+        "text": "Manage Posts ",
         "url": "\/posts",
         "icon": "fas fa-fw fa-user",
         "can": "admin-create"
