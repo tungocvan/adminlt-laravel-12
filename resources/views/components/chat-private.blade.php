@@ -63,10 +63,16 @@
                 win.style.height = "300px";
     
                 win.innerHTML = `
-                  <div class="card-header bg-primary text-white p-2 d-flex justify-content-between">
-                     <span>${user.name}</span>
-                     <button class="btn-close btn-close-white btn-sm"></button>
+                  <div class="card-header bg-primary text-white">                     
+                     <span class="card-title">${user.name}</span>       
+                     <div class="card-tools">
+                        <button type="button" class="btn-close btn btn-tool card-tools" data-card-widget="remove">
+                               <i class="fas fa-times"></i>
+                        </button>                        
+                     </div>          
+                     
                   </div>
+                  
                   <div class="card-body p-2" style="overflow-y:auto; height:200px;">
                      <ul class="list-unstyled mb-0"></ul>
                   </div>

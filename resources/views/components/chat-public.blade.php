@@ -10,8 +10,10 @@
   <div class="modal-dialog modal-sm modal-dialog-bottom-right">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Chat Realtime</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title">Chat Realtime</h5>        
+        <button type="button" class="btn-close close btn btn-tool card-tools" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+        </button> 
       </div>
       <div class="modal-body" style="max-height: 300px; overflow-y: auto;">
         <ul id="chatMessages" class="list-unstyled mb-0"></ul>
@@ -57,6 +59,7 @@
     // Toggle modal
     chatToggle.addEventListener("click", () => {
         chatModal.show();
+        document.querySelector(".btn-close").onclick = () => chatModal.hide();
     });
 
     // Gửi tin nhắn

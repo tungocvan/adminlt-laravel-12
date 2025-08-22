@@ -1,6 +1,6 @@
 {
-    "name": "Laravel 12 App",
-    "short_name": "LaravelApp",
+    "name": "App",
+    "short_name": "TNV_App",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
