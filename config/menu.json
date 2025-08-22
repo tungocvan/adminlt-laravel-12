@@ -3,7 +3,7 @@
         "text": "Chat",
         "url": "\/chat",
         "icon": "fab fa-rocketchat",
-        "can": "admin-create"
+        "can": "admin-list"
     },
     {
         "header": "MANAGER  WEBSITES"

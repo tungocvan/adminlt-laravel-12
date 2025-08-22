@@ -182,33 +182,41 @@ document.addEventListener("DOMContentLoaded", () => {
     // lưu DB qua API
 
     chatForm.onsubmit = async (e) => {
-    e.preventDefault(); // ngăn reload form
+      e.preventDefault();
 
-    const msg = chatInput.value.trim();
-    if (!msg || !currentChatUser) return;
+      const msg = chatInput.value.trim();
+      if (!msg || !currentChatUser) return;
 
-    // render ra UI ngay
-    appendMessage(authUser, msg);
+      appendMessage(authUser, msg);
 
-    // gửi lên server
-    try {
-        await fetch('/chat/send', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({
-                to_id: currentChatUser.id,
-                message: msg
-            })
-        });
-    } catch (err) {
-        console.error("Gửi tin nhắn thất bại", err);
-    }
+      try {
+          // lưu DB
+          await fetch('/chat/send', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+              },
+              body: JSON.stringify({
+                  to_id: currentChatUser.id,
+                  message: msg
+              })
+          });
 
-    chatInput.value = "";
-};
+          // emit realtime để người kia nhận được ngay
+          window.socket.emit("private-message", {
+              to: currentChatUser.id,
+              from: authUser,
+              message: msg
+          });
+
+      } catch (err) {
+          console.error("Gửi tin nhắn thất bại", err);
+      }
+
+      chatInput.value = "";
+  };
+
 
 
 });
