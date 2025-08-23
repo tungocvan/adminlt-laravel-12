@@ -26,7 +26,7 @@ $menuNavbar = [
         'dropdown_mode' => true,
         'dropdown_flabel' => 'All notifications',
         'update_cfg' => [
-            'url' => secure_url('notifications/get'),
+            'url' => env('NOTIFICATION_URL', '/notifications/get'),
             'period' => 30,
         ],
         'can' => 'user-list',
