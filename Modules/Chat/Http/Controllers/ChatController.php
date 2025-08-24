@@ -44,6 +44,9 @@ class ChatController extends Controller
     // Lưu tin nhắn khi gửi đi
     public function store(Request $request)
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Chưa đăng nhập'], 403);
+        }
         $authId = Auth::id();
 
         $message = Message::create([

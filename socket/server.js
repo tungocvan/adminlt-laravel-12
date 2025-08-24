@@ -1,12 +1,19 @@
+const express = require("express");
+const app = express();
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 
-const httpServer = createServer();
+const httpServer = createServer(app); // ✅ phải truyền app vào
 const io = new Server(httpServer, {
     cors: {
-        origin: "*", // chỉ định domain Laravel của bạn nếu muốn bảo mật
+        origin: "*", // hoặc domain Laravel nếu muốn bảo mật
         methods: ["GET", "POST"],
     }
+});
+
+// Route test 
+app.get("/", (req, res) => {
+    res.send("NodeJS Socket.IO Server đang chạy trên cổng 6001 🚀");
 });
 
 // Danh sách user online
@@ -17,8 +24,8 @@ io.on("connection", (socket) => {
 
     // Nhận sự kiện khi user login
     socket.on("user-connected", (user) => {
-        console.log('user-connected',user);
-        onlineUsers[socket.id] = user;        
+        console.log("user-connected", user);
+        onlineUsers[socket.id] = user;
         io.emit("online-users", Object.values(onlineUsers));
     });
 
@@ -43,6 +50,6 @@ io.on("connection", (socket) => {
     });
 });
 
-httpServer.listen(6001, () => {
+httpServer.listen(6001, "0.0.0.0", () => {
     console.log("🚀 Socket.IO server running at http://0.0.0.0:6001");
 });

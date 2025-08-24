@@ -89,3 +89,5 @@ phan-quyen.sh config
 
 cách tại 20 user
 php artisan db:seed:users 20
+
+git pull --rebase

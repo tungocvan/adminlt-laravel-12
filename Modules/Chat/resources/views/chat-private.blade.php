@@ -200,7 +200,8 @@ document.addEventListener("DOMContentLoaded", () => {
               body: JSON.stringify({
                   to_id: currentChatUser.id,
                   message: msg
-              })
+              }),
+              credentials: 'include'
           });
 
           // emit realtime để người kia nhận được ngay
