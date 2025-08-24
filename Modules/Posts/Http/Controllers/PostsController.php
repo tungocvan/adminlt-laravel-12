@@ -30,7 +30,7 @@ class PostsController extends Controller
     {
   
         
-        $posts = Post::paginate(3);        
+        $posts = Post::paginate(15);        
        
         return view('Posts::posts',compact('posts'));
     }
@@ -48,6 +48,7 @@ class PostsController extends Controller
      */
     public function store(Request $request)
     {
+       
         $this->validate($request, [
             'title' => 'required',
             'body' => 'required'
@@ -60,10 +61,6 @@ class PostsController extends Controller
        ]);
        
        event(new PostCreate($post));
-       // event(new PostCreate($post));
-       //PostCreate::dispatch($post);
-       //event(new MessageSent('Tin nhắn test từ post'));
-        //MessageSent::dispatch('Tin nhắn test từ post');
        return back()->with('success','Post created successfully.');
     }
 

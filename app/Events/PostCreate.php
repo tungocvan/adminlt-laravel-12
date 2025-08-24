@@ -2,18 +2,15 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Support\Facades\Http;
 
-class PostCreate implements ShouldBroadcastNow
+class PostCreate
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable, SerializesModels;
+
+    public $post;
 
     /**
      * Create a new event instance.
@@ -21,28 +18,23 @@ class PostCreate implements ShouldBroadcastNow
     public function __construct($post)
     {
         $this->post = $post;
+
+        // 👉 Khi event được khởi tạo, tự động gửi sang NodeJS
+        $this->sendToNode($post);
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
-     */
-    public function broadcastOn(): array
+    protected function sendToNode($post)
     {
-        //return new Channel('posts');
-        return [
-            new Channel('posts'),
-        ];
-    }
-    public function broadcastAs()
-    {
-        return 'create';
-    }
-    public function broadcastWith(): array
-    {
-        return [
-            'message' => "[{$this->post->created_at}] New Post Received with title '{$this->post->title}'."
-        ];
+        try {
+            Http::post("http://127.0.0.1:6001/post-create", [
+                "id"         => $post->id,
+                "title"      => $post->title,
+                "body"       => $post->body,
+                "user_id"    => $post->user_id,
+                "created_at" => $post->created_at->toDateTimeString(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error("❌ PostCreate event failed to send to NodeJS: " . $e->getMessage());
+        }
     }
 }

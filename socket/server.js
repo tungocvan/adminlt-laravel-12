@@ -16,6 +16,19 @@ app.get("/", (req, res) => {
     res.send("NodeJS Socket.IO Server đang chạy trên cổng 6001 🚀");
 });
 
+app.use(express.json());
+
+app.post("/post-create", (req, res) => {
+    const data = req.body;
+    console.log("📡 Received post-create from Laravel:", data);
+
+    // Gửi tới tất cả client
+    io.emit("post-create", data);
+
+    res.json({ success: true });
+});
+
+
 // Danh sách user online
 let onlineUsers = {};
 

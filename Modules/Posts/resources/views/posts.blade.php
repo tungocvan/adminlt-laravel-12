@@ -99,6 +99,53 @@
             </div>
         </div>
     </div>
+    <script>    
+        document.addEventListener("DOMContentLoaded", function () {
+         console.log('✅ DOM loaded');
+         window.socket.on("connect", () => {
+                 console.log("✅ Connected to NodeJS Socket.IO:", socket.id);
+         });
+
+        // Nhận sự kiện post-create
+        window.socket.on("post-create", (data) => {
+            console.log("🆕 New Post Event:", data);
+
+            let notificationBox = document.getElementById("notification");
+            let alert = document.createElement("div");
+            alert.classList.add("alert", "alert-info", "alert-dismissible", "fade", "show");
+            alert.innerHTML = `<i class="fa fa-bullhorn"></i> [${data.created_at}] New Post: <b>${data.title}</b>`;
+            notificationBox.prepend(alert);
+                 // === Thêm dòng mới vào bảng ===
+            let tbody = document.querySelector("table.data-table tbody");
+            if (!tbody) {
+                console.warn("⚠️ Không tìm thấy tbody trong bảng!");
+                return;
+            }
+
+            let newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${data.id}</td>
+                <td>${data.title}</td>
+                <td>${data.body}</td>
+                <td><span class="badge bg-primary"><i class="fa fa-circle-dot"></i> Pending</span></td>
+                <td>
+                    <a href="/posts/${data.id}/approve" class="btn btn-success btn-sm">
+                        <i class="fa fa-save"></i> Approved
+                    </a>
+                </td>
+            `;
+
+            // Chèn dòng mới lên đầu tbody
+            tbody.prepend(newRow);
+
+        });   
+        
+        
+        
+     });
+     
+        
+     </script>
 </div>
 @stop
 
@@ -108,36 +155,7 @@
 
 @stop
 {{-- @section('js')
-<script>    
-   document.addEventListener("DOMContentLoaded", function () {
-    console.log('✅ DOM loaded');
 
-    const socket = window.Echo.connector.socket;
-
-    if (socket && socket.connected) {
-        console.log('✅ Socket.IO đã kết nối sẵn');
-    }
-
-    // Lắng nghe sự kiện kết nối
-    socket.on('connect', () => {
-        console.log('✅ Đã kết nối thành công tới Socket.IO server');
-    });
-
-    // Nghe sự kiện trên channel
-    window.Echo.channel('posts')
-        .listen('.create', (data) => {
-            console.log('📨 Nhận sự kiện:', data);
-            const d1 = document.getElementById('notification');
-            d1.insertAdjacentHTML('beforeend', `
-                <div class="alert alert-success alert-dismissible fade show">
-                    <span><i class="fa fa-circle-check"></i> ${data.message}</span>
-                </div>
-            `);
-        });
-});
-
-   
-</script>
 @stop --}}
 
 
