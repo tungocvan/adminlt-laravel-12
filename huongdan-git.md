@@ -91,3 +91,7 @@ cách tại 20 user
 php artisan db:seed:users 20
 
 git pull --rebase
+
+hướng dẫn git từ server xuống client :đè luôn xuống client, không giữ thay đổi local)
+git fetch --all
+git reset --hard origin/main
