@@ -6,10 +6,19 @@
         "can": "admin-list"
     },
     {
+        "header": "QU\u1ea2N TR\u1eca"
+    },
+    {
+        "text": "Qu\u1ea3n l\u00fd H\u1ecdc sinh",
+        "url": "\/ntd",
+        "icon": "fas fa-fw fa-user",
+        "can": "ntd-create"
+    },
+    {
         "header": "MANAGER  WEBSITES"
     },
     {
-        "text": "Manage Posts ",
+        "text": "Manage Posts  ",
         "url": "\/posts",
         "icon": "fas fa-fw fa-user",
         "can": "admin-create"

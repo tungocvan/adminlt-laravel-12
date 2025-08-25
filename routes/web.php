@@ -14,8 +14,16 @@ use App\Http\Controllers\CkeditorController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\GoogleController;
 use App\Events\MessageSent;
-use App\Http\Controllers\StudentController;
+
 use Illuminate\Support\Facades\Http;
+
+use App\Http\Controllers\StudentController;
+Route::get('/tra-cuu-ho-so', function(){
+    return view('students.lookup');
+})->name('students.lookup');
+
+Route::get('/students/search', [StudentController::class, 'index'])->name('students.index');
+Route::post('/students/search', [StudentController::class, 'search'])->name('students.search');
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -32,15 +40,12 @@ Route::get('/send-message', function () {
 });
 
 Route::get('/', [HomeController::class, 'index']);
-Route::get('/students/search', [StudentController::class, 'index'])->name('students.index');
-Route::post('/students/search', [StudentController::class, 'search'])->name('students.search');
 
-Route::get('/tra-cuu-ho-so', function(){
-    return view('students.lookup');
-})->name('students.lookup');
+
+
+
 
 Auth::routes();
-
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('roles/permission',[RoleController::class,'permission'])->name('roles.permission');
 Route::post('roles/permission',[RoleController::class,'storePermission'])->name('roles.store-permission');
