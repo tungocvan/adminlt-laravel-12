@@ -6,7 +6,8 @@
         "can": "admin-list"
     },
     {
-        "header": "QU\u1ea2N TR\u1eca"
+        "header": "QU\u1ea2N TR\u1eca",
+        "can": "ntd-list"
     },
     {
         "text": "Qu\u1ea3n l\u00fd H\u1ecdc sinh",
@@ -15,7 +16,8 @@
         "can": "ntd-create"
     },
     {
-        "header": "MANAGER  WEBSITES"
+        "header": "MANAGER  WEBSITES",
+        "can": "admin-create"
     },
     {
         "text": "Manage Posts  ",
@@ -42,7 +44,8 @@
         "can": "admin-create"
     },
     {
-        "header": "ACCOUNT SETTINGS "
+        "header": "ACCOUNT SETTINGS ",
+        "can": "admin-create"
     },
     {
         "text": "Manage Users  ",
@@ -54,10 +57,11 @@
         "text": "Manage Role",
         "url": "admin\/roles",
         "icon": "fas fa-fw fa-user-shield",
-        "can": "admin-list"
+        "can": "admin-create"
     },
     {
-        "header": "MANAGER SETTINGS"
+        "header": "MANAGER SETTINGS",
+        "can": "admin-create"
     },
     {
         "text": "Manager Settings",
@@ -107,7 +111,7 @@
         "text": "Components",
         "url": "#",
         "icon": "far fa-caret-square-right",
-        "can": "admin-list",
+        "can": "admin-create",
         "submenu": [
             {
                 "text": "Form",

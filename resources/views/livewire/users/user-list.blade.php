@@ -73,6 +73,7 @@
             <th><a href="#" wire:click.prevent="sortBy('name')">Name</a></th>
             <th><a href="#" wire:click.prevent="sortBy('email')">Email</a></th>
             <th>Roles</th>
+            <th>Verified</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -94,6 +95,17 @@
                           @endforeach
                         @endif
                     </td>
+                    <td>
+                        @if($user->email_verified_at)
+                            <span class="badge bg-success">Đã duyệt</span>
+                        @else
+                        <button wire:click="approve({{ $user->id }})" class="btn btn-outline-success btn-sm">
+                            <i class="fa fa-check"></i> Duyệt
+                        </button>
+                        
+                        @endif
+                    </td>
+                    
                     <td>
                         <div class="btn-group flex-wrap d-flex" style="width:150px">
                             <button wire:click="edit({{ $user->id }})" class="btn btn-outline-primary btn-sm mr-1"><i class="fa fa-edit"></i> Edit</button>

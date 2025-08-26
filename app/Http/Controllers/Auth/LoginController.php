@@ -41,6 +41,7 @@ class LoginController extends Controller
     }
     public function login(Request $request){
 
+        
         $request->validate([
             'email' => 'required',
             'password' => 'required',
@@ -51,9 +52,18 @@ class LoginController extends Controller
 
             if (!$user) {
                 throw ValidationException::withMessages([
-                    'email' => 'Emthail không tồn tại trong hệ thống.',
+                    'email' => 'Email không tồn tại trong hệ thống.',
                 ]);
             }
+
+            // Kiểm tra email_verified_at
+            if (is_null($user->email_verified_at) && $user->is_admin != 1) {
+                throw ValidationException::withMessages([
+                    'email' => 'Tài khoản chưa được admin phê duyệt.',
+                ]);
+            }
+
+
             $username = $user->username;
         }
 

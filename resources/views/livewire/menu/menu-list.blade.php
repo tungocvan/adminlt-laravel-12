@@ -126,7 +126,11 @@
                             <div class="mb-3">
                                 <label for="menuHeader" class="form-label">Tên Menu</label>
                                 <input type="text" class="form-control"  wire:model="menuHeader">
-                            </div>       
+                            </div>      
+                            <div class="mb-3">
+                                <label for="menuCan" class="form-label">Can</label>
+                                <input type="text" class="form-control"  wire:model="menuCan">
+                            </div> 
                         @else
                             <div class="mb-3">
                                 <label for="menuText" class="form-label">Tên Menu</label>

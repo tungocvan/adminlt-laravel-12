@@ -74,4 +74,5 @@
             @endif
         @endif
     </div>
+    <a href="/" class="small-box-footer">Về trang Quản trị<i class="fas fa-arrow-circle-right"></i></a>
 </div>

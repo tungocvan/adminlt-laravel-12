@@ -23,9 +23,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($hocsinhs as $hs)
+                    @forelse($hocsinhs as $key => $hs)
                         <tr>
-                            <td>{{ $hs->stt }}</td>
+                            <td>{{ $hocsinhs->firstItem() + $key }}</td>
                             <td>{{ $hs->lop }}</td>
                             <td>{{ $hs->ho_va_ten }}</td>
                             <td>{{ $hs->ngay_sinh }}</td>
@@ -35,8 +35,8 @@
                             <td>{{ $hs->bao_mau }}</td>
                             <td>
                                 <button class="btn btn-warning btn-sm" wire:click="edit({{ $hs->id }})">Sửa</button>
-                                <button class="btn btn-danger btn-sm" wire:click="delete({{ $hs->id }})"
-                                    onclick="return confirm('Bạn chắc chắn muốn xóa?')">Xóa</button>
+                                <button class="btn btn-danger btn-sm" wire:click="confirmDelete({{ $hs->id }})">Xóa</button>
+
                             </td>
                         </tr>
                     @empty
@@ -91,7 +91,7 @@
                             <input type="text" class="form-control" wire:model="gvcn">
                         </div>
                         <div class="form-group">
-                            <label>Báo mẫu</label>
+                            <label>Bảo mẫu</label>
                             <input type="text" class="form-control" wire:model="bao_mau">
                         </div>
                     </div>
@@ -117,6 +117,12 @@
         Livewire.on('hideModal', () => {
             $('#hocsinhModal').modal('hide');
         });
+        Livewire.on('showConfirm', () => {
+            if (confirm("Bạn có chắc chắn muốn xóa?")) {
+                Livewire.find(@this.__instance.id).call('delete');
+            }
+        });
+        
     });
 </script>
 

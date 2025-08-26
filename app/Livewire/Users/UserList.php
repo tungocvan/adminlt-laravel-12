@@ -89,7 +89,19 @@ class UserList extends Component
         return Role::pluck('name','name')->all();
     }
   
-   
+    public function approve($id)
+    {
+        
+        $user = User::findOrFail($id);
+        if (is_null($user->email_verified_at)) {
+            
+            $user->update([
+                'email_verified_at' => now(),
+            ]);
+            session()->flash('success', 'Người dùng đã được duyệt thành công!');
+        }
+    }
+    
 
     public function render()
     {
@@ -116,6 +128,7 @@ class UserList extends Component
             'username' => 'required|string|max:255',
             'password' => 'required|string|min:8',
         ]);        
+        
         $validated['password'] = Hash::make($validated['password']);             
         $user = User::create($validated);
         $roleId = Role::where('name',$this->role)->get()[0]->id ?? null;  
@@ -155,7 +168,7 @@ class UserList extends Component
             'email' => 'required|string|email|max:255|unique:users,email,' . $this->userId,
             'password' => 'nullable|string|min:8',
         ]);
-
+        
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
@@ -168,7 +181,7 @@ class UserList extends Component
                     
         $user->update($validated);           
         $user->assignRole([$roleId]);
-        event(new UserRegistered($user));
+        
         $this->reset(['name', 'email', 'password', 'userId', 'isEdit','role']);
         $this->showModal = false;
         session()->flash('message', 'User updated successfully!');

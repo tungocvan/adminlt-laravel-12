@@ -95,6 +95,7 @@ class MenuList extends Component
         //dd($item);
         if (isset($item['header'])) {
             $this->menuHeader = $item['header'];
+            $this->menuCan = $item['can'] ?? '';
             // $this->menuUrl = ''; 
             // $this->menuIcon = ''; 
             // $this->menuCan = ''; 
@@ -113,7 +114,7 @@ class MenuList extends Component
     
     public function closeModal()
     {
-            $this->menuHeader = null;
+            $this->menuHeader = null; 
             $this->menuText = null;
             $this->menuUrl = null;
             $this->menuIcon =null;
@@ -144,8 +145,10 @@ class MenuList extends Component
                     if (isset($item['header']) && $item['header'] === $this->currentMenuText) {
                         // Cập nhật header nếu cần
                         $item['header'] = $this->menuHeader ?? $item['header']; // Nếu bạn muốn cập nhật, hãy đảm bảo có giá trị
+                        $item['can'] = $this->menuCan ?? $item['can'];
                     // return; // Thoát sau khi cập nhật
                     }
+                    
 
                     // Kiểm tra nếu mục có submenu
                     if (isset($item['submenu'])) {

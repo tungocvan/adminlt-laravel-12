@@ -13,6 +13,7 @@ class HocsinhList extends Component
     public $search = '';
     public $ho_va_ten, $lop, $ngay_sinh, $gioi_tinh, $ma_dinh_danh_hoc_sinh, $gvcn, $bao_mau;
     public $isEdit = false, $editId = null;
+    public $deleteId;
 
     protected $rules = [
         'ho_va_ten' => 'required|string',
@@ -70,9 +71,16 @@ class HocsinhList extends Component
         $this->resetInput();
     }
 
-    public function delete($id)
+    public function confirmDelete($id)
     {
-        Hocsinh::findOrFail($id)->delete();
+        $this->deleteId = $id;
+        $this->dispatch('showConfirm');
+    }
+
+    public function delete()
+    {
+        Hocsinh::destroy($this->deleteId);
+        $this->dispatch('hideConfirm');
     }
 
     public function closeModal()

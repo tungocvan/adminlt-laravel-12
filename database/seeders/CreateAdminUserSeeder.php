@@ -30,6 +30,7 @@ class CreateAdminUserSeeder extends Seeder
                 'email' => 'tungocvan@gmail.com',
                 'username' => 'tungocvan',
                 'password' => Hash::make('123456'),
+                'email_verified_at' => now(),
                 'is_admin' => 1,
             ]);
             $user->assignRole($adminRole);
@@ -53,6 +54,7 @@ class CreateAdminUserSeeder extends Seeder
                 'email' => 'user01@gmail.com',
                 'username' => 'user01',
                 'password' => Hash::make('123456'),
+                'email_verified_at' => now(),
                 'is_admin' => 0,
             ]);
             $user01->assignRole($userRole);
