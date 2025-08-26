@@ -184,6 +184,12 @@
                 "url": "\/settings\/components\/vnAddress",
                 "icon": "far fa-caret-square-right",
                 "can": "admin-list"
+            },
+            {
+                "text": "Event Full Calendar",
+                "url": "\/fullcalender",
+                "icon": "far fa-caret-square-right",
+                "can": "admin-list"
             }
         ]
     }

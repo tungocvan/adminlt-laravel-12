@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Settings\Http\Controllers\SettingsController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\FullCalenderController;
 
 Route::middleware(['web','auth'])->prefix('/settings')->name('settings.')->group(function(){
     Route::get('/', [SettingsController::class,'index'])->name('index');
@@ -18,6 +19,11 @@ Route::middleware(['web','auth'])->prefix('/settings')->name('settings.')->group
     Route::get('/components/tables', [SettingsController::class,'tables'])->name('components.tables');
     Route::get('/components/vnAddress', [SettingsController::class,'vnAddress'])->name('components.vn-Address');
     Route::get('/components/users/create', [ FormController::class, 'createUser' ]);
-    Route::post('/components/users/create', [ FormController::class, 'storeUser' ])->name('store-user.store');
+    Route::post('/components/users/create', [ FormController::class, 'storeUser' ])->name('store-user.store'); 
 
+});
+
+Route::controller(FullCalenderController::class)->group(function(){    
+    Route::get('fullcalender', [FullCalenderController::class,'index']);
+    Route::post('fullcalenderAjax', 'ajax');
 });
