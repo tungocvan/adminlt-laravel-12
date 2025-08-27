@@ -1,4 +1,4 @@
-<div>
+<div class="py-2">
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <h3 class="card-title">Quản lý Học sinh</h3>
@@ -47,7 +47,9 @@
                 </tbody>
             </table>
 
-            {{ $hocsinhs->links() }}
+            <div class="py-2">
+                {{ $hocsinhs->links() }}
+            </div>
         </div>
     </div>
 

@@ -20,10 +20,14 @@ Route::middleware(['web','auth'])->prefix('/settings')->name('settings.')->group
     Route::get('/components/vnAddress', [SettingsController::class,'vnAddress'])->name('components.vn-Address');
     Route::get('/components/users/create', [ FormController::class, 'createUser' ]);
     Route::post('/components/users/create', [ FormController::class, 'storeUser' ])->name('store-user.store'); 
+    Route::get('/components/fullcalender', [FullCalenderController::class,'index']);
+    Route::post('/components/fullcalenderAjax', [FullCalenderController::class,'ajax']);
 
 });
 
-Route::controller(FullCalenderController::class)->group(function(){    
-    Route::get('fullcalender', [FullCalenderController::class,'index']);
-    Route::post('fullcalenderAjax', 'ajax');
-});
+// Route::controller(FullCalenderController::class)->group(function(){    
+
+    
+//     Route::get('fullcalender', [FullCalenderController::class,'index']);
+//     Route::post('fullcalenderAjax', 'ajax');
+// });
