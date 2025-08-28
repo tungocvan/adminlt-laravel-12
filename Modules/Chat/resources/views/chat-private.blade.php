@@ -1,26 +1,34 @@
 <div class="container">
     <div class="row justify-content-center">
       <!-- Cột danh sách user online -->
-      <div class="col-md-3">
+      <div class="col-md-5">
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">Users đang Online</h3>
             <div class="card-tools">
+              <span id="newMessageBadge" class="badge badge-light" style="display:none;">0</span>
               <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-minus"></i>
               </button>
+              {{-- <button type="button" class="btn btn-tool" data-card-widget="remove">
+                <i class="fas fa-times"></i>
+              </button> --}}
             </div>
+            
+            
           </div>
-          <div class="card-body p-0" style="display: block;">
-            <ul id="userList" class="nav nav-pills flex-column">
+          <div class="card-body p-0" style="display: block;">            
+            @include('Chat::chat-community')
+            <ul id="userList" class="nav nav-pills flex-column">         
               <!-- render users online -->
             </ul>
           </div>
         </div>
+        
       </div>
   
       <!-- Cột khung chat chính -->
-      <div class="col-md-9">
+      <div class="col-md-7">
         <div class="card card-primary direct-chat direct-chat-primary" id="chatBox" style="display:none;">
           <div class="card-header">
             <h3 class="card-title"><strong id="chatWithName">Chọn user để chat</strong></h3>
@@ -79,7 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // render danh sách users online
     window.socket.on("online-users", (users) => {
-    userList.innerHTML = "";
+    userList.innerHTML = "";    
+
     users.forEach(user => {
         if (user.id == authUser.id) return;
 

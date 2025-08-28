@@ -4,13 +4,11 @@ namespace Modules\Chat\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Message;
+use App\Models\CommunityMessage;
 use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function __construct()
     {
          $this->middleware('permission:chat-list|chat-create|chat-edit|chat-delete|admin-list', ['only' => ['index','show']]);
@@ -18,12 +16,13 @@ class ChatController extends Controller
          $this->middleware('permission:chat-edit', ['only' => ['edit','update']]);
          $this->middleware('permission:chat-delete', ['only' => ['destroy']]);
     }
+
     public function index()
     {
         return view('Chat::chat');
     }
 
-
+    // lịch sử chat riêng
     public function history($userId)
     {
         $authId = Auth::id();
@@ -41,7 +40,7 @@ class ChatController extends Controller
         return response()->json($messages);
     }
 
-    // Lưu tin nhắn khi gửi đi
+    // lưu tin nhắn riêng
     public function store(Request $request)
     {
         if (!auth()->check()) {
@@ -58,47 +57,28 @@ class ChatController extends Controller
         return response()->json($message);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // lưu tin nhắn cộng đồng
+    public function storeCommunity(Request $request)
     {
-        //
+        $request->validate([
+            'message' => 'required|string|max:1000',
+        ]);
+
+        $message = CommunityMessage::create([
+            'user_id' => Auth::id(),
+            'message' => $request->message,
+        ]);
+
+        return response()->json($message);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-   
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // lấy lịch sử chat cộng đồng
+    public function historyCommunity()
     {
-        //
-    }
+        $messages = CommunityMessage::with('user:id,name')
+            ->orderBy('created_at','asc')
+            ->get();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return response()->json($messages);
     }
 }

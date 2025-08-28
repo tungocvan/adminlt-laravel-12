@@ -51,9 +51,9 @@ io.on("connection", (socket) => {
         }
     });
 
-    // 📢 Chat public
-    socket.on("public-message", (msg) => {
-        io.emit("public-message", msg);
+    // 📢 Chat cộng đồng
+    socket.on("community-message", ({ from, message }) => {
+        io.emit("community-message", { from, message });
     });
 
     socket.on("disconnect", () => {

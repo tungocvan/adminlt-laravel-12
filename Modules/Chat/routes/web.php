@@ -7,4 +7,11 @@ Route::middleware(['web','auth'])->prefix('/chat')->name('chat.')->group(functio
     Route::get('/', [ChatController::class,'index'])->name('index');
     Route::get('/history/{userId}', [ChatController::class, 'history']);
     Route::post('/send', [ChatController::class, 'store']);
+    // cộng đồng
+    Route::post('/community/send', [ChatController::class, 'storeCommunity']);
+    Route::get('/community/history', [ChatController::class, 'historyCommunity']);
+    
+
+
+
 });
