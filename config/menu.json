@@ -192,5 +192,11 @@
                 "can": "admin-list"
             }
         ]
+    },
+    {
+        "text": "Theme Tailwind",
+        "url": "\/tailwind",
+        "icon": "fas fa-fw fa-user-shield",
+        "can": ""
     }
 ]

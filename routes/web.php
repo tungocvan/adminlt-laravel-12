@@ -107,7 +107,6 @@ Route::controller(GoogleController::class)->group(function(){
 
 Route::post('/submit-form', [App\Http\Controllers\FormController::class, 'store'])->name('form.store');
 
-Route::get('/test-broadcast', function () {
-    broadcast(new MessageSent('Tin nhắn test từ route'));
-    return 'Gửi xong!';
+Route::get('/tailwind', function () {    
+    return view('tailwind');
 });
