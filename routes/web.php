@@ -16,6 +16,7 @@ use App\Http\Controllers\GoogleController;
 use App\Events\MessageSent;
 
 use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\NotificationController;
 
 use App\Http\Controllers\StudentController;
 Route::get('/tra-cuu-ho-so', function(){
@@ -24,6 +25,12 @@ Route::get('/tra-cuu-ho-so', function(){
 
 Route::get('/students/search', [StudentController::class, 'index'])->name('students.index');
 Route::post('/students/search', [StudentController::class, 'search'])->name('students.search');
+
+
+Route::get('push-notification', [NotificationController::class, 'index']);
+Route::post('sendNotification', [NotificationController::class, 'sendNotification'])->name('send.notification');
+
+Route::post('/save-token', [NotificationController::class, 'saveToken'])->name('save.token');
 
 // Route::get('/', function () {
 //     return view('welcome');
