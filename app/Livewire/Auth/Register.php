@@ -16,6 +16,7 @@ class Register extends Component
     public $email;
     public $password;
     public $confirmPassword;
+    public $agree = false;
 
     protected $rules = [
         'name'             => 'required|string|max:255',
@@ -23,6 +24,7 @@ class Register extends Component
         'username'         => 'required|string|unique:users,username',
         'password'         => 'required|min:6',
         'confirmPassword'  => 'required|same:password',
+        'agree' => 'accepted',
     ];
 
     protected $messages = [
@@ -32,6 +34,7 @@ class Register extends Component
         'email.unique'         => 'Email này đã tồn tại',
         'password.required'    => 'Mật khẩu không được bỏ trống',
         'password.min'         => 'Mật khẩu phải có ít nhất 6 ký tự',
+        'confirmPassword.required'    => 'Mật khẩu không được bỏ trống',
         'confirmPassword.same' => 'Mật khẩu xác nhận không khớp',
     ];
 

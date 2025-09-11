@@ -95,13 +95,13 @@ Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']
     \UniSharp\LaravelFilemanager\Lfm::routes();
 });
 
-// Route::get('/mail-test', function () {
-//     Mail::raw('Gửi thử mail từ Laravel', function ($msg) {
-//         $msg->to('tungocvan@gmail.com')->subject('Test Mail');
-//     });
+Route::get('/mail-test', function () {
+    Mail::raw('Gửi thử mail từ Laravel', function ($msg) {
+        $msg->to('tungocvan@gmail.com')->subject('Test Mail');
+    });
 
-//     return 'Đã gửi mail!';
-// });
+    return 'Đã gửi mail!';
+});
 
 Route::get('demo-search', [SearchController::class, 'index']);
 Route::get('autocomplete', [SearchController::class, 'autocomplete'])->name('autocomplete');
