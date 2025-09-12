@@ -14,7 +14,7 @@
                             <span class="help-block">Max 100 rows</span> 
                             @error('file') <span class="error">{{ $message }}</span> @enderror                                        
                         </div>
-                
+                          
                         <!-- Nút Upload hiển thị khi uploading = true -->
                         <button x-show="uploading" type="submit" style="width: 100px;" class="btn btn-outline-success btn-sm">
                             Upload File
@@ -42,6 +42,9 @@
                     <button x-on:click="$wire.printUsers()" class="btn buttons-print btn-default"  title="Print"><span><i class="fas fa-fw fa-lg fa-print"></i></span></button>         
                     <button wire:click="exportSelected" class="btn buttons-excel buttons-html5 btn-default"  title="Export to Excel"><span><i class="fas fa-fw fa-lg fa-file-excel text-success"></i></span></button> 
                     <button wire:click="exportToPDF" class="btn buttons-pdf buttons-html5 btn-default"  title="Export to PDF"><span><i class="fas fa-fw fa-lg fa-file-pdf text-danger"></i></span></button> 
+                    @if ($error)
+                         <span class="error mx-2" style="color:red">{{ $error }}</span>
+                    @endif
                 </div>               
             </div>
             <div class="col-sm-12 col-md-2">
@@ -216,42 +219,6 @@
         }
     });
 
-</script>
-
-{{-- @if(auth()->user()->is_admin)
-    <script type="module">
-        console.log('aaa');
-            window.Echo.channel('users')
-                .listen('.create', (data) => {
-                    console.log('Order status updated: ', data);
-                    var d1 = document.getElementById('notification');
-                    d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
-                });
-    </script>
-@endif --}}
-
-{{-- <script type="module">   
-
-    if(window.Echo) {
-        console.log('echo js');
-    window.Echo.channel('users')
-        .listen('.create', (data) => {
-            console.log('Order status updated: ', data);
-            var d1 = document.getElementById('notification');
-            d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
-        });
-    }
-</script> --}}
-
-<script type="module">   
-
-    if(window.Echo) {
-        console.log('echo Registered users js');
-        window.Echo.channel('users')
-        .listen('.UserRegistered', (e) => {
-            console.log('Người dùng mới đăng ký:', e);
-        });
-    }
 </script>
 
 </div>

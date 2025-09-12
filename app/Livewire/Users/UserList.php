@@ -40,6 +40,7 @@ class UserList extends Component
     public $password;
     public $userId;
     public $role=['admin'];
+    public $error;
 
     public function toggleSelectAll()
     {
@@ -250,11 +251,12 @@ class UserList extends Component
 
     public function exportSelected()
     {
-        if (empty($this->selectedUsers)) {
-            session()->flash('error', 'Vui lòng chọn ít nhất một người dùng để xuất Excel.');
+        
+        if (empty($this->selectedUsers)) {        
+            $this->error =  'Vui lòng chọn ít nhất một người dùng để xuất Excel.';                     
             return;
         }
-
+        $this->error ='';
         // Lấy ngày giờ hiện tại
         $timestamp = Carbon::now()->format('Y-m-d-H-i');
         // Đặt tên file theo định dạng "users-list-yyyy-mm-dd-HH-MM.xlsx"
@@ -264,11 +266,12 @@ class UserList extends Component
     }
     public function exportToPDF()
     {
+        
         if (empty($this->selectedUsers)) {
-            session()->flash('error', 'Vui lòng chọn ít nhất một người dùng để xuất PDF.');
+            $this->error =  'Vui lòng chọn ít nhất một người dùng để xuất PDF.';            
             return;
         }
-
+        $this->error ='';
         $users = User::whereIn('id', $this->selectedUsers)->get();
 
         // Render view PDF
@@ -292,12 +295,18 @@ class UserList extends Component
     public function printUsers()
     {
         $users = User::whereIn('id', $this->selectedUsers)->get();
-
-        // Tạo nội dung HTML từ template
-        $html = View::make('exports.print-users', compact('users'))->render();
-        $encodedHtml = base64_encode(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
-        $this->dispatch('open-print-window', ['url' => 'data:text/html;base64,' . $encodedHtml]);        
-    }
+        
+        if(count($users) == 0) {
+            $this->error =  'Vui lòng chọn ít nhất một người dùng để in.';            
+        }else{
+             // Tạo nội dung HTML từ template
+            $this->error ='';
+            $html = View::make('exports.print-users', compact('users'))->render();
+            $encodedHtml = base64_encode(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+            $this->dispatch('open-print-window', ['url' => 'data:text/html;base64,' . $encodedHtml]);        
+        }
+        }
+       
 
 }
  
