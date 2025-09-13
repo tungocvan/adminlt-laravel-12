@@ -8,45 +8,81 @@ use Illuminate\Database\Eloquent\Model;
 class Option extends Model
 {
     use HasFactory;
-    protected $table = 'wp_options';
-    
-    // Sử dụng 'option_id' làm khóa chính
-    protected $primaryKey = 'option_id';
-    
-    // Cho phép các cột được fill
-    protected $fillable = ['option_name', 'option_value', 'autoload'];
 
+    protected $table = 'wp_options';
+    protected $primaryKey = 'option_id';
     public $timestamps = false;
 
+    protected $fillable = ['option_name', 'option_value', 'autoload'];
+
+    public function getRouteKeyName()
+    {
+        return 'option_id'; // 👈 quan trọng cho edit/update/destroy
+    }
     /**
-     * Giả lập hàm get_option giống như WordPress
+     * Lấy option theo tên
      */
     public static function get_option($name, $default = null)
     {
         $option = static::where('option_name', $name)->first();
+
         if ($option) {
-            // Nếu giá trị là chuỗi đã được serialize, unserialize để lấy giá trị gốc
-            return @unserialize($option->option_value) !== false ? unserialize($option->option_value) : $option->option_value;
+            $unserialized = @unserialize($option->option_value);
+            return $unserialized !== false || $option->option_value === 'b:0;'
+                ? $unserialized
+                : $option->option_value;
         }
 
         return $default;
     }
 
     /**
-     * Giả lập hàm set_option giống như WordPress
-     * Nếu giá trị là mảng, sẽ serialize trước khi lưu
+     * Tạo hoặc cập nhật option
      */
     public static function set_option($name, $value, $autoload = 'yes')
     {
         $option = static::firstOrNew(['option_name' => $name]);
-        
-        // Kiểm tra nếu giá trị là mảng, serialize thành chuỗi
-        if (is_array($value)) {
+
+        // Nếu mảng thì serialize
+        if (is_array($value) || is_object($value)) {
             $value = serialize($value);
         }
-        
+
         $option->option_value = $value;
         $option->autoload = $autoload;
         $option->save();
+
+        return $option;
+    }
+
+    /**
+     * Xóa option
+     */
+    public static function delete_option($name): bool
+    {
+        return (bool) static::where('option_name', $name)->delete();
+    }
+
+    /**
+     * Cập nhật option (nếu đã tồn tại)
+     */
+    public static function update_option($name, $value, $autoload = null)
+    {
+        $option = static::where('option_name', $name)->first();
+        if (!$option) {
+            return static::set_option($name, $value, $autoload ?? 'yes');
+        }
+
+        if (is_array($value) || is_object($value)) {
+            $value = serialize($value);
+        }
+
+        $option->option_value = $value;
+        if ($autoload !== null) {
+            $option->autoload = $autoload;
+        }
+        $option->save();
+
+        return $option;
     }
 }

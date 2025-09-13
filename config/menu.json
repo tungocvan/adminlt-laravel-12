@@ -198,5 +198,11 @@
         "url": "\/tailwind",
         "icon": "fas fa-fw fa-user-shield",
         "can": ""
+    },
+    {
+        "text": "T\u00f9y ch\u1ecdn H\u1ec7 th\u1ed1ng",
+        "url": "\/options",
+        "icon": "fas fa-fw fa-user-shield",
+        "can": "options-list"
     }
 ]
