@@ -8,6 +8,7 @@
 
 @section('content')
       @livewire('admin.categories-manager')
+     
 @stop
 
 @section('css')
@@ -19,5 +20,5 @@
 @section('js')
      {{-- https://www.daterangepicker.com/#examples  --}}
     <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
-
+    
 @stop

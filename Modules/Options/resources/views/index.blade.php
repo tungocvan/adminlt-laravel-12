@@ -5,8 +5,15 @@
 
 @section('content')
 <div class="container">
-    <h1 class="mb-4">Options</h1>
- 
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Options</h2>
+        <a href="{{ route('options.create') }}" class="btn btn-primary">Add Option</a>
+    </div>
+
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
     <!-- Form chung -->
     <form method="GET" action="{{ route('options.index') }}" id="searchForm" class="form-inline mb-3">
         <div class="input-group mr-2" style="width: 300px;">
@@ -47,7 +54,7 @@
                     <th>Option Name</th>
                     <th>Option Value</th>
                     <th>Autoload</th>
-                    <th>Action</th>
+                    <th style="width:20%">Action</th>
                 </tr>
             </thead>
             <tbody>

@@ -1,13 +1,13 @@
 @extends('adminlte::page')
 
-@section('title', 'Settings')
+@section('title', 'Categories')
 
 @section('content_header')
     <h1>Index Categories</h1>
 @stop
 
 @section('content')
-      {{-- @livewire('env.env-list') --}}
+    @livewire('category.category-list')
 @stop
 
 @section('css')

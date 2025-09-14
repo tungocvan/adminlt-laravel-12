@@ -1,0 +1,95 @@
+[
+    {
+        "name": "Bài viết",
+        "slug": "bai-viet",
+        "type": "category",
+        "description": "Danh mục chứa các bài viết tin tức",
+        "children": [
+            {
+                "name": "Tin tức y tế",
+                "slug": "tin-tuc-y-te",
+                "type": "category",
+                "description": "Các bài báo về y tế và sức khỏe"
+            },
+            {
+                "name": "Kiến thức dược phẩm",
+                "slug": "kien-thuc-duoc-pham",
+                "type": "category",
+                "description": "Chia sẻ kiến thức về thuốc và cách dùng"
+            }
+        ]
+    },
+    {
+        "name": "Thuốc tân dược",
+        "slug": "thuoc-tan-duoc",
+        "type": "category",
+        "description": "Danh mục sản phẩm thuốc tân dược",
+        "children": [
+            {
+                "name": "Thuốc tim mạch",
+                "slug": "thuoc-tim-mach",
+                "type": "category"
+            },
+            {
+                "name": "Thuốc huyết áp",
+                "slug": "thuoc-huyet-ap",
+                "type": "category"
+            }
+        ]
+    },
+    {
+        "name": "Navbar",
+        "type": "menu",
+        "url": "#",
+        "icon": "fas fa-bars",
+        "children": [
+            {
+                "name": "Trang chủ",
+                "type": "menu",
+                "url": "/",
+                "icon": "fas fa-home"
+            },
+            {
+                "name": "Bài viết",
+                "type": "menu",
+                "url": "/bai-viet",
+                "icon": "fas fa-newspaper"
+            },
+            {
+                "name": "Sản phẩm",
+                "type": "menu",
+                "url": "/san-pham",
+                "icon": "fas fa-pills"
+            }
+        ]
+    },
+    {
+        "name": "Sidebar",
+        "type": "menu",
+        "url": "#",
+        "icon": "fas fa-list",
+        "children": [
+            {
+                "name": "Quản lý người dùng",
+                "type": "menu",
+                "url": "/admin/users",
+                "icon": "fas fa-users",
+                "can": "user-list"
+            },
+            {
+                "name": "Quản lý vai trò",
+                "type": "menu",
+                "url": "/admin/roles",
+                "icon": "fas fa-user-shield",
+                "can": "role-list"
+            },
+            {
+                "name": "Quản lý quyền",
+                "type": "menu",
+                "url": "/admin/permissions",
+                "icon": "fas fa-key",
+                "can": "permission-list"
+            }
+        ]
+    }
+]
