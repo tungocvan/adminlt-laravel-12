@@ -14,6 +14,15 @@
 
     {{-- Filters --}}
     <div class="row mb-3">
+        <div class="col-md-2">
+            <select wire:model.live="perPage" class="form-control">
+                <option value="10">10 / page</option>
+                <option value="25">25 / page</option>
+                <option value="50">50 / page</option>
+                <option value="100">100 / page</option>
+                <option value="all">All</option>
+            </select>
+        </div>
         <div class="col-md-3">
             <select wire:model.live="filterType" class="form-control">
                 <option value="">-- Lọc loại --</option>
@@ -24,26 +33,22 @@
         <div class="col-md-3">
             <select wire:model.live="selectedParent" class="form-control">
                 <option value="">-- Chọn Menu gốc --</option>
-                @foreach($parents as $id => $parentName)
-                    <option value="{{ $id }}">{{ $parentName }}</option>
+                @foreach($parents as $p)
+                    <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
                 @endforeach
             </select>
         </div>
-        <div class="col-md-6">
-            
-                <button wire:click="$set('filterType','')" 
-                        class="btn btn-sm btn-secondary"
-                        @if($filterType === '') disabled @endif>
-                    Clear Loại
-                </button>
-            
-                <button wire:click="$set('selectedParent', null)" 
-                        class="btn btn-sm btn-secondary"
-                        @if($selectedParent === null) disabled @endif>
-                    Clear Menu gốc
-                </button>
-           
-            
+        <div class="col-md-4">
+            <button wire:click="$set('filterType','')" 
+                    class="btn btn-sm btn-secondary"
+                    @if($filterType === '') disabled @endif>
+                Clear Loại
+            </button>
+            <button wire:click="$set('selectedParent', null)" 
+                    class="btn btn-sm btn-secondary"
+                    @if($selectedParent === null) disabled @endif>
+                Clear Menu gốc
+            </button>
         </div>
     </div>
 
@@ -61,37 +66,24 @@
         </thead>
         <tbody>
             @forelse($categories as $category)
-                {{-- Nếu là menu gốc, hiển thị dòng nổi bật --}}
-                @if($category->parent_id === null)
-                    <tr class="table-primary">
-                        <td colspan="6"><strong>{{ $category->name }}</strong></td>
-                    </tr>
-                @endif
-
                 <tr>
-                    <td>{{ $category->id }}</td>
+                    <td>{{ $category['id'] }}</td>
+                    <td>{{ $category['name'] }}</td>
+                    <td>{{ $category['slug'] }}</td>
+                    <td><span class="badge badge-info">{{ $category['type'] }}</span></td>
                     <td>
-                        @if($category->parent_id)
-                            &mdash; {{ $category->name }}
-                        @else
-                            {{ $category->name }}
-                        @endif
-                    </td>
-                    <td>{{ $category->slug }}</td>
-                    <td><span class="badge badge-info">{{ $category->type }}</span></td>
-                    <td>
-                        @if($category->is_active)
+                        @if($category['is_active'])
                             <span class="badge badge-success">Active</span>
                         @else
                             <span class="badge badge-secondary">Inactive</span>
                         @endif
                     </td>
                     <td>
-                        <button wire:click="openEdit({{ $category->id }})"
+                        <button wire:click="openEdit({{ $category['id'] }})"
                                 class="btn btn-sm btn-warning">
                             <i class="fa fa-edit"></i> Sửa
                         </button>
-                        <button wire:click="deleteCategory({{ $category->id }})"
+                        <button wire:click="deleteCategory({{ $category['id'] }})"
                                 onclick="return confirm('Xác nhận xóa?')"
                                 class="btn btn-sm btn-danger">
                             <i class="fa fa-trash"></i> Xóa
@@ -106,9 +98,19 @@
         </tbody>
     </table>
 
-    <div>
-        {{ $categories->links() }}
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+            Hiển thị {{ $categories->firstItem() }} đến {{ $categories->lastItem() }} của {{ $categories->total() }} bản ghi
+        </div>
+        <div>
+            {{ $categories->links('components.pagination') }}
+        </div>
     </div>
+    
+
+
+
+
 
     {{-- Modal Bootstrap --}}
     <div class="modal fade @if($isModalOpen) show d-block @endif" tabindex="-1" role="dialog"
@@ -144,8 +146,8 @@
                             <label>Cha</label>
                             <select wire:model="parent_id" class="form-control">
                                 <option value="">-- Không chọn --</option>
-                                @foreach($parents as $id => $parentName)
-                                    <option value="{{ $id }}">{{ $parentName }}</option>
+                                @foreach($parents as $p)
+                                    <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -170,4 +172,11 @@
             </div>
         </div>
     </div>
+    <script>
+        Livewire.on('reset-page', () => {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('page');
+            window.history.replaceState({}, '', url);
+        });
+    </script>
 </div>

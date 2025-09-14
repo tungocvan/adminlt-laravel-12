@@ -4,9 +4,8 @@ namespace App\Livewire\Category;
 
 use App\Models\Category;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Illuminate\Support\Str;
-
+use Livewire\WithPagination;
 
 class CategoryList extends Component
 {
@@ -17,6 +16,15 @@ class CategoryList extends Component
     public $name, $slug, $url, $icon, $can, $type = 'category';
     public $parent_id, $description, $image, $is_active = true;
     public $sort_order = 0, $meta_title, $meta_description;
+    public $page = 1;
+    public $perPage = 10;
+    public $pageName = 'page';
+    protected $queryString = [
+        'perPage' => ['except' => 10],
+        // KHÔNG khai báo 'page' => tránh lưu query string page
+    ];
+    
+    // Filter
     public $filterType = ''; // 'category', 'menu' hoặc ''
     public $filterParentOnly = false;
     public $selectedParent = null; // menu gốc được chọn
@@ -43,26 +51,65 @@ class CategoryList extends Component
     {
         $query = Category::query();
 
-        // lọc theo menu parent nếu có chọn
         if ($this->selectedParent) {
             $query->where('parent_id', $this->selectedParent);
         }
-        // Lọc theo loại nếu có chọn
         if ($this->filterType) {
             $query->where('type', $this->filterType);
         }
-
-        // Lọc menu gốc nếu check
         if ($this->filterParentOnly) {
             $query->whereNull('parent_id');
         }
 
+        if ($this->perPage === 'all') {
+            $perPage = 1000000; // hoặc một số lớn phù hợp với DB của bạn
+        } else {
+            $perPage = (int) $this->perPage ?: 10;
+        }
+        
+        $categories = $query->orderBy('sort_order')->paginate($perPage, ['*'], $this->pageName);
         return view('livewire.category.category-list', [
-            'categories' => $query->orderBy('sort_order')->paginate(10),
-            'parents' => Category::whereNull('parent_id')->pluck('name', 'id')
+            'categories' => $categories,
+            'parents' => $this->getCategoryTree(),
         ]);
     }
 
+
+    /**
+     * Build cây danh mục đa cấp thành 1 mảng phẳng có prefix
+     */
+    private function getCategoryTree($parentId = null, $prefix = '')
+    {
+        $query = Category::where('parent_id', $parentId)->orderBy('sort_order');
+
+        if ($this->filterType) {
+            $query->where('type', $this->filterType);
+        }
+        if ($this->filterParentOnly && $parentId === null) {
+            $query->whereNull('parent_id');
+        }
+        if ($this->selectedParent && $parentId === null) {
+            $query->where('id', $this->selectedParent);
+        }
+
+        $items = $query->get();
+
+        $tree = [];
+        foreach ($items as $item) {
+            $tree[] = [
+                'id' => $item->id,
+                'name' => $prefix . $item->name,
+                'slug' => $item->slug,
+                'type' => $item->type,
+                'is_active' => $item->is_active,
+                'parent_id' => $item->parent_id,
+            ];
+
+            // đệ quy con
+            $tree = array_merge($tree, $this->getCategoryTree($item->id, $prefix . '— '));
+        }
+        return $tree;
+    }
 
     public function openCreate()
     {
@@ -98,9 +145,7 @@ class CategoryList extends Component
 
         // Nếu slug null hoặc rỗng => tự động sinh từ name
         if (empty($data['slug'])) {
-            $slug = \Illuminate\Support\Str::slug($data['name']);
-
-            // đảm bảo slug là unique
+            $slug = Str::slug($data['name']);
             $originalSlug = $slug;
             $counter = 1;
             while (Category::where('slug', $slug)
@@ -108,7 +153,6 @@ class CategoryList extends Component
                 ->exists()) {
                 $slug = $originalSlug . '-' . $counter++;
             }
-
             $data['slug'] = $slug;
         }
 
@@ -124,8 +168,6 @@ class CategoryList extends Component
         $this->resetInputFields();
     }
 
-
-
     public function deleteCategory($id)
     {
         Category::findOrFail($id)->delete();
@@ -134,10 +176,15 @@ class CategoryList extends Component
 
     public function updatedName($value)
     {
-        // chỉ tạo slug nếu chưa có hoặc đang tạo mới
         if (!$this->slug || !$this->categoryId) {
             $this->slug = Str::slug($value);
         }
+    }
+
+    public function updatedPerPage()
+    {
+        $this->resetPage($this->pageName);
+
     }
 
     private function resetInputFields()
@@ -153,15 +200,9 @@ class CategoryList extends Component
         $this->is_active = true;
         $this->sort_order = 0;
     }
-    public function updatedFilterType()
-    {
-        $this->resetPage();
-    }
 
-    public function updatedSelectedParent()
-    {
-        $this->resetPage();
-    }
+    public function updatedFilterType() {  $this->resetPage($this->pageName); }
+    public function updatedSelectedParent() {  $this->resetPage($this->pageName); }
 
     public function openModal() { $this->isModalOpen = true; }
     public function closeModal() { $this->isModalOpen = false; }
