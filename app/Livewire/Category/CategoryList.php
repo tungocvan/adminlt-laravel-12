@@ -6,28 +6,29 @@ use App\Models\Category;
 use Livewire\Component;
 use Illuminate\Support\Str;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 
 class CategoryList extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public $isModalOpen = false;
     public $categoryId;
+
     public $name, $slug, $url, $icon, $can, $type = 'category';
-    public $parent_id, $description, $image, $is_active = true;
+    public $parent_id, $description, $image, $imageFile, $is_active = true;
     public $sort_order = 0, $meta_title, $meta_description;
-    public $page = 1;
+
     public $perPage = 10;
-    public $pageName = 'page';
+
+    // Filter
+    public $filterType = '';
+    public $filterParentOnly = false;
+    public $selectedParent = null;
+
     protected $queryString = [
         'perPage' => ['except' => 10],
-        // KHÔNG khai báo 'page' => tránh lưu query string page
     ];
-    
-    // Filter
-    public $filterType = ''; // 'category', 'menu' hoặc ''
-    public $filterParentOnly = false;
-    public $selectedParent = null; // menu gốc được chọn
 
     protected function rules()
     {
@@ -44,6 +45,7 @@ class CategoryList extends Component
             'can' => 'nullable|string|max:255',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:255',
+            'imageFile' => 'nullable|image|max:1024',
         ];
     }
 
@@ -52,49 +54,50 @@ class CategoryList extends Component
         $query = Category::query();
 
         if ($this->selectedParent) {
-            $query->where('parent_id', $this->selectedParent);
+            $ids = [$this->selectedParent];
+            $ids = array_merge($ids, $this->getDescendantIds($this->selectedParent));
+            $query->whereIn('id', $ids);
         }
+
         if ($this->filterType) {
             $query->where('type', $this->filterType);
         }
+
         if ($this->filterParentOnly) {
             $query->whereNull('parent_id');
         }
 
-        if ($this->perPage === 'all') {
-            $perPage = 1000000; // hoặc một số lớn phù hợp với DB của bạn
-        } else {
-            $perPage = (int) $this->perPage ?: 10;
-        }
-        
-        $categories = $query->orderBy('sort_order')->paginate($perPage, ['*'], $this->pageName);
+        $perPage = $this->perPage === 'all' ? 1000000 : max((int)$this->perPage, 10);
+
+        $categories = $query->orderBy('sort_order')->paginate($perPage);
+
         return view('livewire.category.category-list', [
             'categories' => $categories,
             'parents' => $this->getCategoryTree(),
         ]);
     }
 
-
-    /**
-     * Build cây danh mục đa cấp thành 1 mảng phẳng có prefix
-     */
     private function getCategoryTree($parentId = null, $prefix = '')
     {
-        $query = Category::where('parent_id', $parentId)->orderBy('sort_order');
+        $query = Category::query()->orderBy('sort_order');
+
+        if ($parentId === null) {
+            if ($this->selectedParent) {
+                $query->where('id', $this->selectedParent);
+            } else {
+                $query->whereNull('parent_id');
+            }
+        } else {
+            $query->where('parent_id', $parentId);
+        }
 
         if ($this->filterType) {
             $query->where('type', $this->filterType);
         }
-        if ($this->filterParentOnly && $parentId === null) {
-            $query->whereNull('parent_id');
-        }
-        if ($this->selectedParent && $parentId === null) {
-            $query->where('id', $this->selectedParent);
-        }
 
         $items = $query->get();
-
         $tree = [];
+
         foreach ($items as $item) {
             $tree[] = [
                 'id' => $item->id,
@@ -105,10 +108,21 @@ class CategoryList extends Component
                 'parent_id' => $item->parent_id,
             ];
 
-            // đệ quy con
             $tree = array_merge($tree, $this->getCategoryTree($item->id, $prefix . '— '));
         }
+
         return $tree;
+    }
+
+    private function getDescendantIds($parentId)
+    {
+        $ids = [];
+        $children = Category::where('parent_id', $parentId)->pluck('id');
+        foreach ($children as $childId) {
+            $ids[] = $childId;
+            $ids = array_merge($ids, $this->getDescendantIds($childId));
+        }
+        return $ids;
     }
 
     public function openCreate()
@@ -143,7 +157,6 @@ class CategoryList extends Component
     {
         $data = $this->validate();
 
-        // Nếu slug null hoặc rỗng => tự động sinh từ name
         if (empty($data['slug'])) {
             $slug = Str::slug($data['name']);
             $originalSlug = $slug;
@@ -156,6 +169,10 @@ class CategoryList extends Component
             $data['slug'] = $slug;
         }
 
+        if ($this->imageFile) {
+            $data['image'] = $this->imageFile->store('categories', 'public');
+        }
+
         if ($this->categoryId) {
             Category::findOrFail($this->categoryId)->update($data);
             session()->flash('message', 'Cập nhật thành công');
@@ -164,8 +181,8 @@ class CategoryList extends Component
             session()->flash('message', 'Thêm mới thành công');
         }
 
-        $this->isModalOpen = false;
         $this->resetInputFields();
+        $this->isModalOpen = false;
     }
 
     public function deleteCategory($id)
@@ -176,34 +193,28 @@ class CategoryList extends Component
 
     public function updatedName($value)
     {
-        if (!$this->slug || !$this->categoryId) {
+        if (!$this->categoryId) {
             $this->slug = Str::slug($value);
         }
     }
 
-    public function updatedPerPage()
-    {
-        $this->resetPage($this->pageName);
+    public function updatedPerPage() { $this->resetPage(); }
+    public function updatedFilterType() { $this->resetPage(); }
+    public function updatedSelectedParent() { $this->resetPage(); }
 
-    }
+    public function closeModal() { $this->isModalOpen = false; }
 
     private function resetInputFields()
     {
         $this->reset([
             'categoryId',
-            'name', 'slug', 'url', 'icon', 'can', 'type',
-            'parent_id', 'description', 'image', 'is_active',
-            'sort_order', 'meta_title', 'meta_description',
+            'name', 'slug', 'url', 'icon', 'can',
+            'parent_id', 'description', 'image', 'imageFile',
+            'meta_title', 'meta_description',
         ]);
 
         $this->type = 'category';
         $this->is_active = true;
         $this->sort_order = 0;
     }
-
-    public function updatedFilterType() {  $this->resetPage($this->pageName); }
-    public function updatedSelectedParent() {  $this->resetPage($this->pageName); }
-
-    public function openModal() { $this->isModalOpen = true; }
-    public function closeModal() { $this->isModalOpen = false; }
 }

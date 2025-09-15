@@ -52,6 +52,13 @@
         </div>
     </div>
 
+    {{-- Chuẩn bị map prefix theo ID --}}
+    @php
+        $prefixMap = collect($parents)->mapWithKeys(function($item) {
+            return [$item['id'] => $item['name']];
+        });
+    @endphp
+
     {{-- Table --}}
     <table class="table table-bordered table-striped">
         <thead class="thead-light">
@@ -67,23 +74,23 @@
         <tbody>
             @forelse($categories as $category)
                 <tr>
-                    <td>{{ $category['id'] }}</td>
-                    <td>{{ $category['name'] }}</td>
-                    <td>{{ $category['slug'] }}</td>
-                    <td><span class="badge badge-info">{{ $category['type'] }}</span></td>
+                    <td>{{ $category->id }}</td>
+                    <td>{{ $prefixMap[$category->id] ?? $category->name }}</td>
+                    <td>{{ $category->slug }}</td>
+                    <td><span class="badge badge-info">{{ $category->type }}</span></td>
                     <td>
-                        @if($category['is_active'])
+                        @if($category->is_active)
                             <span class="badge badge-success">Active</span>
                         @else
                             <span class="badge badge-secondary">Inactive</span>
                         @endif
                     </td>
                     <td>
-                        <button wire:click="openEdit({{ $category['id'] }})"
+                        <button wire:click="openEdit({{ $category->id }})"
                                 class="btn btn-sm btn-warning">
                             <i class="fa fa-edit"></i> Sửa
                         </button>
-                        <button wire:click="deleteCategory({{ $category['id'] }})"
+                        <button wire:click="deleteCategory({{ $category->id }})"
                                 onclick="return confirm('Xác nhận xóa?')"
                                 class="btn btn-sm btn-danger">
                             <i class="fa fa-trash"></i> Xóa
@@ -100,83 +107,106 @@
 
     <div class="d-flex justify-content-between align-items-center mt-3">
         <div>
-            Hiển thị {{ $categories->firstItem() }} đến {{ $categories->lastItem() }} của {{ $categories->total() }} bản ghi
+            Hiển thị {{ $categories->firstItem() }} đến {{ $categories->lastItem() }} 
+            của {{ $categories->total() }} bản ghi
         </div>
         <div>
             {{ $categories->links('components.pagination') }}
         </div>
     </div>
-    
-
-
-
-
 
     {{-- Modal Bootstrap --}}
     <div class="modal fade @if($isModalOpen) show d-block @endif" tabindex="-1" role="dialog"
-         style="background: rgba(0,0,0,0.5); @if(!$isModalOpen) display:none; @endif">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ $categoryId ? 'Cập nhật Danh mục' : 'Thêm Danh mục' }}</h5>
-                    <button type="button" class="close" wire:click="closeModal">
-                        <span>&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Tên</label>
-                            <input type="text" wire:model="name" class="form-control">
-                            @error('name') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Slug</label>
-                            <input type="text" wire:model="slug" class="form-control">
-                            @error('slug') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Loại</label>
-                            <select wire:model="type" class="form-control">
-                                <option value="category">Category</option>
-                                <option value="menu">Menu</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Cha</label>
-                            <select wire:model="parent_id" class="form-control">
-                                <option value="">-- Không chọn --</option>
-                                @foreach($parents as $p)
-                                    <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Trạng thái</label><br>
-                            <input type="checkbox" wire:model="is_active"> Active
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Thứ tự</label>
-                            <input type="number" wire:model="sort_order" class="form-control">
-                        </div>
-                        <div class="form-group col-md-12">
-                            <label>Mô tả</label>
-                            <textarea wire:model="description" class="form-control"></textarea>
-                        </div>
+     style="background: rgba(0,0,0,0.5); @if(!$isModalOpen) display:none; @endif">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ $categoryId ? 'Cập nhật Danh mục' : 'Thêm Danh mục' }}</h5>
+                <button type="button" class="close" wire:click="closeModal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+
+                    <div class="form-group col-md-6">
+                        <label>Tên</label>
+                        <input type="text" wire:model="name" class="form-control">
+                        @error('name') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Slug</label>
+                        <input type="text" wire:model="slug" class="form-control">
+                        @error('slug') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Loại</label>
+                        <select wire:model="type" class="form-control">
+                            <option value="category">Category</option>
+                            <option value="menu">Menu</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Cha</label>
+                        <select wire:model="parent_id" class="form-control">
+                            <option value="">-- Không chọn --</option>
+                            @foreach($parents as $p)
+                                <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Trạng thái</label><br>
+                        <input type="checkbox" wire:model="is_active"> Active
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Thứ tự</label>
+                        <input type="number" wire:model="sort_order" class="form-control">
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Icon</label>
+                        <input type="text" wire:model="icon" class="form-control">
+                        @error('icon') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Can</label>
+                        <input type="text" wire:model="can" class="form-control">
+                        @error('can') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        <label>Mô tả</label>
+                        <textarea wire:model="description" class="form-control"></textarea>
+                        @error('description') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Ảnh</label>
+                        <input type="file" wire:model="imageFile" class="form-control">
+                        @error('imageFile') <small class="text-danger">{{ $message }}</small> @enderror
+
+                        @if($image)
+                            <div class="mt-2">
+                                <img src="{{ $image instanceof \Livewire\TemporaryUploadedFile ? $image->temporaryUrl() : asset('storage/' . $image) }}" alt="" width="80">
+                            </div>
+                        @endif
+                    </div>
+
                 </div>
-                <div class="modal-footer">
-                    <button type="button" wire:click="closeModal" class="btn btn-secondary">Đóng</button>
-                    <button type="button" wire:click="saveCategory" class="btn btn-primary">Lưu</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" wire:click="closeModal" class="btn btn-secondary">Đóng</button>
+                <button type="button" wire:click="saveCategory" class="btn btn-primary">Lưu</button>
             </div>
         </div>
     </div>
-    <script>
-        Livewire.on('reset-page', () => {
-            const url = new URL(window.location.href);
-            url.searchParams.delete('page');
-            window.history.replaceState({}, '', url);
-        });
-    </script>
+</div>
+
 </div>
