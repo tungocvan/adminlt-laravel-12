@@ -7,6 +7,9 @@ use Livewire\Component;
 use Illuminate\Support\Str;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+
 
 class CategoryList extends Component
 {
@@ -25,17 +28,51 @@ class CategoryList extends Component
     public $filterType = '';
     public $filterParentOnly = false;
     public $selectedParent = null;
-
+    public $isChange = false;
     protected $queryString = [
         'perPage' => ['except' => 10],
     ];
 
+    public $customType = null;
+    public $isAddingType = false;
+    public $typeOptions = ['category' => 'Category', 'menu' => 'Menu']; // danh sách loại có sẵn
+
+    public function mount()
+    {
+        $this->loadTypeOptions();
+    }
+
+    private function loadTypeOptions()
+    {
+        $types = \App\Models\Category::select('type')
+            ->distinct()
+            ->pluck('type')
+            ->filter() // loại bỏ null, rỗng
+            ->toArray();
+
+        // map thành [key => Label]
+        $this->typeOptions = [];
+        foreach ($types as $t) {
+            $this->typeOptions[$t] = ucfirst($t);
+        }
+
+        // nếu rỗng thì thêm mặc định
+        if (empty($this->typeOptions)) {
+            $this->typeOptions = [
+                'category' => 'Category',
+            ];
+        }
+    }
+
+
     protected function rules()
     {
+        $allowedTypes = array_keys($this->typeOptions ?: ['category' => 'Category','menu' => 'Menu']);
+
         return [
             'name'  => 'required|string|max:255',
             'slug'  => 'nullable|string|max:255|unique:categories,slug,' . $this->categoryId,
-            'type'  => 'required|in:category,menu',
+            'type' => ['required', 'string', 'max:255'],
             'parent_id' => 'nullable|exists:categories,id',
             'is_active' => 'boolean',
             'sort_order' => 'integer|min:0',
@@ -48,6 +85,50 @@ class CategoryList extends Component
             'imageFile' => 'nullable|image|max:1024',
         ];
     }
+
+    
+    public function updated($propertyName)
+    {
+        // Bất kỳ khi nào có thay đổi trong input nào thì đánh dấu đã thay đổi
+        if (in_array($propertyName, [
+            'name', 'slug', 'url', 'icon', 'can', 'type',
+            'parent_id', 'description', 'imageFile', 'is_active',
+            'sort_order', 'meta_title', 'meta_description'
+        ])) {
+            $this->isChange = true;
+        }
+    }
+
+    public function updatedType($value)
+    {
+        if ($value === 'new') {
+            $this->isAddingType = true;
+            $this->customType = '';
+        } else {
+            $this->isAddingType = false;
+        }
+    }
+
+    public function saveNewType()
+    {
+        if (!$this->customType || trim($this->customType) === '') {
+            $this->addError('customType', 'Vui lòng nhập tên loại mới.');
+            return;
+        }
+
+        $key = Str::slug($this->customType);
+
+        if (!isset($this->typeOptions[$key])) {
+            $this->typeOptions[$key] = $this->customType;
+        }
+
+        $this->type = $key;       // 👈 Quan trọng: phải gán lại type
+        $this->isAddingType = false;
+        $this->customType = '';
+    }
+
+
+
 
     public function render()
     {
@@ -155,8 +236,24 @@ class CategoryList extends Component
 
     public function saveCategory()
     {
-        $data = $this->validate();
+        // Nếu user vẫn ở chế độ "thêm mới" (chọn option new)
+        if ($this->type === 'new') {
+            if ($this->customType && trim($this->customType) !== '') {
+                $this->saveNewType(); // sẽ thêm vào $typeOptions và gán $this->type = slug
+            } else {
+                $this->addError('type', 'Bạn chưa nhập tên loại mới.');
+                return;
+            }
+        }
 
+
+        $data = $this->validate();     
+        
+        if($this->isChange == false) {
+            $this->resetInputFields();
+            $this->isModalOpen = false;
+            return;
+        }
         if (empty($data['slug'])) {
             $slug = Str::slug($data['name']);
             $originalSlug = $slug;
@@ -180,9 +277,9 @@ class CategoryList extends Component
             Category::create($data);
             session()->flash('message', 'Thêm mới thành công');
         }
-
         $this->resetInputFields();
         $this->isModalOpen = false;
+       
     }
 
     public function deleteCategory($id)
@@ -196,6 +293,29 @@ class CategoryList extends Component
         if (!$this->categoryId) {
             $this->slug = Str::slug($value);
         }
+    }
+
+
+    // xóa ảnh (gọi từ nút X trên UI)
+    public function removeImage()
+    {
+        
+        // nếu đã có trong DB, xóa file và cập nhật DB ngay
+        if ($this->categoryId) {
+            $category = Category::findOrFail($this->categoryId);
+            
+            if($category->image && Storage::disk('public')->exists($category->image)) {
+                
+                Storage::disk('public')->delete($category->image);
+            }
+           
+            $category->update(['image' => null]);
+           
+        }
+
+        // reset trên component
+        $this->image = null;
+        $this->imageFile = null;        
     }
 
     public function updatedPerPage() { $this->resetPage(); }

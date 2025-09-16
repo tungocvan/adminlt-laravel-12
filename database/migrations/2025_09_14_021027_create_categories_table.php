@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('url')->nullable();            // Link (nếu là menu)
             $table->string('icon')->nullable();           // Icon (menu hiển thị)
             $table->string('can')->nullable();            // Quyền hạn (permission key)
-            $table->enum('type', ['category', 'menu'])->default('category');
+            $table->string('type')->nullable();
             $table->foreignId('parent_id')
                 ->nullable()
                 ->constrained('categories')

@@ -26,10 +26,12 @@
         <div class="col-md-3">
             <select wire:model.live="filterType" class="form-control">
                 <option value="">-- Lọc loại --</option>
-                <option value="category">Category</option>
-                <option value="menu">Menu</option>
+                @foreach($typeOptions as $key => $label)
+                    <option value="{{ $key }}">{{ $label }}</option>
+                @endforeach
             </select>
         </div>
+        
         <div class="col-md-3">
             <select wire:model.live="selectedParent" class="form-control">
                 <option value="">-- Chọn Menu gốc --</option>
@@ -143,11 +145,24 @@
 
                     <div class="form-group col-md-6">
                         <label>Loại</label>
-                        <select wire:model="type" class="form-control">
-                            <option value="category">Category</option>
-                            <option value="menu">Menu</option>
+                        <select wire:model.live="type" class="form-control">
+                            @foreach($typeOptions as $key => $label)
+                                <option value="{{ $key }}">{{ $label }}</option>
+                            @endforeach
+                            <option value="new">➕ Thêm loại mới...</option>
                         </select>
+                    
+                        @if($isAddingType)
+                            <div class="input-group mt-2">
+                                <input type="text" wire:model="customType" class="form-control" placeholder="Nhập loại mới...">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-success btn-sm" wire:click="saveNewType">OK</button>
+                                </div>
+                            </div>
+                        @endif
                     </div>
+                    
+                    
 
                     <div class="form-group col-md-6">
                         <label>Cha</label>
@@ -189,12 +204,18 @@
 
                     <div class="form-group col-md-6">
                         <label>Ảnh</label>
-                        <input type="file" wire:model="imageFile" class="form-control">
+                        <input type="file" wire:model="imageFile" class="form-control" style="height:calc(2.25rem + 10px)">
                         @error('imageFile') <small class="text-danger">{{ $message }}</small> @enderror
 
                         @if($image)
-                            <div class="mt-2">
-                                <img src="{{ $image instanceof \Livewire\TemporaryUploadedFile ? $image->temporaryUrl() : asset('storage/' . $image) }}" alt="" width="80">
+                            <div class="mt-2 position-relative d-inline-block">
+                                <img src="{{ $image instanceof \Livewire\TemporaryUploadedFile ? $image->temporaryUrl() : asset('storage/' . $image) }}" 
+                                     alt="" width="100" class="img-thumbnail">
+                                <button type="button" wire:click="removeImage" 
+                                        class="btn btn-sm btn-danger position-absolute" 
+                                        style="top:0; right:0; transform: translate(50%,-50%);">
+                                    &times;
+                                </button>
                             </div>
                         @endif
                     </div>
