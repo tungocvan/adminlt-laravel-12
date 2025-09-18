@@ -19,6 +19,11 @@ class ProductsController extends Controller
     }
     public function index()
     {
+        
+         return view('Products::index');     
+    }
+    public function productCart()
+    {
         // $product = Product::whereJsonContains('details->tags', 'money')->get();       
         // return view('Products::index');
         $products = Product::all();

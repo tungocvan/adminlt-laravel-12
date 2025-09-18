@@ -1,0 +1,467 @@
+{
+    "categories": [
+        {
+            "id": 1,
+            "name": "Điện thoại",
+            "slug": "dien-thoai",
+            "type": "category",
+            "is_active": true
+        },
+        {
+            "id": 2,
+            "name": "Laptop",
+            "slug": "laptop",
+            "type": "category",
+            "is_active": true
+        },
+        {
+            "id": 3,
+            "name": "Phụ kiện",
+            "slug": "phu-kien",
+            "type": "category",
+            "is_active": true
+        }
+    ],
+    "products": [
+        {
+            "id": 1,
+            "title": "Sản phẩm demo 1",
+            "slug": "san-pham-demo-1-1",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 1",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 1<\/p>",
+            "regular_price": 4086734,
+            "sale_price": 2633968,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                3
+            ]
+        },
+        {
+            "id": 2,
+            "title": "Sản phẩm demo 2",
+            "slug": "san-pham-demo-2-2",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 2",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 2<\/p>",
+            "regular_price": 4268209,
+            "sale_price": 3932494,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                3
+            ]
+        },
+        {
+            "id": 3,
+            "title": "Sản phẩm demo 3",
+            "slug": "san-pham-demo-3-3",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 3",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 3<\/p>",
+            "regular_price": 4746608,
+            "sale_price": 3612467,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                3
+            ]
+        },
+        {
+            "id": 4,
+            "title": "Sản phẩm demo 4",
+            "slug": "san-pham-demo-4-4",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 4",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 4<\/p>",
+            "regular_price": 2684797,
+            "sale_price": 3302434,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                1
+            ]
+        },
+        {
+            "id": 5,
+            "title": "Sản phẩm demo 5",
+            "slug": "san-pham-demo-5-5",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 5",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 5<\/p>",
+            "regular_price": 4949960,
+            "sale_price": 862816,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                3
+            ]
+        },
+        {
+            "id": 6,
+            "title": "Sản phẩm demo 6",
+            "slug": "san-pham-demo-6-6",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 6",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 6<\/p>",
+            "regular_price": 1184014,
+            "sale_price": 2011268,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                2
+            ]
+        },
+        {
+            "id": 7,
+            "title": "Sản phẩm demo 7",
+            "slug": "san-pham-demo-7-7",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 7",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 7<\/p>",
+            "regular_price": 3791636,
+            "sale_price": 1552730,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                3
+            ]
+        },
+        {
+            "id": 8,
+            "title": "Sản phẩm demo 8",
+            "slug": "san-pham-demo-8-8",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 8",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 8<\/p>",
+            "regular_price": 2476062,
+            "sale_price": 856734,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                2
+            ]
+        },
+        {
+            "id": 9,
+            "title": "Sản phẩm demo 9",
+            "slug": "san-pham-demo-9-9",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 9",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 9<\/p>",
+            "regular_price": 4001448,
+            "sale_price": 2930435,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                2
+            ]
+        },
+        {
+            "id": 10,
+            "title": "Sản phẩm demo 10",
+            "slug": "san-pham-demo-10-10",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 10",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 10<\/p>",
+            "regular_price": 2883910,
+            "sale_price": 1042310,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                3
+            ]
+        },
+        {
+            "id": 11,
+            "title": "Sản phẩm demo 11",
+            "slug": "san-pham-demo-11-11",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 11",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 11<\/p>",
+            "regular_price": 3316734,
+            "sale_price": 753458,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                1
+            ]
+        },
+        {
+            "id": 12,
+            "title": "Sản phẩm demo 12",
+            "slug": "san-pham-demo-12-12",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 12",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 12<\/p>",
+            "regular_price": 1294526,
+            "sale_price": 2640918,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                2
+            ]
+        },
+        {
+            "id": 13,
+            "title": "Sản phẩm demo 13",
+            "slug": "san-pham-demo-13-13",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 13",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 13<\/p>",
+            "regular_price": 4145476,
+            "sale_price": 3767221,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                2
+            ]
+        },
+        {
+            "id": 14,
+            "title": "Sản phẩm demo 14",
+            "slug": "san-pham-demo-14-14",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 14",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 14<\/p>",
+            "regular_price": 3759296,
+            "sale_price": 644335,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                3
+            ]
+        },
+        {
+            "id": 15,
+            "title": "Sản phẩm demo 15",
+            "slug": "san-pham-demo-15-15",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 15",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 15<\/p>",
+            "regular_price": 1723704,
+            "sale_price": 2245731,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                2
+            ]
+        },
+        {
+            "id": 16,
+            "title": "Sản phẩm demo 16",
+            "slug": "san-pham-demo-16-16",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 16",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 16<\/p>",
+            "regular_price": 4870903,
+            "sale_price": 2767873,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                1
+            ]
+        },
+        {
+            "id": 17,
+            "title": "Sản phẩm demo 17",
+            "slug": "san-pham-demo-17-17",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 17",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 17<\/p>",
+            "regular_price": 2232030,
+            "sale_price": 567431,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                1
+            ]
+        },
+        {
+            "id": 18,
+            "title": "Sản phẩm demo 18",
+            "slug": "san-pham-demo-18-18",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 18",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 18<\/p>",
+            "regular_price": 4626658,
+            "sale_price": 3815624,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                1
+            ]
+        },
+        {
+            "id": 19,
+            "title": "Sản phẩm demo 19",
+            "slug": "san-pham-demo-19-19",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 19",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 19<\/p>",
+            "regular_price": 2530237,
+            "sale_price": 3697041,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                1
+            ]
+        },
+        {
+            "id": 20,
+            "title": "Sản phẩm demo 20",
+            "slug": "san-pham-demo-20-20",
+            "short_description": "Mô tả ngắn gọn cho Sản phẩm demo 20",
+            "description": "<p>Mô tả chi tiết cho Sản phẩm demo 20<\/p>",
+            "regular_price": 1486061,
+            "sale_price": 2529826,
+            "image": "images\/default.jpg",
+            "gallery": [
+                "images\/gallery1.jpg",
+                "images\/gallery2.jpg"
+            ],
+            "tags": [
+                "tag1",
+                "tag2",
+                "tag3"
+            ],
+            "categories": [
+                2
+            ]
+        }
+    ]
+}

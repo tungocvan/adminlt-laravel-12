@@ -3,11 +3,11 @@
 @section('title', 'Settings')
 
 @section('content_header')
-    <h1>Index Products</h1>
+    <h1>Manager Products</h1>
 @stop
 
 @section('content')
-      {{-- @livewire('env.env-list') --}}
+      @livewire('products.product-manager')
 @stop
 
 @section('css')

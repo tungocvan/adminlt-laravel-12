@@ -5,6 +5,7 @@ use Modules\Products\Http\Controllers\ProductsController;
 
 Route::middleware(['web','auth'])->prefix('/products')->name('products.')->group(function(){
     Route::get('/', [ProductsController::class,'index'])->name('index');
+    Route::get('/product-cart', [ProductsController::class,'productCart'])->name('product-cart');
     Route::get('/add', [ProductsController::class,'create'])->name('create');
     Route::get('/add-more', [ProductsController::class, 'addMore']);
     Route::post('/add-more', [ProductsController::class, 'store'])->name('add-more.store');
