@@ -6,7 +6,11 @@
                    wire:model.debounce.300ms="search">
             <button class="btn btn-primary" wire:click="create">+ Thêm sản phẩm</button>
         </div>
-
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+         @endif
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -88,13 +92,13 @@
                 </div>
                 <div class="col-6">
                     <div class="form-group">
-                        <label>Giá thường</label>
-                        <input type="number" step="0.01" class="form-control" wire:model="regular_price">
+                        <x-money-input wire:model="regular_price" label="Giá thường" />                  
                     </div>
+               
+                    
         
                     <div class="form-group">
-                        <label>Giá khuyến mãi</label>
-                        <input type="number" step="0.01" class="form-control" wire:model="sale_price">
+                        <x-money-input wire:model="sale_price" label="Giá khuyến mãi" />
                         @if (session('status'))
                             <div class="alert alert-danger">
                                 {{ session('status') }}

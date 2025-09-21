@@ -61,6 +61,10 @@ class ProductManager extends Component
         ];
     }
     
+    protected $messages = [
+        'title.required' => 'Vui lòng nhập tên sản phẩm',
+    ];
+
     public function render()
     {
         $this->categories = Category::with('children')->whereNull('parent_id')->get();
@@ -151,15 +155,18 @@ class ProductManager extends Component
 
         $this->resetForm();
         $this->showForm = false;
-        session()->flash('success', 'Lưu sản phẩm thành công.');
-        $this->redirect('/products'); 
+        $title= $data['title'] ;
+        session()->flash('success', "Lưu  $title thành công.");
+        $this->redirect('/products');  
     }
 
 
     public function delete($id)
     {
-        WpProduct::findOrFail($id)->delete();
-        session()->flash('success', 'Đã xoá sản phẩm.');
+        $item = WpProduct::findOrFail($id);
+        $title = $item['title'];
+        $item->delete();
+        session()->flash('success', "Đã xoá $title thành công.");
     }
 
     private function resetForm()
