@@ -141,3 +141,60 @@ if (! function_exists('lang_label')) {
         return app()->getLocale() == 'vi' ? '🇻🇳 VI' : '🇺🇸 EN';
     }
 }
+if (! function_exists('renderCategoryTree')) {
+    function renderCategoryTree($categories, $selectedCategories = [], $level = 0)
+        {
+            $html = '';
+
+            foreach ($categories as $category) {
+                $margin = $level * 20;
+
+                $html .= '<div class="form-check" style="margin-left:'.$margin.'px">';
+                $html .= '<input type="checkbox" 
+                            class="form-check-input"
+                            wire:model="selectedCategories" 
+                            value="'.$category->id.'" 
+                            id="cat_'.$category->id.'"> ';
+                $html .= '<label class="form-check-label" for="cat_'.$category->id.'">'.$category->name.'</label>';
+                $html .= '</div>';
+
+
+                if ($category->children && $category->children->count()) {
+                    $html .= renderCategoryTree($category->children, $selectedCategories, $level + 1);
+                }
+            }
+
+            return $html;
+        }
+}
+if (! function_exists('renderCategoryRows')) {
+function renderCategoryRows($categories, $parentId = null, $prefix = '')
+    {
+        $html = '';
+
+        foreach ($categories->where('parent_id', $parentId) as $category) {
+            $html .= '<tr>';
+            $html .= '<td>' . $category->id . '</td>';
+            $html .= '<td>' . $prefix . e($category->name) . '</td>';
+            $html .= '<td>' . e($category->slug) . '</td>';
+            $html .= '<td><span class="badge badge-info">' . e($category->type) . '</span></td>';
+            $html .= '<td>' . ($category->is_active
+                ? '<span class="badge badge-success">Active</span>'
+                : '<span class="badge badge-secondary">Inactive</span>') . '</td>';
+            $html .= '<td>
+                        <button wire:click="openEdit(' . $category->id . ')" class="btn btn-sm btn-warning">
+                            <i class="fa fa-edit"></i> Sửa
+                        </button>
+                        <button wire:click="deleteCategory(' . $category->id . ')" onclick="return confirm(\'Xác nhận xóa?\')" class="btn btn-sm btn-danger">
+                            <i class="fa fa-trash"></i> Xóa
+                        </button>
+                      </td>';
+            $html .= '</tr>';
+
+            // Gọi đệ quy để render con
+            $html .= renderCategoryRows($categories, $category->id, $prefix . '— ');
+        }
+
+        return $html;
+    }
+}

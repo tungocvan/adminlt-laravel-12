@@ -7,7 +7,10 @@ use Livewire\WithPagination;
 use App\Models\WpProduct;
 use App\Models\Category;
 use Livewire\WithFileUploads;
-
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use Livewire\Attributes\Validate;
+use Illuminate\Support\Str;
 
 class ProductManager extends Component
 {
@@ -31,23 +34,41 @@ class ProductManager extends Component
     public $categories = [];
     public $selectedCategories = [];
 
-    protected $rules = [
-        'title'             => 'required|string|max:255',
-        'slug'              => 'nullable|string|max:255|unique:wp_products,slug',
-        'short_description' => 'nullable|string|max:500',
-        'description'       => 'nullable|string',
-        'regular_price'     => 'nullable|numeric',
-        'sale_price'        => 'nullable|numeric',
-    ];
-
+    protected function rules(): array
+    {
+        return [
+            'title' => 'required|string|max:255',
+            'slug' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique('wp_products', 'slug')->ignore($this->productId)
+            ],
+            'short_description' => 'nullable|string|max:500',
+            'description' => 'nullable|string',
+            'regular_price' => 'nullable|numeric',
+            'sale_price' => [
+                'numeric',
+                'min:0',
+                function ($attribute, $value, $fail) {
+           
+                    if ($value > 0 && $this->regular_price > 0 && $value > $this->regular_price) {
+                        session()->flash('status', 'Giá giảm phải nhỏ hơn giá bình thường.');
+                        $fail('Giá giảm phải nhỏ hơn giá bình thường.');
+                    }
+                }
+            ],
+        ];
+    }
+    
     public function render()
     {
+        $this->categories = Category::with('children')->whereNull('parent_id')->get();
         return view('livewire.products.product-manager', [
             'products'   => WpProduct::with('categories')
                 ->when($this->search, fn($q) => $q->where('title', 'like', "%{$this->search}%"))
                 ->orderBy($this->sortField, $this->sortDirection)
-                ->paginate($this->perPage),
-            'allCategories' => Category::where('type', 'category')->pluck('name', 'id'),
+                ->paginate($this->perPage)
         ]);
     }
 
@@ -74,12 +95,23 @@ class ProductManager extends Component
         $this->selectedCategories = $product->categories->pluck('id')->toArray();
 
         $this->showForm = true;
+        // Gửi dữ liệu xuống để đổ vào Summernote
+        $this->dispatch('setDescription', [
+            'short_description' => $this->short_description,
+            'description' => $this->description,
+        ]);
     }
 
     public function save()
     {
+        $this->sale_price = $this->sale_price ?: 0;
+        $this->regular_price = $this->regular_price ?: 0;
+        $this->slug = $this->slug ?: Str::slug($this->title);
         $data = $this->validate();
 
+        if($this->image == null) {
+            $data['image'] = null;
+        }
         // Xử lý ảnh chính
         if ($this->imageUpload) {
             $data['image'] = $this->imageUpload->store('products', 'public');
@@ -92,8 +124,22 @@ class ProductManager extends Component
                 $paths[] = $file->store('products/gallery', 'public');
             }
             $data['gallery'] = $paths;
+            
         }
-
+        
+        if(count($this->gallery) > 0){
+            $data['gallery'] = array_values(array_unique(array_merge(
+                $this->gallery,            // ảnh mới upload (đã push từ updatedGalleryUpload)
+                $data['gallery'] ?? []     // ảnh cũ trong DB
+            )));
+           
+        }else{
+            if($this->galleryUpload == null){
+                $data['gallery'] = null;
+            }
+        }
+        
+   
         $product = WpProduct::updateOrCreate(
             ['id' => $this->productId],
             array_merge($data, [
@@ -106,6 +152,7 @@ class ProductManager extends Component
         $this->resetForm();
         $this->showForm = false;
         session()->flash('success', 'Lưu sản phẩm thành công.');
+        $this->redirect('/products'); 
     }
 
 
@@ -122,4 +169,38 @@ class ProductManager extends Component
             'regular_price','sale_price','image','gallery','tags','selectedCategories'
         ]);
     }
+    public function removeImage()
+    {
+        // Xóa file cũ trong storage nếu cần
+        if($this->image && Storage::exists($this->image)){
+            Storage::delete($this->image);
+        }
+        $this->image = null;
+    }
+    public function removeGallery($img)
+    {
+  
+        // Nếu file tồn tại trong storage thì xóa
+        if (Storage::disk('public')->exists($img)) {
+            Storage::disk('public')->delete($img);
+            
+        }
+    
+        // Xóa khỏi mảng trong Livewire
+        $this->gallery = array_values(array_filter($this->gallery, function ($item) use ($img) {
+            return $item !== $img;
+        }));
+        
+        //$this->galleryUpload = $this->gallery;
+        //dd($this->galleryUpload);
+        // Nếu bạn lưu gallery dưới dạng JSON trong DB thì nhớ update lại
+       // $this->product->gallery = json_encode($this->gallery);
+       // $this->product->save();
+    }
+    public function updatedImageUpload()
+    {
+        $this->image = null;
+
+    }
 }
+ 

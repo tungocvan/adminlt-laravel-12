@@ -74,36 +74,7 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($categories as $category)
-                <tr>
-                    <td>{{ $category->id }}</td>
-                    <td>{{ $prefixMap[$category->id] ?? $category->name }}</td>
-                    <td>{{ $category->slug }}</td>
-                    <td><span class="badge badge-info">{{ $category->type }}</span></td>
-                    <td>
-                        @if($category->is_active)
-                            <span class="badge badge-success">Active</span>
-                        @else
-                            <span class="badge badge-secondary">Inactive</span>
-                        @endif
-                    </td>
-                    <td>
-                        <button wire:click="openEdit({{ $category->id }})"
-                                class="btn btn-sm btn-warning">
-                            <i class="fa fa-edit"></i> Sửa
-                        </button>
-                        <button wire:click="deleteCategory({{ $category->id }})"
-                                onclick="return confirm('Xác nhận xóa?')"
-                                class="btn btn-sm btn-danger">
-                            <i class="fa fa-trash"></i> Xóa
-                        </button>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="6" class="text-center">Không có dữ liệu</td>
-                </tr>
-            @endforelse
+            {!! renderCategoryRows($categories) !!}
         </tbody>
     </table>
 
@@ -120,7 +91,7 @@
     {{-- Modal Bootstrap --}}
     <div class="modal fade @if($isModalOpen) show d-block @endif" tabindex="-1" role="dialog"
      style="background: rgba(0,0,0,0.5); @if(!$isModalOpen) display:none; @endif">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">{{ $categoryId ? 'Cập nhật Danh mục' : 'Thêm Danh mục' }}</h5>
