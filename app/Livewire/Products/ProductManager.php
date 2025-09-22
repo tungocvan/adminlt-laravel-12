@@ -30,7 +30,7 @@ class ProductManager extends Component
     public $showForm = false;
     public $productId;
     public $title, $slug, $short_description, $description;
-    public $regular_price, $sale_price, $image, $gallery = [], $tags = [];
+    public $regular_price, $sale_price, $image, $gallery = [], $tags = '';
     public $categories = [];
     public $selectedCategories = [];
 
@@ -67,7 +67,8 @@ class ProductManager extends Component
 
     public function render()
     {
-        $this->categories = Category::with('children')->whereNull('parent_id')->get();
+        $this->categories = Category::with('children')->where('parent_id',4)->get();
+        //dd($this->categories);
         return view('livewire.products.product-manager', [
             'products'   => WpProduct::with('categories')
                 ->when($this->search, fn($q) => $q->where('title', 'like', "%{$this->search}%"))
@@ -95,7 +96,9 @@ class ProductManager extends Component
         $this->sale_price = $product->sale_price;
         $this->image = $product->image;
         $this->gallery = $product->gallery ?? [];
-        $this->tags = $product->tags ?? [];
+        $this->tags = (is_array($product->tags) && !empty($product->tags))
+        ? implode(';', $product->tags)
+        : '';
         $this->selectedCategories = $product->categories->pluck('id')->toArray();
 
         $this->showForm = true;
@@ -143,7 +146,9 @@ class ProductManager extends Component
             }
         }
         
-   
+        $this->tags = $this->tags 
+        ? array_map('trim', explode(';', $this->tags)) 
+        : [];
         $product = WpProduct::updateOrCreate(
             ['id' => $this->productId],
             array_merge($data, [

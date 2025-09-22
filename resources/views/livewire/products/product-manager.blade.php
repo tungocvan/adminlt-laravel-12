@@ -105,101 +105,21 @@
                             </div>
                         @endif
                     </div>
-                    <div class="form-group" x-data="{
-                        imagePreview: null,
-                     }">
-                        <label>Ảnh chính</label>
-                        
-                        <input type="file" class="form-control mb-1"
-                        wire:model="imageUpload"
-                        accept="image/*"
-                        @change="
-                             const file = $event.target.files[0];
-                             if(file){
-                                 const reader = new FileReader();
-                                 reader.onload = e => imagePreview = e.target.result;
-                                 reader.readAsDataURL(file); 
-                             } else {
-                                 imagePreview = null;
-                             }
-                        ">
-                        @if($image)
-                            <div class="position-relative mr-2 mb-2 d-inline-block mt-1">
-                            <img src="{{ asset('storage/'.$image) }}" width="120" class="img-thumbnail">     
-                            <button type="button"
-                                @click="$wire.removeImage()"
-                                class="btn btn-sm btn-danger position-absolute"
-                                style="top: -5px; right: -5px;">×</button>
-                            </div>
-                        @endif   
-        
-                        @if($imageUpload)
-                        <template x-if="imagePreview"> 
-                            <div class="position-relative d-inline-block">                         
-                                <img :src="imagePreview" class="img-thumbnail" width="120">                                                             
-                                <button type="button"
-                                @click="imagePreview=null; $wire.removeImage()"
-                                class="btn btn-sm btn-danger position-absolute"
-                                style="top: -5px; right: -5px;">×</button>
-                                
-                            </div> 
-                        </template>
-                        @endif          
-                        @error('imageUpload') <small class="text-danger">{{ $message }}</small> @enderror
-                    </div>
+                    <x-image-upload 
+                        label="Ảnh chính" 
+                        model="imageUpload" 
+                        :current="$image" 
+                        removeMethod="removeImage" 
+                    />
+
+                    <x-gallery-upload 
+                        label="Gallery (nhiều ảnh)" 
+                        wire:model="gallery"
+                        uploadModel="galleryUpload"
+                        :current="$gallery"
+                        removeMethod="removeGallery" />
                     
-                    <div class="form-group"
-                        x-data="{
-                            galleryPreview: [],
-                            existingGallery: @entangle('gallery').defer 
-                        }"
-                    >
-                        <label>Gallery (nhiều ảnh)</label>
-                        <input type="file" class="form-control"
-                                wire:model="galleryUpload"
-                                multiple accept="image/*"
-                                @change="
-                                        galleryPreview = [];
-                                        Array.from($event.target.files).forEach(file => {
-                                            const reader = new FileReader();
-                                            reader.onload = e => galleryPreview.push(e.target.result);
-                                            reader.readAsDataURL(file);
-                                        });
-                                "
-                            >
-                        <div class="mt-2 d-flex flex-wrap">
-                            <!-- Preview ảnh mới upload -->
-                            <template x-if="galleryPreview"> 
-                                <template x-for="(src, index) in galleryPreview" :key="src">
-                                    <div class="position-relative mr-2 mb-2 d-inline-block">
-                                        <img :src="src" class="img-thumbnail" width="100">
-                                        <button type="button"
-                                                @click="galleryPreview.splice(index, 1)"
-                                                class="btn btn-sm btn-danger position-absolute"
-                                                style="top: -5px; right: -5px; padding: 0 5px; line-height: 1;"
-                                                title="Xóa ảnh">×
-                                        </button>
-                                    </div>
-                                </template> 
-                            </template>
-                            @if(is_array($gallery))
-                                @foreach($gallery as $key => $img)
-                                <div class="position-relative mr-2 mb-2 d-inline-block">
-                                    <img src="{{ asset('storage/'.$img) }}" width="100" class="mr-2 mb-2">
-                                    <button type="button"
-                                    @click=" $wire.removeGallery('{{ $img }}') "
-                                    class="btn btn-sm btn-danger position-absolute"
-                                    style="top: -5px; right: -5px; padding: 0 5px; line-height: 1;"
-                                    title="Xóa ảnh">×
-                                  </button>
-                                </div>
-                                @endforeach
-                            @endif
-                            
-                        </div>
-                    </div>
-                    
-        
+                    <x-tag-input wire:model="tags" label="Tags (cách nhau bằng ;)" />
                   
                     <div class="form-group">
                         <label>Danh mục</label>
