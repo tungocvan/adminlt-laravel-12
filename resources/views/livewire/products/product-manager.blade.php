@@ -22,6 +22,9 @@
 
             </div>            
             <button class="btn btn-primary" wire:click="create">+ Thêm sản phẩm</button>
+            <button wire:click="exportExcel" class="btn btn-success">
+                <i class="fa fa-file-excel"></i> Xuất Excel
+            </button>
         </div>
         <div class="d-flex justify-content-between mb-3">
             @if(count($selectedProducts) > 0)               

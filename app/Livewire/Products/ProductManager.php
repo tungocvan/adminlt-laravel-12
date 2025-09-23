@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Validate;
 use Illuminate\Support\Str;
+use App\Exports\ProductsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductManager extends Component
 {
@@ -311,5 +313,24 @@ class ProductManager extends Component
             }
         }
     }
+
+    public function exportExcel()
+    {
+        if (empty($this->selectedProducts)) {
+            session()->flash('error', 'Vui lòng chọn sản phẩm để xuất.');
+            return;
+        }
+
+        //dd($this->selectedProducts);
+        $query = WpProduct::whereIn('id', $this->selectedProducts);
+        
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\ProductsExport($query),
+            'products-selected.xlsx'
+        );
+    }
+
+
+
 }
  
