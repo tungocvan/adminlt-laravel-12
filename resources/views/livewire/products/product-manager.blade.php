@@ -1,10 +1,44 @@
-<div>
-    @if(!$showForm)
+<div> 
+    @if(!$showForm)  
         <!-- Danh sách -->
         <div class="d-flex justify-content-between mb-3">
-            <input type="text" class="form-control w-25" placeholder="Tìm sản phẩm..."
-                   wire:model.debounce.300ms="search">
+            <div class="input-group w-50">
+                <input type="text"
+                       class="form-control"
+                       placeholder="Tìm sản phẩm..."
+                       wire:model.live.debounce.300ms="search">
+                @if($search)
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" wire:click="clearSearch">✕</button>
+                    </div>
+                @endif
+                
+                @if(count($selectedProducts) > 0)
+                    <button class="btn btn-danger" wire:click="deleteSelected" 
+                            onclick="return confirm('Bạn có chắc muốn xóa các sản phẩm đã chọn?')">
+                        Xóa đã chọn ({{ count($selectedProducts) }})
+                    </button>
+                @endif                         
+
+            </div>            
             <button class="btn btn-primary" wire:click="create">+ Thêm sản phẩm</button>
+        </div>
+        <div class="d-flex justify-content-between mb-3">
+            @if(count($selectedProducts) > 0)               
+    
+                <select class="form-control mr-2" wire:model.live="bulkCategory">
+                    <option value="">-- Chọn danh mục --</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                    @endforeach
+                </select>
+    
+                <button class="btn btn-success" wire:click="updateCategorySelected"
+                        @disabled(!$bulkCategory)>
+                    Cập nhật danh mục
+                </button>
+
+            @endif
         </div>
         @if (session('success'))
             <div class="alert alert-success">
@@ -14,6 +48,9 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
+                    <th>
+                        <input type="checkbox" wire:model.live="selectAll">
+                    </th>
                     <th wire:click="$set('sortField','id')">ID</th>
                     <th>Ảnh</th>
                     <th wire:click="$set('sortField','title')">Tên</th>
@@ -25,6 +62,10 @@
             <tbody>
             @forelse($products as $product)
                 <tr>
+                    <td>
+                        <input type="checkbox" value="{{ $product->id }}" 
+                               wire:model.live="selectedProducts">
+                    </td>
                     <td>{{ $product->id }}</td>
                     <td>
                        
@@ -54,6 +95,7 @@
                         <button class="btn btn-sm btn-warning" wire:click="edit({{ $product->id }})">Sửa</button>
                         <button class="btn btn-sm btn-danger" wire:click="delete({{ $product->id }})"
                                 onclick="return confirm('Xoá sản phẩm này?')">Xoá</button>
+                        <button class="btn btn-sm btn-info" wire:click="duplicate({{ $product->id }})">Nhân bản</button>
                     </td>
                 </tr>
             @empty
@@ -142,7 +184,7 @@
 
             <div class="d-flex">
                 <button type="submit" class="btn btn-success">Lưu</button>
-                <button type="button" class="btn btn-secondary ml-2" wire:click="$set('showForm', false)">Huỷ</button>
+                <button type="button" class="btn btn-secondary ml-2" wire:click="cancel">Huỷ</button>
             </div>
         </form>
     @endif
@@ -169,6 +211,11 @@
         setContent('#description', e.detail[0].description);
         setContent('#short_description', e.detail[0].short_description);
     })
+
+    window.addEventListener('setHeader', function(e) {
+        document.getElementById('page-header').innerText = e.detail[0];
+        document.title = e.detail[0]; // đổi <title>
+    });
 </script>
 @endscript
 

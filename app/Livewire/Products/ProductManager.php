@@ -17,7 +17,6 @@ class ProductManager extends Component
     use WithPagination;
     use WithFileUploads;
 
-
     public $search = '';
     public $perPage = 10;
     public $sortField = 'id';
@@ -31,8 +30,13 @@ class ProductManager extends Component
     public $productId;
     public $title, $slug, $short_description, $description;
     public $regular_price, $sale_price, $image, $gallery = [], $tags = '';
-    public $categories = [];
+    public $categories = []; 
     public $selectedCategories = [];
+
+    public $selectedProducts = [];
+    public $selectAll = false;
+
+    public $bulkCategory = null;
 
     protected function rules(): array
     {
@@ -67,7 +71,11 @@ class ProductManager extends Component
 
     public function render()
     {
-        $this->categories = Category::with('children')->where('parent_id',4)->get();
+        $this->categories = Category::with('children')
+        ->where('id', 4)              // lấy chính nó
+        ->orWhere('parent_id', 4)     // hoặc các con của nó
+        ->get();
+
         //dd($this->categories);
         return view('livewire.products.product-manager', [
             'products'   => WpProduct::with('categories')
@@ -81,6 +89,7 @@ class ProductManager extends Component
     {
         $this->resetForm();
         $this->showForm = true;
+        $this->dispatch('setHeader', 'Thêm sản phẩm');
     }
 
     public function edit($id)
@@ -100,7 +109,7 @@ class ProductManager extends Component
         ? implode(';', $product->tags)
         : '';
         $this->selectedCategories = $product->categories->pluck('id')->toArray();
-
+        $this->dispatch('setHeader', 'Chỉnh sửa sản phẩm');
         $this->showForm = true;
         // Gửi dữ liệu xuống để đổ vào Summernote
         $this->dispatch('setDescription', [
@@ -160,6 +169,7 @@ class ProductManager extends Component
 
         $this->resetForm();
         $this->showForm = false;
+        $this->dispatch('setHeader', 'Danh sách các sản phẩm');
         $title= $data['title'] ;
         session()->flash('success', "Lưu  $title thành công.");
         $this->redirect('/products');  
@@ -213,6 +223,93 @@ class ProductManager extends Component
     {
         $this->image = null;
 
+    }
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+    public function clearSearch()
+    {
+        $this->reset('search');
+        $this->resetPage();
+    }
+
+    public function cancel()
+    {
+        $this->resetForm();       // reset dữ liệu form
+        $this->showForm = false;  // ẩn form/modal
+
+        // cập nhật lại header và title về mặc định
+        $this->dispatch('setHeader', 'Danh sách các sản phẩm');
+    }
+
+    public function updatedSelectAll($value)
+    {
+        if ($value) {
+            $this->selectedProducts = WpProduct::with('categories')
+                ->when($this->search, fn($q) =>
+                    $q->where('title', 'like', "%{$this->search}%")
+                )
+                ->orderBy($this->sortField, $this->sortDirection)
+                ->paginate($this->perPage)
+                ->pluck('id')
+                ->toArray();
+        } else {
+            $this->selectedProducts = [];
+        }
+    }
+
+
+    public function deleteSelected()
+    {
+        if (!empty($this->selectedProducts)) {
+            WpProduct::whereIn('id', $this->selectedProducts)->delete();
+            $this->selectedProducts = [];
+            $this->selectAll = false;
+            $this->dispatch('setHeader', 'Danh sách các sản phẩm');            
+            session()->flash('message', 'Đã xóa các sản phẩm đã chọn.');
+        }
+    }
+
+    public function duplicate($id)
+    {
+        $product = WpProduct::with('categories')->findOrFail($id);
+
+        // clone sản phẩm
+        $newProduct = $product->replicate();   // copy toàn bộ attributes trừ id
+        $newProduct->title = $product->title . ' (Bản sao)';
+        $newProduct->slug  = $product->slug . '-' . time(); // slug phải unique
+        $newProduct->push(); // lưu lại
+
+        // copy quan hệ (ví dụ categories)
+        $newProduct->categories()->sync($product->categories->pluck('id')->toArray());
+
+        session()->flash('success', "Đã nhân bản sản phẩm '{$product->title}' thành công.");
+    }
+
+    
+    public function updateCategorySelected()
+    {
+        if (!empty($this->selectedProducts) && $this->bulkCategory) {
+            // lấy danh mục
+            $category = Category::find($this->bulkCategory);
+
+            if ($category) {
+                foreach ($this->selectedProducts as $productId) {
+                    $product = WpProduct::find($productId);
+                    if ($product) {
+                        // đồng bộ: xóa hết danh mục cũ, chỉ gán danh mục mới
+                        $product->categories()->sync([$this->bulkCategory]);
+                    }
+                }
+
+                $this->selectedProducts = [];
+                $this->selectAll = false;
+                $this->bulkCategory = null;
+
+                session()->flash('success', 'Đã cập nhật danh mục cho các sản phẩm đã chọn.');
+            }
+        }
     }
 }
  

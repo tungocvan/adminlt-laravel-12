@@ -21,6 +21,7 @@
 
     <input type="file" 
            class="form-control"
+           style="height: calc(2.25rem + 6px)"
            wire:model="{{ $uploadModel ?? 'galleryUpload' }}"
            multiple 
            accept="image/*"

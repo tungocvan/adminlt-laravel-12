@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 @section('plugins.Summernote', true)
-@section('title', 'Settings')
+@section('title', 'Danh sách các sản phẩm')
 
 @section('content_header')
-    <h1>Manager Products</h1>
+    <h1 id="page-header">Danh sách các sản phẩm</h1>
 @stop
 
 @section('content')
