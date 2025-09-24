@@ -331,6 +331,5 @@ class ProductManager extends Component
     }
 
 
-
 }
  

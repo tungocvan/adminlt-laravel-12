@@ -1,8 +1,8 @@
 <div> 
-    @if(!$showForm)  
-        <!-- Danh sách -->
+    @if(!$showForm)              
+        <livewire:products.product-import />
         <div class="d-flex justify-content-between mb-3">
-            <div class="input-group w-50">
+            <div class="input-group" style="width:50%">
                 <input type="text"
                        class="form-control"
                        placeholder="Tìm sản phẩm..."
@@ -14,22 +14,23 @@
                 @endif
                 
                 @if(count($selectedProducts) > 0)
-                    <button class="btn btn-danger" wire:click="deleteSelected" 
+                    <button class="btn btn-danger mx-2" wire:click="deleteSelected" 
                             onclick="return confirm('Bạn có chắc muốn xóa các sản phẩm đã chọn?')">
                         Xóa đã chọn ({{ count($selectedProducts) }})
+                    </button>
+                    <button wire:click="exportExcel" class="btn btn-success mx-2">
+                        <i class="fa fa-file-excel"></i> Xuất Excel
                     </button>
                 @endif                         
 
             </div>            
-            <button class="btn btn-primary" wire:click="create">+ Thêm sản phẩm</button>
-            <button wire:click="exportExcel" class="btn btn-success">
-                <i class="fa fa-file-excel"></i> Xuất Excel
-            </button>
+            <button class="btn btn-primary" wire:click="create">+ Thêm sản phẩm</button>            
+            
         </div>
-        <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex mb-3">
             @if(count($selectedProducts) > 0)               
     
-                <select class="form-control mr-2" wire:model.live="bulkCategory">
+                <select class="form-control mr-2 w-50" wire:model.live="bulkCategory">
                     <option value="">-- Chọn danh mục --</option>
                     @foreach($categories as $cat)
                         <option value="{{ $cat->id }}">{{ $cat->name }}</option>
@@ -40,6 +41,7 @@
                         @disabled(!$bulkCategory)>
                     Cập nhật danh mục
                 </button>
+               
 
             @endif
         </div>
@@ -59,6 +61,7 @@
                     <th wire:click="$set('sortField','title')">Tên</th>
                     <th>Giá</th>
                     <th>Danh mục</th>
+                    <th wire:click="$set('sortField','created_at')">Ngày tạo</th>
                     <th></th>
                 </tr>
             </thead>
@@ -93,6 +96,9 @@
                         @foreach($product->categories as $cat)
                             <span class="badge badge-info">{{ $cat->name }}</span>
                         @endforeach
+                    </td>
+                    <td>
+                        {{ $product->created_at->format('d/m/Y') }}
                     </td>
                     <td>
                         <button class="btn btn-sm btn-warning" wire:click="edit({{ $product->id }})">Sửa</button>
