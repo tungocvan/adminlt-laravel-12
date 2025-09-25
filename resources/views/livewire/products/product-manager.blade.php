@@ -1,7 +1,7 @@
 <div> 
     @if(!$showForm)              
         <livewire:products.product-import />
-        <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex justify-content-between">
             <div class="input-group" style="width:50%">
                 <input type="text"
                        class="form-control"
