@@ -32,7 +32,7 @@ class ProductManager extends Component
     // form
     public $showForm = false;
     public $productId;
-    public $title, $slug, $short_description, $description;
+    public $title, $slug, $short_description, $description,$setHeader;
     public $regular_price, $sale_price, $image, $gallery = [], $tags = '';
     public $categories = []; 
     public $selectedCategories = [];
@@ -113,7 +113,9 @@ class ProductManager extends Component
     {
         $this->resetForm();
         $this->showForm = true;
-        $this->dispatch('setHeader', 'Thêm sản phẩm');
+        $this->setHeader = 'Thêm sản phẩm';
+        $this->dispatch('setHeader', $this->setHeader);
+       
     }
 
     public function edit($id)
@@ -133,7 +135,8 @@ class ProductManager extends Component
         ? implode(';', $product->tags)
         : '';
         $this->selectedCategories = $product->categories->pluck('id')->toArray();
-        $this->dispatch('setHeader', 'Chỉnh sửa sản phẩm');
+        $this->setHeader = 'Chỉnh sửa sản phẩm';
+        $this->dispatch('setHeader', $this->setHeader);        
         $this->showForm = true;
         // Gửi dữ liệu xuống để đổ vào Summernote
         $this->dispatch('setDescription', [
@@ -193,7 +196,7 @@ class ProductManager extends Component
 
         $this->resetForm();
         $this->showForm = false;
-        $this->dispatch('setHeader', 'Danh sách các sản phẩm');
+        $this->dispatch('setHeader', 'Danh sách các sản phẩm');        
         $title= $data['title'] ;
         session()->flash('success', "Lưu  $title thành công.");
         $this->redirect('/products');  

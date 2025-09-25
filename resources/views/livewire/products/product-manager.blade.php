@@ -143,88 +143,116 @@
 
         {{ $products->links() }}
     @else
-        <!-- Form -->
-        <form wire:submit.prevent="save" enctype="multipart/form-data">
-            <div class="row" x-data="formData">
-                <div class="col-6">
-                    <div class="form-group">
-                        <label>Tên sản phẩm</label>
-                        <input type="text" class="form-control" wire:model="title">
-                        @error('title') <span class="text-danger">{{ $message }}</span> @enderror
-                    </div>
         
-                    <div class="form-group">
-                        <label>Slug</label>
-                        <input type="text" class="form-control" wire:model="slug">
-                    </div>
-        
-                    <div wire:ignore  class="form-group">
-                        <label>Mô tả ngắn</label>
-                        <textarea id="short_description" class="form-control" wire:model="short_description"></textarea>
-                    </div>
-        
-                    <div  wire:ignore  class="form-group">
-                        <label>Mô tả chi tiết</label>
-                        <textarea id="description" class="form-control" rows="4" wire:model="description"></textarea>
-                    </div>         
-                   
-                </div>
-                <div class="col-6">
-                    <div class="form-group">
-                        <x-money-input wire:model="regular_price" label="Giá thường" />                  
-                    </div>
-               
-                    
-        
-                    <div class="form-group">
-                        <x-money-input wire:model="sale_price" label="Giá khuyến mãi" />
-                        @if (session('status'))
-                            <div class="alert alert-danger">
-                                {{ session('status') }}
-                            </div>
-                        @endif
-                    </div>
-                    <x-image-upload 
-                        label="Ảnh chính" 
-                        model="imageUpload" 
-                        :current="$image" 
-                        removeMethod="removeImage" 
-                    />
-
-                    <x-gallery-upload 
-                        label="Gallery (nhiều ảnh)" 
-                        wire:model="gallery"
-                        uploadModel="galleryUpload"
-                        :current="$gallery"
-                        removeMethod="removeGallery" />
-                    
-                    <x-tag-input wire:model="tags" label="Tags (cách nhau bằng ;)" />
+        <div class="container-fluid">
+            <div class="card mt-5">
+                {{-- <div class="card-header"><h4>Laravel Example</h4></div> --}}
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link {{ @when(!request()->tab, 'active') }}" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">{{ $setHeader }}</button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link {{ @when(request()->tab == 'profile', 'active') }}" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Mở rộng</button>
+                      </li>
                   
-                    <div class="form-group">
-                        <label>Danh mục</label>
-                        <div class="card" style="max-height: 300px; overflow-y: auto;">
-                            <div class="card-body p-2">
-                                {!! renderCategoryTree($categories, $selectedCategories) !!}
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                      <div class="tab-pane fade  {{ @when(!request()->tab, 'show active') }}" id="home" role="tabpanel" aria-labelledby="home-tab"><br/>
+                            <!-- Form -->
+                        <form wire:submit.prevent="save" enctype="multipart/form-data">
+                            <div class="row" x-data="formData">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Tên sản phẩm</label>
+                                        <input type="text" class="form-control" wire:model="title">
+                                        @error('title') <span class="text-danger">{{ $message }}</span> @enderror
+                                    </div>
+                        
+                                    <div class="form-group">
+                                        <label>Slug</label>
+                                        <input type="text" class="form-control" wire:model="slug">
+                                    </div>
+                        
+                                    <div wire:ignore  class="form-group">
+                                        <label>Mô tả ngắn</label>
+                                        <textarea id="short_description" class="form-control" wire:model="short_description"></textarea>
+                                    </div>
+                        
+                                    <div  wire:ignore  class="form-group">
+                                        <label>Mô tả chi tiết</label>
+                                        <textarea id="description" class="form-control" rows="4" wire:model="description"></textarea>
+                                    </div>         
+                                
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <x-money-input wire:model="regular_price" label="Giá thường" />                  
+                                    </div>
+                            
+                                    
+                        
+                                    <div class="form-group">
+                                        <x-money-input wire:model="sale_price" label="Giá khuyến mãi" />
+                                        @if (session('status'))
+                                            <div class="alert alert-danger">
+                                                {{ session('status') }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <x-image-upload 
+                                        label="Ảnh chính" 
+                                        model="imageUpload" 
+                                        :current="$image" 
+                                        removeMethod="removeImage" 
+                                    />
+
+                                    <x-gallery-upload 
+                                        label="Gallery (nhiều ảnh)" 
+                                        wire:model="gallery"
+                                        uploadModel="galleryUpload"
+                                        :current="$gallery"
+                                        removeMethod="removeGallery" />
+                                    
+                                    <x-tag-input wire:model="tags" label="Tags (cách nhau bằng ;)" />
+                                
+                                    <div class="form-group">
+                                        <label>Danh mục</label>
+                                        <div class="card" style="max-height: 300px; overflow-y: auto;">
+                                            <div class="card-body p-2">
+                                                {!! renderCategoryTree($categories, $selectedCategories) !!}
+                                            </div>
+                                        </div>
+                                        @error('selectedCategories') 
+                                            <small class="text-danger">{{ $message }}</small> 
+                                        @enderror
+                                    </div>
+                                    
+                                    
+                                </div>
                             </div>
-                        </div>
-                        @error('selectedCategories') 
-                            <small class="text-danger">{{ $message }}</small> 
-                        @enderror
+                        
+
+                        
+
+                            <div class="d-flex">
+                                <button type="submit" class="btn btn-success">Lưu</button>
+                                <button type="button" class="btn btn-secondary ml-2" wire:click="cancel">Huỷ</button>
+                            </div>
+                        </form>
+                      </div>
+        
+                      <div class="tab-pane fade {{ @when(request()->tab == 'profile', 'show active') }}" id="profile" role="tabpanel" aria-labelledby="profile-tab"><br/>
+                      This is Profile Tab
+                      </div>    
+                     
                     </div>
-                    
-                    
                 </div>
             </div>
-          
-
-           
-
-            <div class="d-flex">
-                <button type="submit" class="btn btn-success">Lưu</button>
-                <button type="button" class="btn btn-secondary ml-2" wire:click="cancel">Huỷ</button>
-            </div>
-        </form>
+        </div>
     @endif
+
+    
 </div>
 
 @script
