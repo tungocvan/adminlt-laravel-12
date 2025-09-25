@@ -1,7 +1,19 @@
 <div> 
-    @if(!$showForm)              
+    @if(!$showForm)       
+    @if(count($selectedProducts) == 0)  
+    <div class="d-flex justify-content-between">     
         <livewire:products.product-import />
+        <livewire:products.import-products-json />
+    </div>
+    @endif
         <div class="d-flex justify-content-between">
+            @if(count($selectedProducts) == 0)   
+                <button wire:click="exportJson" class="btn btn-info mx-2">
+                    <i class="fa fa-file-code"></i>Export All Products
+                </button>
+            @endif
+          
+            
             <div class="input-group" style="width:50%">
                 <input type="text"
                        class="form-control"
@@ -21,13 +33,16 @@
                     <button wire:click="exportExcel" class="btn btn-success mx-2">
                         <i class="fa fa-file-excel"></i> Xuất Excel
                     </button>
+                    <button wire:click="exportJson" class="btn btn-info mx-2">
+                        <i class="fa fa-file-code"></i> Xuất JSON
+                    </button>
                 @endif                         
 
             </div>            
             <button class="btn btn-primary" wire:click="create">+ Thêm sản phẩm</button>            
             
         </div>
-        <div class="d-flex mb-3">
+        <div class="d-flex mt-2 mb-3">
             @if(count($selectedProducts) > 0)               
     
                 <select class="form-control mr-2 w-50" wire:model.live="bulkCategory">
@@ -50,6 +65,19 @@
                 {{ session('success') }}
             </div>
          @endif
+         <div class="d-flex mt-2 mb-3">
+            <label>
+                Hiển thị
+                <select wire:model.live="perPage" class="form-select d-inline-block w-auto">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="all">Tất cả</option>
+                </select>
+                bản ghi
+            </label>
+        </div>
         <table class="table table-bordered">
             <thead>
                 <tr>

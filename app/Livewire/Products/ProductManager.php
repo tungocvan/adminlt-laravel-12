@@ -13,6 +13,8 @@ use Livewire\Attributes\Validate;
 use Illuminate\Support\Str;
 use App\Exports\ProductsExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductManager extends Component
 {
@@ -71,19 +73,39 @@ class ProductManager extends Component
         'title.required' => 'Vui lòng nhập tên sản phẩm',
     ];
 
+
+    public function mount()
+    {
+        $this->perPage = session('products_per_page', $this->perPage);
+    }
+
+
     public function render()
     {
         $this->categories = Category::with('children')
-        ->where('id', 4)              // lấy chính nó
-        ->orWhere('parent_id', 4)     // hoặc các con của nó
-        ->get();
-
-        //dd($this->categories);
+            ->where('id', 4)              // lấy chính nó
+            ->orWhere('parent_id', 4)     // hoặc các con của nó
+            ->get();
+    
+        $query = WpProduct::with('categories')
+            ->when($this->search, fn($q) => $q->where('title', 'like', "%{$this->search}%"))
+            ->orderBy($this->sortField, $this->sortDirection);
+    
+        if ($this->perPage === 'all') {
+            $items = $query->get();
+            $products = new LengthAwarePaginator(
+                $items,
+                $items->count(),
+                $items->count() ?: 1, // tránh chia 0
+                1,
+                ['path' => request()->url(), 'query' => request()->query()]
+            );
+        } else {
+            $products = $query->paginate($this->perPage);
+        }
+    
         return view('livewire.products.product-manager', [
-            'products'   => WpProduct::with('categories')
-                ->when($this->search, fn($q) => $q->where('title', 'like', "%{$this->search}%"))
-                ->orderBy($this->sortField, $this->sortDirection)
-                ->paginate($this->perPage)
+            'products' => $products
         ]);
     }
 
@@ -330,6 +352,59 @@ class ProductManager extends Component
         );
     }
 
+    public function exportJson()
+    {
+        // Lấy danh mục
+        $categories = \App\Models\Category::select('id', 'name', 'slug', 'type', 'is_active')->get();
 
+        // Nếu có chọn sản phẩm thì lấy theo id, ngược lại lấy tất cả
+        $query = \App\Models\WpProduct::with(['categories']);
+        if (!empty($this->selectedProducts)) {
+            $query->whereIn('id', $this->selectedProducts);
+        }
+        $products = $query->get();
+
+        // Chuẩn hóa dữ liệu
+        $data = [
+            "categories" => $categories->map(function($cat){
+                return [
+                    "id" => $cat->id,
+                    "name" => $cat->name,
+                    "slug" => $cat->slug,
+                    "type" => $cat->type,
+                    "is_active" => (bool) $cat->is_active,
+                ];
+            })->toArray(),
+            "products" => $products->map(function($product){
+                return [
+                    "id" => $product->id,
+                    "title" => $product->title,
+                    "slug" => $product->slug,
+                    "short_description" => $product->short_description,
+                    "description" => $product->description,
+                    "regular_price" => $product->regular_price,
+                    "sale_price" => $product->sale_price,
+                    "image" => $product->image ?? "images/default.jpg",
+                    "gallery" => $product->gallery ?? [],
+                    "tags" => $product->tags ?? [],
+                    "categories" => $product->categories->pluck('id')->toArray(),
+                ];
+            })->toArray(),
+        ];
+
+        // Xuất file JSON
+        $filename = "products_export_" . now()->format('Ymd_His') . ".json";
+        return response()->streamDownload(function () use ($data) {
+            echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        }, $filename, [
+            'Content-Type' => 'application/json',
+        ]);
+    }
+
+    public function updatingPerPage($value)
+    {
+        session(['products_per_page' => $value]);
+        $this->resetPage();
+    }
 }
  

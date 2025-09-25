@@ -22,7 +22,7 @@
                     style="height: 42px"
                     wire:loading.attr="disabled"
                     wire:target="import">
-                Import
+                Import Excel
             </button>
         </div>
     </form>
