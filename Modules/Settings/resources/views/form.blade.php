@@ -18,7 +18,7 @@
 @section('content')
    
     @livewire('form.form-list')
-
+ 
     {{-- @livewire('image-uploader') --}}
     {{-- @livewire('files.file-manager',['name' => 'question','label' => 'Nhập nội dung'])
     <button type="button" class="btn btn-primary" onclick="save()">Submit</button> --}}

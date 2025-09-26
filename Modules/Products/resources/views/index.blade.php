@@ -1,5 +1,6 @@
 @extends('adminlte::page')
 @section('plugins.Summernote', true)
+{{-- @section('plugins.Select2', true) --}}
 @section('title', 'Danh sách các sản phẩm')
 
 @section('content_header')

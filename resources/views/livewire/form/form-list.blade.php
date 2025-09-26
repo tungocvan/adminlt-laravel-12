@@ -35,23 +35,25 @@
                     
                   </div>
                 </div>
-                <div class="form-group">
-                 <label>Select an option</label>
-                 <select class="js-example-responsive" style="width: 100%"  x-model="selectedOption">
-                     <template x-for="option in options" :key="option">
-                         <option x-text="option" :value="option"></option>
-                     </template>
-                 </select>
-                </div>
-                
-                <div class="form-group">
+         
+                {{-- <livewire:products.select-option-products  />
+                <livewire:products.select-option-multi placeholder="Chọn sản phẩm liên quan" /> --}}
+
+                <livewire:select-option-table 
+                    placeholder="Chọn sản phẩm" 
+                    model="WpProduct"
+                    title="title"
+                    id="id"                    
+                />
+
+                {{-- <div class="form-group">
                   <label>Select multiple options</label>
                   <select class="js-example-basic-multiple form-control" multiple x-model="selectedOptions">
                       <template x-for="option in options" :key="option">
                           <option x-text="option" :value="option"></option>
                       </template>
                   </select>
-                </div> 
+                </div>  --}}
   
                 <div class="form-group">
                   <label>Date:</label>
@@ -122,9 +124,7 @@
              user_id:null,
              init(){
                console.log('init');              
-               $('.js-example-responsive').select2({ theme: "classic" }).on('change', function (e) {
-                  this.selectedOption = $(this).val();                                 
-               });
+               
                $('.js-example-basic-multiple').select2({ theme: "classic" }).on('change', function (e) {
                    this.selectedOptions = $(this).val();                  
                });
