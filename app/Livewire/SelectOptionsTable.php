@@ -1,24 +1,28 @@
 <?php
 
 namespace App\Livewire;
-
-use Livewire\Component;
 use Livewire\Attributes\Modelable;
+use Livewire\Component;
 
-class SelectOptionTable extends Component
+class SelectOptionsTable extends Component
 {
     public $options = [];
     #[Modelable] // Cho phép wire:model từ cha
-    public $selected = null;
+    public $selected = []; // array cho multiple
     public $placeholder = 'Chọn mục';
 
     // tham số truyền từ blade
     public $model;
-    public $title = 'name';
+    public $title = 'title';
     public $id = 'id';
 
-    public function mount($selected = null, $placeholder = 'Chọn mục', $model = 'User', $title = 'name', $id = 'id')
-    {
+    public function mount(
+        $selected = [], 
+        $placeholder = null, 
+        $model = null, 
+        $title = 'title', 
+        $id = 'id'
+    ) {
         if (!$model) {
             throw new \Exception("Model không được để trống");
         }
@@ -26,7 +30,7 @@ class SelectOptionTable extends Component
         $this->model = $model;
         $this->title = $title;
         $this->id = $id;
-        $this->selected = $selected;
+        $this->selected = is_array($selected) ? $selected : [$selected];
 
         // Tạo full namespace model
         $class = "App\\Models\\" . $this->model;
@@ -45,13 +49,12 @@ class SelectOptionTable extends Component
 
     public function updatedSelected()
     {
-        // bạn có thể emit event nếu cần
-        // $this->dispatch('product-selected', $this->selected);
-        // hoặc xử lý trực tiếp
-        // logger()->info('Selected:', ['id' => $this->selected]);
+        // logger()->info('Selected multiple:', $this->selected);
+        // $this->dispatch('options-selected', $this->selected);
     }
+
     public function render()
     {
-        return view('livewire.select-option-table');
+        return view('livewire.select-options-table');
     }
 }

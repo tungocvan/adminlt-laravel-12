@@ -2,7 +2,7 @@
     <div wire:ignore class="form-group">
         <label class="form-label">{{ $placeholder }}</label>    
         <select class="form-control tnv-option" 
-                style="width: 100%">
+                style="width: 100%" wire:model.live="selected">
             <option value="">{{ $placeholder }}</option>
             @foreach($options as $id => $title)
                 <option value="{{ $id }}">{{ $title }}</option>
