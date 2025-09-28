@@ -41,6 +41,7 @@ class TextEditor extends Component
                 ['view', ['fullscreen', 'codeview', 'help']],
             ],
         ];
+       
     }
 
     public function render()

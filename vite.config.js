@@ -5,8 +5,10 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/sass/app.scss',             
+                'resources/sass/hamada.scss',             
                 'resources/css/tailwind.css',             
                 'resources/js/app.js',
+                'resources/js/hamada.js',
             ],
             refresh: true,
         }),

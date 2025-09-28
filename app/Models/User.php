@@ -55,13 +55,13 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    protected static function booted(): void
-    {
-        static::created(function (User $user) {
-            Mail::to($user->email)
-                ->queue(new WelcomeUserMail($user)); // Gửi vào hàng đợi
-        });
-    }
+    // protected static function booted(): void
+    // {
+    //     static::created(function (User $user) {
+    //         Mail::to($user->email)
+    //             ->queue(new WelcomeUserMail($user)); // Gửi vào hàng đợi
+    //     });
+    // }
     public function phone(): HasOne
     {
         return $this->hasOne(Phone::class);

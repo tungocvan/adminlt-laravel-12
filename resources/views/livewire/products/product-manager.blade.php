@@ -83,16 +83,27 @@
                 <tr>
                     <th>
                         <input type="checkbox" wire:model.live="selectAll">
-                    </th>
-                    <th wire:click="$set('sortField','id')">ID</th>
+                    </th>            
+                    <x-sortable-column field="id" label="ID" :sortField="$sortField" :sortDirection="$sortDirection" />
+
+
+                    
                     <th>Ảnh</th>
-                    <th wire:click="$set('sortField','title')">Tên</th>
-                    <th>Giá</th>
+            
+                    <x-sortable-column field="title" label="Tên" :sortField="$sortField" :sortDirection="$sortDirection" />
+            
+           
+                    <x-sortable-column field="regular_price" label="Giá" :sortField="$sortField" :sortDirection="$sortDirection" />
+            
                     <th>Danh mục</th>
-                    <th wire:click="$set('sortField','created_at')">Ngày tạo</th>
+                    
+            
+                    <x-sortable-column field="created_at" label="Ngày tạo" :sortField="$sortField" :sortDirection="$sortDirection" />
+            
                     <th></th>
                 </tr>
             </thead>
+            
             <tbody>
             @forelse($products as $product)
                 <tr>
@@ -173,7 +184,7 @@
                                         <label>Slug</label>
                                         <input type="text" class="form-control" wire:model="slug">
                                     </div>
-                        
+                                   
                                     <div wire:ignore  class="form-group">
                                         <label>Mô tả ngắn</label>
                                         <textarea id="short_description" class="form-control" wire:model="short_description"></textarea>
@@ -183,7 +194,8 @@
                                         <label>Mô tả chi tiết</label>
                                         <textarea id="description" class="form-control" rows="4" wire:model="description"></textarea>
                                     </div>         
-                                
+                         
+                                       
                                 </div>
                                 <div class="col-6">
                                     <div class="form-group">

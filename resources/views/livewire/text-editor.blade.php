@@ -13,6 +13,7 @@
     {{-- Preview --}}
     {{-- <p class="mt-2">📌 <strong>Nội dung đã nhập:</strong></p>
     <div id="{{ $name }}-content" class="border p-2 mt-2 bg-light"></div> --}}
+   
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             function editorSummerNote(id) {

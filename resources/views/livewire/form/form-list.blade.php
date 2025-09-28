@@ -5,7 +5,7 @@
               <div class="card-header">
                   <h3 class="card-title">Quick Example</h3>
               </div>
-
+ 
               <!-- form start -->
               <form wire:submit.prevent="submit">
                   <div class="card-body">
@@ -30,9 +30,15 @@
                           format="DD/MM/YYYY" 
                           wire:model="end_date"
                       />
-
+                    
+                      <x-image-upload 
+                            label="Ảnh chính" 
+                            model="imageUpload" 
+                            :current="$image" 
+                            removeMethod="removeImage" 
+                     />
                       <livewire:text-editor 
-                          wire:model.blur="description" 
+                          wire:model="description" 
                           name="description" 
                           label="Mô tả sản phẩm ngắn" 
                           placeholder="Nhập mô tả..."        

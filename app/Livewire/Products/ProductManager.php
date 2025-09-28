@@ -19,7 +19,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ProductManager extends Component
 {
     use WithPagination;
-    use WithFileUploads;
+    use WithFileUploads; 
 
     public $search = '';
     public $perPage = 10;
@@ -86,11 +86,17 @@ class ProductManager extends Component
             ->where('id', 4)              // lấy chính nó
             ->orWhere('parent_id', 4)     // hoặc các con của nó
             ->get();
-    
+
         $query = WpProduct::with('categories')
             ->when($this->search, fn($q) => $q->where('title', 'like', "%{$this->search}%"))
-            ->orderBy($this->sortField, $this->sortDirection);
-    
+            ->when($this->sortField, function ($q) {
+                if (in_array($this->sortField, ['regular_price', 'sale_price'])) {
+                    $q->orderByRaw("CAST({$this->sortField} AS UNSIGNED) {$this->sortDirection}");
+                } else {
+                    $q->orderBy($this->sortField, $this->sortDirection);
+                }
+            });
+
         if ($this->perPage === 'all') {
             $items = $query->get();
             $products = new LengthAwarePaginator(
@@ -103,16 +109,18 @@ class ProductManager extends Component
         } else {
             $products = $query->paginate($this->perPage);
         }
-    
+
         return view('livewire.products.product-manager', [
             'products' => $products
         ]);
     }
 
+
     public function create()
     {
         $this->resetForm();
         $this->showForm = true;
+        
         $this->setHeader = 'Thêm sản phẩm';
         $this->dispatch('setHeader', $this->setHeader);
        
@@ -409,5 +417,17 @@ class ProductManager extends Component
         session(['products_per_page' => $value]);
         $this->resetPage();
     }
+    public function sortBy($field)
+    {
+      
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+    }
+
+
 }
  
