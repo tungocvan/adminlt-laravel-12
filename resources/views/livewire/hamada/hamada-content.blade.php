@@ -1,5 +1,3 @@
 <div>
-  <livewire:register-form modalTitle="Đăng ký thành viên VIP" width="modal-sm" />
-
-
+  <livewire:registerform modalTitle="Đăng ký tài khoản" width="modal-md" />  
 </div>

@@ -13,6 +13,7 @@ class RegisterForm extends Component
     public $email;
     public $password;
     public $password_confirmation;
+    public $showModal = false;
 
     // Thuộc tính config modal
     public $modalTitle = 'Đăng ký tài khoản';
@@ -40,21 +41,34 @@ class RegisterForm extends Component
 
        public function register()
     {
+     
         // ✅ Validate với rules() bên trên
-        $validated = $this->validate();
+        // $validated = $this->validate();
 
-        User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
-            'username'    => $validated['email'],
-            'password' => Hash::make($validated['password']),
-        ]);
+        // User::create([
+        //     'name'     => $validated['name'],
+        //     'email'    => $validated['email'],
+        //     'username'    => $validated['email'],
+        //     'password' => Hash::make($validated['password']),
+        // ]);
 
-        $this->reset(['name', 'email', 'password', 'password_confirmation']);
+        // $this->reset(['name', 'email', 'password', 'password_confirmation']);
 
-        session()->flash('success', 'Đăng ký thành công!');
+        // session()->flash('success', 'Đăng ký thành công!');
 
         $this->dispatch('user-registered');
+        $this->closeModal(); // đóng modal
+        $this->reset();      // reset input
+    }
+
+    public function openModal()
+    {
+        $this->reset(['name', 'email', 'password']);
+        $this->showModal = true;
+    }
+    public function closeModal()
+    {
+        $this->showModal = false;
     }
 
     public function render()

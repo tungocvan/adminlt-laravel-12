@@ -1,11 +1,17 @@
 <div>
     <!-- Nút mở modal -->
-    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-register">
+    <button class="btn btn-primary" wire:click="openModal">
       {{ $modalTitle }}
     </button>
   
     <!-- Modal -->
-    <div wire:ignore.self class="modal fade" id="modal-register" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+     <div 
+        class="modal fade @if($showModal) show d-block @endif" 
+        tabindex="-1" 
+        role="dialog" 
+        @if($showModal) style="background: rgba(0,0,0,0.5);" @endif
+    >
+
 
       <div class="modal-dialog {{ $width }} modal-dialog-scrollable">
         <div class="modal-content">
@@ -59,14 +65,17 @@
     </div>
   </div>
   
-  <!-- Script đóng modal -->
+
+
   <script>
     window.addEventListener('user-registered', function() {
-        $('#modal-register').modal('hide');
-        toastr.success('Đăng ký thành công!');
+        var modalEl = document.getElementById('modal-register');
+        if (modalEl) {
+            // Bootstrap 4: dùng jQuery API
+            $('#modal-register').modal('hide');
+            toastr.success('Đăng ký thành công!');
+        }
+       
     });
-    
-   
-</script>
 
-  
+</script>
