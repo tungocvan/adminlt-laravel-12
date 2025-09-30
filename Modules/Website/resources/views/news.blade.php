@@ -14,11 +14,7 @@
    
 
 @section('content')
-    @include('Website::partials.homeCarousel')
-    @include('Website::partials.homeNews')
-    @include('Website::partials.homeSeller')   
-    @include('Website::partials.homeFaq')   
-    @livewire('hamadagioithieu')
+    <h1>Tin tức</h1>
 @stop
 
 @section('footer')

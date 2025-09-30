@@ -20,6 +20,22 @@ class WebsiteController extends Controller
     {
         return view('Website::hamada');
     }
+    public function about()
+    {
+        return view('Website::about');
+    }
+    public function helpOrder()
+    {
+        return view('Website::help-order');
+    }
+    public function news()
+    {
+        return view('Website::news');
+    }
+    public function register()
+    {
+        return view('Website::register');
+    }
 
     
 }
