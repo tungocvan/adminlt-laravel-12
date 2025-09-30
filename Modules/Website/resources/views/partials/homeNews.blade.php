@@ -54,45 +54,4 @@
     </div>
 </div>
 
-<div class="container my-5">
-    <!-- Tabs -->
-    <div class="text-center mb-4">
-        <button class="btn btn-outline-primary mr-2 active">
-            Buymed hướng dẫn bạn 4 bước trở thành khách hàng thuocsi.vn
-        </button>
-        <button class="btn btn-outline-secondary">
-            4 Bước xử lý đơn hàng
-        </button>
-    </div>
 
-    <div class="row">
-        <!-- Stepper -->
-        <div class="col-md-3">
-            <ul class="list-group">
-                <li class="list-group-item active"><span class="badge badge-light mr-2">1</span> Điền thông tin doanh nghiệp</li>
-                <li class="list-group-item"><span class="badge badge-primary mr-2">2</span> Kích hoạt tài khoản</li>
-                <li class="list-group-item"><span class="badge badge-primary mr-2">3</span> Tra cứu sản phẩm</li>
-                <li class="list-group-item"><span class="badge badge-primary mr-2">4</span> Nhận ưu đãi đơn đầu</li>
-            </ul>
-        </div>
-
-        <!-- Content -->
-        <div class="col-md-9">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <h4 class="card-title">Điền đầy đủ thông tin doanh nghiệp và cung cấp các loại hồ sơ sau:</h4>
-                    <p class="font-weight-bold">Giấy chứng nhận:</p>
-                    <ul class="pl-3">
-                        <li>Thực hành tốt phân phối thuốc (GDP).</li>
-                        <li>Thực hành tốt cơ sở bán lẻ thuốc (GPP).</li>
-                        <li>Thực hành tốt bảo quản thuốc (GSP).</li>
-                        <li>Đủ điều kiện kinh doanh dược.</li>
-                        <li>Đăng ký doanh nghiệp.</li>
-                    </ul>
-                    <button class="btn btn-primary mt-3">Đăng Ký Ngay</button>
-                </div>
-                <img class="card-img-bottom" src="https://gcs.buymed.com/thuocsi-live/web/static/img/new/1_New.jpg" alt="step image" />
-            </div>
-        </div>
-    </div>
-</div>

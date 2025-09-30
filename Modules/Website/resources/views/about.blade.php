@@ -14,7 +14,9 @@
    
 
 @section('content')
-    <h1>About</h1>
+    <div class="container">
+        <h1>About</h1>
+    </div>
 @stop
 
 @section('footer')

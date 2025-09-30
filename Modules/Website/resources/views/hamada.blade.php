@@ -16,6 +16,7 @@
 @section('content')
     @include('Website::partials.homeCarousel')
     @include('Website::partials.homeNews')
+    @include('Website::partials.homeHelp')
     @include('Website::partials.homeSeller')   
     @include('Website::partials.homeFaq')   
     @livewire('hamadagioithieu')

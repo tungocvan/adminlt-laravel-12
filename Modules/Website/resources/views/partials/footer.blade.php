@@ -41,7 +41,7 @@
           <li><a href="#" class="text-dark">Hướng dẫn đặt hàng & thanh toán</a></li>
         </ul>
         <h6 class="text-uppercase font-weight-bold mt-3">Dịch Vụ Giao Hàng</h6>
-        <img src="https://cdn-web-next.thuocsi.vn/images/footer-v2/Delivery/delivery-partners.png" alt="Giao Hàng" class="img-fluid">
+        <img src="/images/Viettel_Post_logo.jpg" alt="Giao Hàng" class="img-fluid">
       </div>
 
       <!-- Ứng dụng + kết nối -->

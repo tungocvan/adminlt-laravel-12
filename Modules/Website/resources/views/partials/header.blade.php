@@ -1,10 +1,11 @@
 <!-- Banner -->
 <div class="container-fluid p-0">
-  <img src="/images/banner.webp" class="img-fluid w-100" style="height:80px; object-fit:cover;" alt="Banner">
+  <img src="/images/banner.webp" class="img-fluid w-100" 
+       style="height:80px; object-fit:cover;" alt="Banner">
 </div>
 
 <!-- Menu -->
-<div class="container-fluid bg-white fixed-top" style="top:80px; z-index:1030;">
+<div id="menu" class="container-fluid bg-white">
   <div class="container">
     <div class="row align-items-center" style="height:72px;">
       
@@ -20,19 +21,19 @@
       <div class="col-md-7 d-flex justify-content-center">
         <nav class="nav">
           <a href="{{ route('website.about') }}"
-            @class(['nav-link', 'active' => request()->routeIs('website.about')])>
+             @class(['nav-link', 'active' => request()->routeIs('website.about')])>
             Về chúng tôi
           </a>
           <a href="{{ route('website.help-order') }}"
-            @class(['nav-link', 'active' => request()->routeIs('website.help-order')])>
+             @class(['nav-link', 'active' => request()->routeIs('website.help-order')])>
             Hướng dẫn đặt hàng
           </a>
           <a href="{{ route('website.news') }}"
-            @class(['nav-link', 'active' => request()->routeIs('website.news')])>
+             @class(['nav-link', 'active' => request()->routeIs('website.news')])>
             Tin tức
           </a>
           <a href="{{ route('website.register') }}"
-            @class(['nav-link', 'active' => request()->routeIs('website.register')])>
+             @class(['nav-link', 'active' => request()->routeIs('website.register')])>
             Đăng ký bán hàng
           </a>
         </nav>
@@ -46,3 +47,42 @@
     </div>
   </div>
 </div>
+
+<style>
+  .nav .nav-link {
+            position: relative;
+            padding-bottom: 5px; /* tạo khoảng cách cho gạch */
+  }
+
+  .nav .nav-link.active::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;               /* độ dày gạch */
+      background-color: #007bff; /* màu gạch */
+  }
+  .menu-fixed {
+    position: fixed;
+    top: 0; /* dính sát trên */
+    left: 0;
+    width: 100%;
+    z-index: 1030;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: top 0.3s;
+  }
+</style>
+
+<script>
+  const menu = document.getElementById('menu');
+  const bannerHeight = 80; // chiều cao banner
+
+  window.addEventListener('scroll', function () {
+    if (window.scrollY > bannerHeight) {
+      menu.classList.add('menu-fixed');
+    } else {
+      menu.classList.remove('menu-fixed');
+    }
+  });
+</script>

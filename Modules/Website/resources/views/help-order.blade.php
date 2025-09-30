@@ -14,7 +14,10 @@
    
 
 @section('content')
-    <h1>Hướng dẫn đặt hàng</h1>
+    
+    <div class="container">
+        <h1>Hướng dẫn đặt hàng</h1>
+    </div>
 @stop
 
 @section('footer')

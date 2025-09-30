@@ -14,7 +14,10 @@
    
 
 @section('content')
-    <h1>Tin tức</h1>
+    
+    <div class="container">
+        <h1>Tin tức</h1>
+    </div>
 @stop
 
 @section('footer')
