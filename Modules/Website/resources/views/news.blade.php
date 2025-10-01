@@ -15,8 +15,8 @@
 
 @section('content')
     
-    <div class="container">
-        <h1>Tin tức</h1>
+    <div class="container">                   
+        <livewire:slider />
     </div>
 @stop
 
@@ -27,7 +27,9 @@
 @section('css')
     {{-- Add here extra stylesheets --}}
     {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+    
 
+    </style>
 
 @stop
 
@@ -36,6 +38,6 @@
     {{-- <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script> --}}
 
     
-
+    
 @stop
  

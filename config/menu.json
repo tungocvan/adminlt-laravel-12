@@ -204,5 +204,11 @@
         "url": "\/options",
         "icon": "fas fa-fw fa-user-shield",
         "can": "options-list"
+    },
+    {
+        "text": "Website",
+        "url": "\/website",
+        "icon": "fas fa-fw fa-user-shield",
+        "can": ""
     }
 ]

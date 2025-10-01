@@ -5,7 +5,8 @@
 
 @section('adminlte_css')
     @stack('css')
-    @yield('css')  
+    @yield('css')
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">     
 @stop
 
 @section('classes_body', $layoutHelper->makeBodyClasses())
@@ -32,5 +33,6 @@
 
 @section('adminlte_js')
     @stack('js')
-    @yield('js')      
+    @yield('js')    
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>  
 @stop

@@ -80,8 +80,8 @@ new class extends Component
 
 <div>
     <!-- Nút mở modal -->
-    <button wire:click="openModal" class="btn btn-primary mx-2">
-        Đăng ký User
+    <button wire:click="openModal" class="btn btn-primary" style="width:100px">
+        Đăng ký
     </button>
 
     <!-- Modal -->
