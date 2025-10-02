@@ -78,6 +78,7 @@ pm2 stop laravel-queue	Dừng
 pm2 restart laravel-queue	Khởi động lại
 pm2 delete laravel-queue	Xóa tiến trình
 pm2 logs laravel-queue	Xem log
+pm2 flush laravel-queue // xóa các logs
 
 
 hướng dẫn gửi mail từ dòng lệnh cmd sử dụng tinker:

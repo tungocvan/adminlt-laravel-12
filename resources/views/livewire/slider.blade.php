@@ -45,7 +45,7 @@ new class extends Component {
         new Swiper('.swiper-container', {
             loop: true,
             slidesPerView: 1, // chỉ 1 ảnh trên 1 slide            
-            autoplay: { delay: 3000 },
+            autoplay: { delay: 3000, reverseDirection: true },
             effect: 'coverflow', // đổi hiệu ứng ở đây
             coverflowEffect: {
                 rotate: 50,
