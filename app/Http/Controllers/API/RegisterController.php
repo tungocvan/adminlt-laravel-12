@@ -43,6 +43,8 @@ class RegisterController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
+
+     
     public function login(Request $request): JsonResponse
     {
 
@@ -57,4 +59,5 @@ class RegisterController extends BaseController
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
     }
+   
 }

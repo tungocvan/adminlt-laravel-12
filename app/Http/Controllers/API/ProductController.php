@@ -1,105 +1,51 @@
 <?php
-   
+
 namespace App\Http\Controllers\API;
-   
+
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Controllers\API\BaseController as BaseController;
-use App\Models\Product;
-use Validator;
-use App\Http\Resources\ProductResource;
-use Illuminate\Http\JsonResponse;
-   
-class ProductController extends BaseController
+
+class ProductController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Lấy danh sách sản phẩm (có thể lọc, tìm kiếm, sắp xếp)
      */
-    public function index(): JsonResponse
+
+     public function filter(Request $request)
     {
-        $products = Product::all();
-    
-        return $this->sendResponse(ProductResource::collection($products), 'Products retrieved successfully.');
-    }
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request): JsonResponse
-    {
-        $input = $request->all();
-   
-        $validator = Validator::make($input, [
-            'name' => 'required',
-            'detail' => 'required'
+        $products = tnv_getProducts([
+            'search'      => $request->input('search'),
+            'category_id' => $request->input('category_id'),
+            'min_price'   => $request->input('min_price'),
+            'max_price'   => $request->input('max_price'),
+            'order_by'    => $request->input('order_by'),
+            'sort'        => $request->input('sort'),
+            'paginate'    => $request->input('paginate', 20),
+            'cache'       => $request->input('cache', 0),
         ]);
-   
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());       
-        }
-   
-        $product = Product::create($input);
-   
-        return $this->sendResponse(new ProductResource($product), 'Product created successfully.');
-    } 
-   
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id): JsonResponse
-    {
-        $product = Product::find($id);
-  
-        if (is_null($product)) {
-            return $this->sendError('Product not found.');
-        }
-   
-        return $this->sendResponse(new ProductResource($product), 'Product retrieved successfully.');
-    }
-    
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Product $product): JsonResponse
-    {
-        $input = $request->all();
-   
-        $validator = Validator::make($input, [
-            'name' => 'required',
-            'detail' => 'required'
+
+        return response()->json([
+            'success' => true,
+            'data' => $products,
         ]);
-   
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());       
-        }
-   
-        $product->name = $input['name'];
-        $product->detail = $input['detail'];
-        $product->save();
-   
-        return $this->sendResponse(new ProductResource($product), 'Product updated successfully.');
     }
-   
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Lấy chi tiết 1 sản phẩm theo id hoặc slug
      */
-    public function destroy(Product $product): JsonResponse
+    public function show($id)
     {
-        $product->delete();
-   
-        return $this->sendResponse([], 'Product deleted successfully.');
+        $product = \App\Models\WpProduct::with('categories')->find($id);
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sản phẩm không tồn tại.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $product,
+        ]);
     }
 }

@@ -18,9 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'Image' => Intervention\Image\Laravel\Facades\Image::class,
-            'SetLocale' => App\Http\Middleware\SetLocale::class
+            'SetLocale' => App\Http\Middleware\SetLocale::class,
+            'protect.auth.api' => \App\Http\Middleware\ProtectAuthApi::class,
         ]);
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -202,13 +202,19 @@ class UserList extends Component
     public function deleteSelected()
     {
         if (!empty($this->selectedUsers)) {
-            User::whereIn('id', $this->selectedUsers)->delete();
+            $users = User::whereIn('id', $this->selectedUsers)->get();
+    
+            foreach ($users as $user) {
+                $user->delete(); // Gọi model event => tự detach roles & permissions
+            }
+    
             $this->selectedUsers = [];
             session()->flash('message', 'Selected users deleted successfully!');
         } else {
             session()->flash('error', 'No users selected for deletion!');
         }
     }
+    
 
     public function openModal()
     {

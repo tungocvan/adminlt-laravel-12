@@ -55,13 +55,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    // protected static function booted(): void
-    // {
-    //     static::created(function (User $user) {
-    //         Mail::to($user->email)
-    //             ->queue(new WelcomeUserMail($user)); // Gửi vào hàng đợi
-    //     });
-    // }
+    protected static function booted(): void
+    {
+        // static::created(function (User $user) {
+        //     Mail::to($user->email)
+        //         ->queue(new WelcomeUserMail($user)); // Gửi vào hàng đợi
+        // });
+
+        static::deleting(function ($user) {
+            // Gỡ tất cả role và permission liên kết
+            $user->roles()->detach();
+            $user->permissions()->detach();
+        });
+    }
     public function phone(): HasOne
     {
         return $this->hasOne(Phone::class);
