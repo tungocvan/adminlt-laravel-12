@@ -31,7 +31,7 @@ class CreateAdminUserSeeder extends Seeder
                 'username' => 'tungocvan',
                 'password' => Hash::make('123456'),
                 'email_verified_at' => now(),
-                'is_admin' => 1,
+                'is_admin' => -1,
             ]);
             $user->assignRole($adminRole);
             return $user;

@@ -63,6 +63,16 @@
     <!-- /.card-header -->
     <div class="card-body table-responsive p-0">
         <div x-data>  
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+            @if (session('message'))
+                <div class="alert alert-success">
+                    {{ session('message') }}
+                </div>
+            @endif
       <table class="table table-hover text-nowrap">
         <thead>
           <tr>

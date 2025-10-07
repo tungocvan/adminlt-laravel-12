@@ -112,9 +112,14 @@ class UserList extends Component
     public function delete($userId)
     {
         $user = User::find($userId);
-        if ($user) {
-            $user->delete();
-            session()->flash('message', 'User deleted successfully!');
+        if ($user) {            
+            if($user['is_admin'] != -1){
+                $user->delete(); // Gọi model event => tự detach roles & permissions
+                session()->flash('message', 'User deleted successfully!');
+            }else{
+                session()->flash('error', 'Cannot User Admin');
+            }  
+            
         } else {
             session()->flash('error', 'User not found!');
         }
@@ -162,8 +167,7 @@ class UserList extends Component
     }
 
     public function update()
-    {
-       
+    {       
         $validated = $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $this->userId,
@@ -203,13 +207,21 @@ class UserList extends Component
     {
         if (!empty($this->selectedUsers)) {
             $users = User::whereIn('id', $this->selectedUsers)->get();
-    
+            $delError= "";
             foreach ($users as $user) {
-                $user->delete(); // Gọi model event => tự detach roles & permissions
+                if($user['is_admin'] != -1){
+                    $user->delete(); // Gọi model event => tự detach roles & permissions                    
+                }else{
+                    $delError = $delError. $user['email']. " - ";
+                }               
             }
-    
-            $this->selectedUsers = [];
-            session()->flash('message', 'Selected users deleted successfully!');
+            if($delError != ""){
+                session()->flash('error', "Không thể xóa tài khoản Admin: $delError");
+            }else{
+                $this->selectedUsers = [];
+                session()->flash('message', 'Selected users deleted successfully!');
+            }
+            
         } else {
             session()->flash('error', 'No users selected for deletion!');
         }

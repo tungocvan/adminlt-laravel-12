@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Helpers\TnvUserHelper;
 
 class AuthController extends BaseController
 {
@@ -22,7 +23,7 @@ class AuthController extends BaseController
     
     public function login(Request $request)
     {
-        $result = tnv_login($request->only(['email', 'password']));
+        $result = TnvUserHelper::login($request->only(['email', 'password']));
         $statusCode = $result['status'] === 'success' ? 201 : 400;
         return response()->json($result, $statusCode);
     }
@@ -42,12 +43,13 @@ class AuthController extends BaseController
         ]);
 
      
-        $result = tnv_register($data);
+        $result = TnvUserHelper::register($data);
 
         // Trả về response
         $statusCode = $result['status'] === 'success' ? 201 : 400;
         return response()->json($result, $statusCode);
     }
+
      /**
      * Tạo token tạm để bảo vệ API login/register
      */
