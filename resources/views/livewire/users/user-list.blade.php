@@ -5,6 +5,9 @@
                 <button wire:click="openModal" style="width: 100px;" class="btn btn-outline-success btn-sm"><i class="fa fa-plus"></i> Add</button> 
                 <button wire:click="deleteSelected" onclick="return confirm('Are you sure you want to delete selected users?')" style="width: 100px;" class="btn btn-outline-danger btn-sm mx-2"><i class="fa fa-trash"></i> Delete All</button>             
                  <button wire:click="openModalRole" style="width: 150px;" class="btn btn-outline-success btn-sm mr-2"><i class="fa fa-save"></i> Update All Roles</button>
+                 @livewire('export.excel', ['model' => App\Models\User::class])
+                
+
                 <form wire:submit.prevent="importFile" x-data="{ uploading: false }">
                     <div>
                         <div class="btn btn-outline-success btn-sm btn-file">

@@ -9,7 +9,13 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use Illuminate\Support\Facades\Log;
 
 class TnvUserHelper
 {
@@ -356,6 +362,299 @@ class TnvUserHelper
                 'token' => $token,
             ],
         ];
+    }
+
+    public static function importUsersFromExcel($file)
+    {
+        try {
+            // --- Kiểm tra file tồn tại ---
+            if (!$file || !$file->isValid()) {
+                return [
+                    'status' => false,
+                    'message' => 'File tải lên không hợp lệ.',
+                ];
+            }
+
+            // --- Đọc nội dung Excel ---
+            $rows = Excel::toArray([], $file)[0]; // sheet đầu tiên
+
+            if (count($rows) <= 1) {
+                return [
+                    'status' => false,
+                    'message' => 'File Excel trống hoặc không có dữ liệu.',
+                ];
+            }
+
+            // --- Giả sử dòng đầu là header ---
+            $header = array_map('trim', $rows[0]);
+            $imported = [];
+            $errors = [];
+            $count = 0;
+
+            DB::beginTransaction();
+
+            foreach (array_slice($rows, 1) as $index => $row) {
+                if (count(array_filter($row)) === 0) continue; // bỏ dòng trống
+
+                // Tạo mảng dữ liệu theo header
+                $data = array_combine($header, $row);
+
+                // Chuẩn hóa key
+                $data = array_change_key_case($data, CASE_LOWER);
+
+                // --- VALIDATE ---
+                
+                foreach ($data as $key => $value) {
+                    if (is_numeric($value)) {
+                        $data[$key] = (string) $value;
+                    }
+                }
+                
+                $validator = Validator::make($data, [
+                    'name' => 'required|string|max:100',
+                    'email' => 'required|email|unique:users,email',
+                    'password' => 'nullable|string|min:6',
+                    'role_name' => 'nullable|string',
+                    'is_admin' => 'nullable|integer',
+                    'verified' => 'nullable|string',
+                ]);
+
+                if ($validator->fails()) {
+                    $errors[] = [
+                        'row' => $index + 2,
+                        'error' => $validator->errors()->first(),
+                        'data' => $data,
+                    ];
+                    continue;
+                }
+
+                // --- Xử lý username ---
+                if (empty($data['username'])) {
+                    $baseUsername = Str::before($data['email'], '@');
+                    $username = $baseUsername;
+                    $countTry = 0;
+                    while (User::where('username', $username)->exists()) {
+                        $username = $baseUsername . rand(100, 999);
+                        $countTry++;
+                        if ($countTry > 5) break;
+                    }
+                    $data['username'] = $username;
+                }
+
+                // --- Role ---
+                $roleName = !empty($data['role_name']) ? $data['role_name'] : 'User';
+                $role = Role::firstOrCreate(['name' => $roleName]);
+
+                // --- Mã hóa mật khẩu ---
+                $password = !empty($data['password']) ? Hash::make($data['password']) : Hash::make('123456');
+
+                // --- Email verified ---
+                $emailVerifiedAt = !empty($data['verified']) ? now() : null;
+
+                // --- Tạo user ---
+                $user = User::create([
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'username' => $data['username'],
+                    'password' => $password,
+                    'is_admin' => $data['is_admin'] ?? 0,
+                    'email_verified_at' => $emailVerifiedAt,
+                ]);
+
+                $user->assignRole($role);
+                $imported[] = $user;
+                $count++;
+            }
+
+            DB::commit();
+
+            return [
+                'status' => true,
+                'message' => "Đã import thành công {$count} user.",
+                'imported_count' => $count,
+                'errors' => $errors,
+                'data' => $imported,
+            ];
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Import Users Failed: ' . $e->getMessage());
+            return [
+                'status' => false,
+                'message' => 'Lỗi khi import: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    public static function exportUsersToExcel(
+        array $userIds = [],
+        array $fields = [],
+        string $title = 'BÁO CÁO DANH SÁCH NGƯỜI DÙNG',
+        string $footer = 'NGƯỜI LẬP BẢNG'
+    ) {
+        try {
+            $query = User::query()->with('roles');
+    
+            if (!empty($userIds)) {
+                $query->whereIn('id', $userIds);
+            }
+    
+            $users = $query->get();
+    
+            if ($users->isEmpty()) {
+                return [
+                    'status' => false,
+                    'message' => 'Không có user nào để xuất.',
+                ];
+            }
+    
+            // ====== Cấu hình field mặc định ======
+            $defaultFields = [
+                'id',
+                'name',
+                'email',
+                'username',
+                'is_admin',
+                'roles',
+                'email_verified_at',
+                'created_at',
+            ];
+    
+            // ====== Mapping sang tên tiếng Việt ======
+            $fieldLabels = [
+                'id' => 'ID',
+                'name' => 'Họ và tên',
+                'email' => 'Email',
+                'username' => 'Tên đăng nhập',
+                'is_admin' => 'Phân quyền',
+                'roles' => 'Vai trò',
+                'email_verified_at' => 'Xác minh Email',
+                'created_at' => 'Ngày tạo',
+                'birthdate' => 'Ngày sinh',
+            ];
+    
+            $exportFields = !empty($fields) ? $fields : $defaultFields;
+    
+            // ====== Tạo file Excel ======
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Users Export');
+    
+            // ====== 1️⃣ Tiêu đề ======
+            $titleText = $title . ' - ' . now()->format('d/m/Y');
+            $sheet->mergeCells('A1:' . chr(64 + count($exportFields)) . '1');
+            $sheet->setCellValue('A1', $titleText);
+            $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+            $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+    
+            // ====== 2️⃣ Header (bắt đầu dòng 3) ======
+            $headerRow = 3;
+            $header = [];
+            foreach ($exportFields as $field) {
+                $header[] = $fieldLabels[$field] ?? ucfirst(str_replace('_', ' ', $field));
+            }
+            $sheet->fromArray([$header], null, 'A' . $headerRow);
+    
+            $headerRange = 'A' . $headerRow . ':' . chr(64 + count($exportFields)) . $headerRow;
+            $sheet->getStyle($headerRange)->applyFromArray([
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFEFEFEF'],
+                ],
+                'font' => ['bold' => true],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => ['borderStyle' => Border::BORDER_THIN],
+                ],
+            ]);
+    
+            // ====== 3️⃣ Ghi dữ liệu (bắt đầu từ dòng 4) ======
+            $row = $headerRow + 1;
+            foreach ($users as $user) {
+                $col = 1;
+                foreach ($exportFields as $field) {
+                    $value = match ($field) {
+                        'roles' => $user->getRoleNames()->implode(', '),
+                        'is_admin' => $user->is_admin == -1 ? 'Super Admin' : ($user->is_admin == 1 ? 'Admin' : 'User'),
+                        'email_verified_at', 'created_at' => $user->$field ? $user->$field->format('d/m/Y H:i') : '',
+                        default => $user->$field ?? '',
+                    };
+                    $sheet->setCellValueByColumnAndRow($col, $row, $value);
+                    $col++;
+                }
+                $row++;
+            }
+    
+            // ====== 4️⃣ Căn giữa & viền bảng ======
+            $dataRange = 'A' . $headerRow . ':' . chr(64 + count($exportFields)) . ($row - 1);
+            $sheet->getStyle($dataRange)->applyFromArray([
+                'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+            ]);
+            $sheet->getStyle($dataRange)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            foreach (range(1, count($exportFields)) as $colIndex) {
+                $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+            }
+    
+            // ====== 5️⃣ Footer chuyên nghiệp ======
+            $totalCols = count($exportFields);
+            $mergeCols = min(3, $totalCols);
+            $startColIndex = $totalCols - $mergeCols + 1;
+            $endColIndex = $totalCols;
+    
+            // Helper chuyển số sang chữ cột
+            $colLetter = function ($index) {
+                $letter = '';
+                while ($index > 0) {
+                    $mod = ($index - 1) % 26;
+                    $letter = chr(65 + $mod) . $letter;
+                    $index = intdiv($index - 1, 26);
+                }
+                return $letter;
+            };
+    
+            $startCol = $colLetter($startColIndex);
+            $endCol = $colLetter($endColIndex);
+            $footerRow = $sheet->getHighestRow() + 2;
+    
+            $sheet->mergeCells("{$startCol}{$footerRow}:{$endCol}{$footerRow}");
+            $sheet->setCellValue("{$startCol}{$footerRow}", $footer);
+    
+            $footerStyle = $sheet->getStyle("{$startCol}{$footerRow}");
+            $footerStyle->getFont()->setBold(true);
+            $footerStyle->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                ->setVertical(Alignment::VERTICAL_CENTER);
+            // $footerStyle->getBorders()->getTop()->setBorderStyle(Border::BORDER_THIN);
+            $sheet->getRowDimension($footerRow)->setRowHeight(25);
+    
+            // ====== 6️⃣ Lưu file ======
+            $timestamp = now()->format('Ymd_His');
+            $fileName = "users_export_{$timestamp}.xlsx";
+            $exportPath = storage_path("app/exports/{$fileName}");
+    
+            if (!is_dir(dirname($exportPath))) {
+                mkdir(dirname($exportPath), 0777, true);
+            }
+    
+            $writer = new Xlsx($spreadsheet);
+            $writer->save($exportPath);
+    
+            return [
+                'status' => true,
+                'message' => 'Xuất file thành công.',
+                'path' => $exportPath,
+                'count' => $users->count(),
+                'fields' => $exportFields,
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'status' => false,
+                'message' => 'Lỗi khi xuất file: ' . $e->getMessage(),
+            ];
+        }
     }
 
 }

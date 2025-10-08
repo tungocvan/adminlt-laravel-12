@@ -7,6 +7,7 @@
     </div>
     @endif
         <div class="d-flex justify-content-between">
+            @livewire('export.excel', ['model' => App\Models\WpProduct::class])
             @if(count($selectedProducts) == 0)   
                 <button wire:click="exportJson" class="btn btn-info mx-2">
                     <i class="fa fa-file-code"></i>Export All Products
