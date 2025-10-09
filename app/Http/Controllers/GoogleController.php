@@ -8,6 +8,7 @@ use Exception;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
   
 class GoogleController extends Controller
 {
@@ -29,48 +30,69 @@ class GoogleController extends Controller
      * @return void
      */
     public function handleGoogleCallback()
-{
-    try {
-        $googleUser = Socialite::driver('google')->user();
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
 
-        $user = User::where('google_id', $googleUser->id)
-                    ->orWhere('email', $googleUser->email)
-                    ->first();
+            $user = User::where('google_id', $googleUser->id)
+                        ->orWhere('email', $googleUser->email)
+                        ->first();
 
-        if ($user) {
-            if (is_null($user->email_verified_at) && $user->is_admin != 1) {
-                // Redirect về login với lỗi thay vì throw
-                return redirect()->route('login')
-                    ->withErrors(['email' => "Tài khoản $googleUser->email chưa được admin phê duyệt."]);
+            if ($user) {
+                if (is_null($user->email_verified_at) && $user->is_admin != 1) {
+                    // Redirect về login với lỗi thay vì throw
+                    return redirect()->route('login')
+                        ->withErrors(['email' => "Tài khoản $googleUser->email chưa được admin phê duyệt."]);
+                }
+
+                Auth::login($user);
+                return redirect()->intended('admin');
             }
 
-            Auth::login($user);
-            return redirect()->intended('admin');
+            // Nếu user chưa tồn tại → tạo mới với email_verified_at = null
+            $newUser = User::create([
+                'name' => $googleUser->name,
+                'email' => $googleUser->email,
+                'username' => $googleUser->email,
+                'google_id' => $googleUser->id,
+                'password' => Hash::make('123456'),
+                'email_verified_at' => null, // Chưa được duyệt
+                'role' => 'user',
+            ]);
+
+            $newUser->assignRole('user');
+
+            // Redirect về login với thông báo chờ duyệt
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Tài khoản mới đã được tạo, vui lòng chờ admin phê duyệt.']);
+
+        } catch (Exception $e) {
+            // Lỗi khác, redirect về login với message
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Đăng nhập Google thất bại: '.$e->getMessage()]);
         }
-
-        // Nếu user chưa tồn tại → tạo mới với email_verified_at = null
-        $newUser = User::create([
-            'name' => $googleUser->name,
-            'email' => $googleUser->email,
-            'username' => $googleUser->email,
-            'google_id' => $googleUser->id,
-            'password' => Hash::make('123456'),
-            'email_verified_at' => null, // Chưa được duyệt
-            'role' => 'user',
-        ]);
-
-        $newUser->assignRole('user');
-
-        // Redirect về login với thông báo chờ duyệt
-        return redirect()->route('login')
-            ->withErrors(['email' => 'Tài khoản mới đã được tạo, vui lòng chờ admin phê duyệt.']);
-
-    } catch (Exception $e) {
-        // Lỗi khác, redirect về login với message
-        return redirect()->route('login')
-            ->withErrors(['email' => 'Đăng nhập Google thất bại: '.$e->getMessage()]);
     }
-}
+
+    public function loginWithGoogleToken(Request $request)
+    {
+        $googleUser = Socialite::driver('google')->stateless()->userFromToken($request->token);
+
+        $user = User::updateOrCreate(
+            ['email' => $googleUser->getEmail()],
+            [
+                'name' => $googleUser->getName(),
+                'google_id' => $googleUser->getId(),
+                'password' => bcrypt(Str::random(16)), // mật khẩu ngẫu nhiên
+            ]
+        );
+
+        $token = $user->createToken('api_token')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+        ]);
+    }
 
 
 }   
