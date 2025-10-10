@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
   
 class MobileGoogleController extends Controller
 {
@@ -19,44 +20,44 @@ class MobileGoogleController extends Controller
      */
    
          // Bắt đầu OAuth
-    public function redirectToGoogle()
-    {
-        return Socialite::driver('google')
-            ->stateless() // quan trọng cho mobile
-            ->redirect();
-    }
-
-    // Callback sau login Google
-    public function handleGoogleCallbackApp()
-    {
-        try {
-            $googleUser = Socialite::driver('google')->stateless()->user();
-
-            $user = User::where('google_id', $googleUser->id)
-                        ->orWhere('email', $googleUser->email)
-                        ->first();
-
-            if (!$user) {
-                $user = User::create([
-                    'name' => $googleUser->name,
-                    'email' => $googleUser->email,
-                    'google_id' => $googleUser->id,
-                    'password' => Hash::make(str()->random(12)),
-                    'email_verified_at' => now(),
-                ]);
-            }
-
-            // Tạo token JWT / Sanctum
-            $token = $user->createToken('google_login')->plainTextToken;
-
-            // Redirect về app với token
-            $appRedirectUri = 'myapp://auth?token=' . $token;
-            return redirect($appRedirectUri);
-
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Google login failed: ' . $e->getMessage()], 500);
-        }
-    }
+         public function verifyGoogleIdToken(Request $request)
+         {
+             $idToken = $request->input('id_token');
+     
+             if (!$idToken) {
+                 return response()->json(['error' => 'Missing id_token'], 400);
+             }
+     
+             // Verify token với Google
+             $res = Http::get('https://oauth2.googleapis.com/tokeninfo', [
+                 'id_token' => $idToken
+             ]);
+     
+             if ($res->failed()) {
+                 return response()->json(['error' => 'Invalid Google token'], 401);
+             }
+     
+             $googleUser = $res->json();
+     
+             // Lấy hoặc tạo user
+             $user = User::firstOrCreate(
+                 ['google_id' => $googleUser['sub']],
+                 [
+                     'name' => $googleUser['name'],
+                     'email' => $googleUser['email'],
+                     'password' => Hash::make(str()->random(12)),
+                     'email_verified_at' => now(),
+                 ]
+             );
+     
+             // Tạo token ứng dụng (Sanctum)
+             $token = $user->createToken('google_login')->plainTextToken;
+     
+             return response()->json([
+                 'token' => $token,
+                 'user' => $user,
+             ]);
+         }
 
 
 

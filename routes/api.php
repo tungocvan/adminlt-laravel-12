@@ -34,9 +34,11 @@ Route::controller(UserController::class)->group(function(){
 });
 
 
-Route::get('auth/google/start', [MobileGoogleController::class, 'redirectToGoogle']);
-Route::get('auth/google/callback', [MobileGoogleController::class, 'handleGoogleCallbackApp']);
 
+Route::post('/auth/google/verify', [MobileGoogleController::class, 'verifyGoogleIdToken']);
+Route::middleware('auth:sanctum')->get('/user', function () {
+    return auth()->user();
+});
 
 // Route::middleware('auth:sanctum')->controller(UserController::class)->group(function(){
 //     Route::post('users', 'index');    
