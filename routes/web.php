@@ -109,7 +109,6 @@ Route::get('autocomplete', [SearchController::class, 'autocomplete'])->name('aut
 Route::controller(GoogleController::class)->group(function(){
     Route::get('auth/google', 'redirectToGoogle')->name('auth.google');
     Route::get('auth/google/callback', 'handleGoogleCallback');
-    Route::post('auth/google','loginWithGoogleToken');
 
 });
 

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\MobileGoogleController;
 
 
 
@@ -31,6 +32,10 @@ Route::controller(UserController::class)->group(function(){
     Route::put('users/{id}','update');
 
 });
+
+
+Route::get('auth/google/start', [MobileGoogleController::class, 'redirectToGoogle']);
+Route::get('auth/google/callback', [MobileGoogleController::class, 'handleGoogleCallbackApp']);
 
 
 // Route::middleware('auth:sanctum')->controller(UserController::class)->group(function(){

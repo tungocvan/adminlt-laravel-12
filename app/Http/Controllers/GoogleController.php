@@ -73,26 +73,6 @@ class GoogleController extends Controller
         }
     }
 
-    public function loginWithGoogleToken(Request $request)
-    {
-        $googleUser = Socialite::driver('google')->stateless()->userFromToken($request->token);
-
-        $user = User::updateOrCreate(
-            ['email' => $googleUser->getEmail()],
-            [
-                'name' => $googleUser->getName(),
-                'google_id' => $googleUser->getId(),
-                'password' => bcrypt(Str::random(16)), // mật khẩu ngẫu nhiên
-            ]
-        );
-
-        $token = $user->createToken('api_token')->plainTextToken;
-
-        return response()->json([
-            'user' => $user,
-            'token' => $token,
-        ]);
-    }
 
 
 }   
