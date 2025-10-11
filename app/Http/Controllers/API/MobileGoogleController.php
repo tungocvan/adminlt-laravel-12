@@ -20,63 +20,41 @@ class MobileGoogleController extends Controller
      */
    
      public function verify(Request $request)
-    {
-        try {
-            $idToken = $request->input('id_token');
-
-            if (!$idToken) {
-                return response()->json(['error' => 'Missing id_token'], 400);
-            }
-
-            $client = new \Google_Client([
-                'client_id' => '323384860483-tn2g6j1h9g55bl6gn6q7hrj1cf03ebog.apps.googleusercontent.com',
-            ]);
-
-            $payload = $client->verifyIdToken($idToken);
-
-            if (!$payload) {
-                return response()->json(['error' => 'Invalid ID token'], 401);
-            }
-
-            $email = $payload['email'] ?? null;
-            $name = $payload['name'] ?? 'Người dùng Google';
-            $googleId = $payload['sub'] ?? null;
-
-            if (!$email || !$googleId) {
-                return response()->json(['error' => 'Thiếu thông tin tài khoản Google'], 422);
-            }
-
-            $user = User::updateOrCreate(
-                ['email' => $email],
-                [
-                    'name' => $name,
-                    'google_id' => $googleId,
-                    'password' => Hash::make(uniqid()),
-                    'email_verified_at' => now(),
-                ]
-            );
-
-            // Tạo token (Laravel Sanctum)
-            $token = $user->createToken('mobile')->plainTextToken;
-
-            return response()->json([
-                'success' => true,
-                'token' => $token,
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                ],
-            ], 200);
-
-        } catch (\Throwable $e) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Đăng nhập Google thất bại',
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
+     {
+         \Log::info('Google verify request', $request->all());
+     
+         $idToken = $request->input('id_token');
+         if (!$idToken) {
+             return response()->json(['error' => 'Missing id_token'], 400);
+         }
+     
+         try {
+             $client = new \Google_Client(['client_id' => '323384860483-tn2g6j1h9g55bl6gn6q7hrj1cf03ebog.apps.googleusercontent.com']);
+             $payload = $client->verifyIdToken($idToken);
+     
+             if (!$payload) {
+                 return response()->json(['error' => 'Invalid ID token'], 401);
+             }
+     
+             $user = User::firstOrCreate(
+                 ['email' => $payload['email']],
+                 [
+                     'name' => $payload['name'],
+                     'google_id' => $payload['sub'],
+                     'password' => Hash::make(uniqid()),
+                     'email_verified_at' => now(),
+                 ]
+             );
+     
+             $token = $user->createToken('mobile')->plainTextToken;
+     
+             return response()->json(['token' => $token, 'user' => $user]);
+     
+         } catch (\Throwable $e) {
+             return response()->json(['error' => $e->getMessage()], 500);
+         }
+     }
+     
 
 
 
