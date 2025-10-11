@@ -35,7 +35,7 @@ Route::controller(UserController::class)->group(function(){
 
 
 
-Route::post('/auth/google/verify', [MobileGoogleController::class, 'verifyGoogleIdToken']);
+Route::post('/auth/google/verify', [MobileGoogleController::class, 'verify']);
 Route::middleware('auth:sanctum')->get('/user', function () {
     return auth()->user();
 });
