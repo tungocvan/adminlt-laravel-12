@@ -1,18 +1,28 @@
 <?php
 
+<?php
+
 return [
+
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
+
     'allowed_methods' => ['*'],
+
     'allowed_origins' => [
-        'http://localhost:*',
-        'https://localhost:*',
-        'https://*.exp.direct',
+        'https://esxv7iq-tungocvan-8081.exp.direct',
         'https://auth.expo.dev',
-        'https://adminlt.tungocvan.com',
-        'https://esxv7iq-tungocvan-8081.exp.direct'
+        'http://localhost:8081',
+        'http://127.0.0.1:8081',
     ],
+
+    'allowed_origins_patterns' => [],
+
     'allowed_headers' => ['*'],
+
     'exposed_headers' => [],
+
     'max_age' => 0,
+
     'supports_credentials' => true,
+
 ];
