@@ -9,6 +9,7 @@ return [
         'https://*.exp.direct',
         'https://auth.expo.dev',
         'https://adminlt.tungocvan.com',
+        'https://esxv7iq-tungocvan-8081.exp.direct'
     ],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
