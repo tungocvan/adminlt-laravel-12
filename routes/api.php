@@ -46,7 +46,7 @@ Route::middleware('auth:sanctum')->get('/user', function () {
 //     Route::delete('users/{$id}', 'destroy');    
 // });
 
-Route::controller(ProductController::class)->group(function(){
+Route::middleware('auth:sanctum')->controller(ProductController::class)->group(function(){
     Route::post('products', 'filter');
     Route::get('products/{id}', 'show');
 });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Helpers\TnvProductHelper;
 
 class ProductController extends Controller
 {
@@ -13,7 +14,7 @@ class ProductController extends Controller
 
      public function filter(Request $request)
     {
-        $products = tnv_getProducts([
+        $products = TnvProductHelper::getProducts([
             'search'      => $request->input('search'),
             'category_id' => $request->input('category_id'),
             'min_price'   => $request->input('min_price'),
