@@ -11,6 +11,11 @@ class TnvProductHelper
     {
         $query = WpProduct::query()->with('categories');
 
+        // 🎯 Chọn cột cụ thể nếu được chỉ định
+        if (!empty($params['fields'])) {
+            $query->select($params['fields']);
+        }
+
         // 🔍 Tìm kiếm
         if (!empty($params['search'])) {
             $search = $params['search'];
