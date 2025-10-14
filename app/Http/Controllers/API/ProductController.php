@@ -15,6 +15,7 @@ class ProductController extends Controller
      public function filter(Request $request)
     {
         $products = TnvProductHelper::getProducts([
+            'fields'      => $request->input('fields'),
             'search'      => $request->input('search'),
             'category_id' => $request->input('category_id'),
             'min_price'   => $request->input('min_price'),
