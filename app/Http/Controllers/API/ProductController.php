@@ -56,16 +56,17 @@ class ProductController extends Controller
     public function orderStore(Request $request)
     {
         // ✅ 1. Xác thực dữ liệu
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'email' => 'required|email',
-            'orderDetail' => 'required|array|min:1',
-            'orderDetail.*.product_id' => 'required|integer',
-            'orderDetail.*.title' => 'required|string',
-            'orderDetail.*.price' => 'required|numeric|min:0',
-            'orderDetail.*.quantity' => 'required|integer|min:1',
-            'orderDetail.*.total' => 'required|numeric|min:0',
-            'total' => 'required|numeric|min:0',
+            'orderDetail' => 'required|array',
+            'orderDetail.*.product_id' => 'required|numeric',
+            // 'orderDetail.*.title' => 'nullable|string', // đổi từ required -> nullable
+            'orderDetail.*.price' => 'required|numeric',
+            'orderDetail.*.quantity' => 'required|numeric',
+            'orderDetail.*.total' => 'required|numeric',
+            'total' => 'required|numeric',
         ]);
+        
 
         if ($validator->fails()) {
             return response()->json([
