@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Helpers\TnvProductHelper;
+use App\Models\Order;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -50,4 +52,52 @@ class ProductController extends Controller
             'data' => $product,
         ]);
     }
+    
+    public function orderStore(Request $request)
+    {
+        // ✅ 1. Xác thực dữ liệu
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'orderDetail' => 'required|array|min:1',
+            'orderDetail.*.product_id' => 'required|integer',
+            'orderDetail.*.title' => 'required|string',
+            'orderDetail.*.price' => 'required|numeric|min:0',
+            'orderDetail.*.quantity' => 'required|integer|min:1',
+            'orderDetail.*.total' => 'required|numeric|min:0',
+            'total' => 'required|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            // ✅ 2. Tạo đơn hàng
+            $order = Order::create([
+                'email' => $request->email,
+                'order_detail' => $request->orderDetail,
+                'total' => $request->total,
+                'status' => 'pending',
+            ]);
+
+            // ✅ 3. Trả về JSON phản hồi
+            return response()->json([
+                'status' => true,
+                'message' => 'Đơn hàng đã được tạo thành công!',
+                'order_id' => $order->id,
+                'order' => $order,
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Lỗi khi lưu đơn hàng: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }
