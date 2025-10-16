@@ -55,6 +55,7 @@ class ProductController extends Controller
     
     public function orderStore(Request $request)
     {
+        dd($request->all());
         // ✅ 1. Xác thực dữ liệu
         $request->validate([
             'email' => 'required|email',
