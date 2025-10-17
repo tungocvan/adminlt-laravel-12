@@ -1,0 +1,26 @@
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` bigint unsigned NOT NULL auto_increment,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `email_verified_at` timestamp,
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `is_admin` tinyint NOT NULL DEFAULT '0',
+  `role` enum('admin','agent','user') NOT NULL DEFAULT 'user',
+  `remember_token` varchar(100),
+  `device_token` varchar(255),
+  `created_at` timestamp,
+  `updated_at` timestamp,
+  `birthdate` date,
+  `google_id` varchar(255)
+);
+
+INSERT INTO `users` (`id`,`name`,`email`,`email_verified_at`,`username`,`password`,`is_admin`,`role`,`remember_token`,`device_token`,`created_at`,`updated_at`,`birthdate`,`google_id`) VALUES ('46','Từ Ngọc Vân','tungocvan@gmail.com','2025-10-07 10:45:18','tungocvan','$2y$12$Nxw1KwpYUVRXSSW3dtCAde2k7g6OxXDE9A.aFKCWvmFAbjDpsZMUm','-1','user',NULL,NULL,'2025-10-07 10:45:18','2025-10-07 10:46:10',NULL,NULL);
+INSERT INTO `users` (`id`,`name`,`email`,`email_verified_at`,`username`,`password`,`is_admin`,`role`,`remember_token`,`device_token`,`created_at`,`updated_at`,`birthdate`,`google_id`) VALUES ('50','Trần Thị B1','b1@gmail.com',NULL,'btran1','$2y$12$bJ7iYsPfA2NGidlEqcxBe.CKoMSmarxWlscjsutMfFpXh1.VF.4.y','0','user',NULL,NULL,'2025-10-08 12:05:27','2025-10-08 12:05:27',NULL,NULL);
+INSERT INTO `users` (`id`,`name`,`email`,`email_verified_at`,`username`,`password`,`is_admin`,`role`,`remember_token`,`device_token`,`created_at`,`updated_at`,`birthdate`,`google_id`) VALUES ('51','Trần Thị B2','b2@gmail.com',NULL,'btran2','$2y$12$qa1WPSUtNXRuBAg7j4WKtesudExXQ1lzIbiyk9nq2cuWnHJtRLoru','0','user',NULL,NULL,'2025-10-08 12:05:27','2025-10-08 12:05:27',NULL,NULL);
+INSERT INTO `users` (`id`,`name`,`email`,`email_verified_at`,`username`,`password`,`is_admin`,`role`,`remember_token`,`device_token`,`created_at`,`updated_at`,`birthdate`,`google_id`) VALUES ('52','Trần Thị B3','b3@gmail.com',NULL,'btran3','$2y$12$gScHyT7hxsWtaLnv8ZqKxeBP8hiyxoZ2M6/MbqLfwoWgS2B5VIgtm','0','user',NULL,NULL,'2025-10-08 12:05:28','2025-10-08 12:05:28',NULL,NULL);
+INSERT INTO `users` (`id`,`name`,`email`,`email_verified_at`,`username`,`password`,`is_admin`,`role`,`remember_token`,`device_token`,`created_at`,`updated_at`,`birthdate`,`google_id`) VALUES ('53','Trần Thị B4','b4@gmail.com',NULL,'btran4','$2y$12$36VChtmvW6sjr7/Zp8OR2OgMr6f1KqVm8jl3B1X1tDfYg7M0cDDVG','0','user',NULL,NULL,'2025-10-08 12:05:29','2025-10-08 12:05:29',NULL,NULL);
+INSERT INTO `users` (`id`,`name`,`email`,`email_verified_at`,`username`,`password`,`is_admin`,`role`,`remember_token`,`device_token`,`created_at`,`updated_at`,`birthdate`,`google_id`) VALUES ('54','Trần Thị B5','b5@gmail.com',NULL,'btran5','$2y$12$wuGaRwVS6iX6gK9XQupSa.0ODs6CCpGr2oO.aK2Uy.5T3TvhHhPQ2','0','user',NULL,NULL,'2025-10-08 12:05:30','2025-10-08 12:05:30',NULL,NULL);
+INSERT INTO `users` (`id`,`name`,`email`,`email_verified_at`,`username`,`password`,`is_admin`,`role`,`remember_token`,`device_token`,`created_at`,`updated_at`,`birthdate`,`google_id`) VALUES ('55','Trần Thị B6','b6@gmail.com',NULL,'b6','$2y$12$.mPlxtgSVFcNpS5rqyMxIOWbtlS.QJqTdYe7khgRZwPKzzOGmhv.e','0','user',NULL,NULL,'2025-10-08 13:39:53','2025-10-08 13:39:53',NULL,NULL);
+INSERT INTO `users` (`id`,`name`,`email`,`email_verified_at`,`username`,`password`,`is_admin`,`role`,`remember_token`,`device_token`,`created_at`,`updated_at`,`birthdate`,`google_id`) VALUES ('56','Trần Thị B7','b7@gmail.com',NULL,'b7','$2y$12$.6fuKyHDvEa5UE/wNLS9SuzWpdT99InXeRI.iVBORlJ/X133IfMre','0','user',NULL,NULL,'2025-10-08 13:39:53','2025-10-08 13:39:53',NULL,NULL);
+INSERT INTO `users` (`id`,`name`,`email`,`email_verified_at`,`username`,`password`,`is_admin`,`role`,`remember_token`,`device_token`,`created_at`,`updated_at`,`birthdate`,`google_id`) VALUES ('57','Từ Ngọc Vân 31','tungocvan31@gmail.com',NULL,'tungocvan31','$2y$12$Rn0OxR98onLqSYL/.se7UO1Mvp/GO9IRby8CCXsTGVD2/5WL.EXue','0','user',NULL,NULL,'2025-10-09 11:22:57','2025-10-09 11:22:57',NULL,NULL);
