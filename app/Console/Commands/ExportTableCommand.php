@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 class ExportTableCommand extends Command
 {
     protected $signature = 'export:table {table}';
-    protected $description = 'Xuất toàn bộ dữ liệu của bảng ra file .mysql';
+    protected $description = 'Xuất toàn bộ dữ liệu của bảng ra file .mysql (chuẩn safe import)';
 
     public function handle()
     {
@@ -33,24 +33,31 @@ class ExportTableCommand extends Command
 
         $fields = [];
         foreach ($columnsInfo as $col) {
-            $fields[] = "  `{$col->Field}` {$col->Type}" .
-                ($col->Null === 'NO' ? " NOT NULL" : "") .
-                ($col->Default !== null ? " DEFAULT '{$col->Default}'" : "") .
-                ($col->Extra ? " {$col->Extra}" : "");
+            $field = "  `{$col->Field}` {$col->Type}";
+            if ($col->Null === 'NO') $field .= " NOT NULL";
+            if ($col->Default !== null) $field .= " DEFAULT '" . addslashes($col->Default) . "'";
+            if ($col->Extra) $field .= " {$col->Extra}";
+            $fields[] = $field;
         }
         $sql .= implode(",\n", $fields) . "\n);\n\n";
 
+        // ✅ Xuất dữ liệu từng dòng INSERT (đảm bảo JSON, ký tự đặc biệt, xuống dòng an toàn)
         foreach ($rows as $row) {
             $values = array_map(function ($val) {
                 if ($val === null) return 'NULL';
-                return "'" . addslashes($val) . "'";
+                // Convert object -> JSON string nếu cần
+                if (is_array($val) || is_object($val)) {
+                    $val = json_encode($val, JSON_UNESCAPED_UNICODE);
+                }
+                // Escape an toàn
+                $val = str_replace(["\\", "'", "\r", "\n"], ["\\\\", "\\'", "\\r", "\\n"], $val);
+                return "'" . $val . "'";
             }, (array)$row);
 
             $sql .= "INSERT INTO `{$table}` (`" . implode("`,`", $columns) . "`) VALUES (" . implode(",", $values) . ");\n";
         }
 
         file_put_contents($fileName, $sql);
-
         $this->info("✅ Đã xuất bảng '{$table}' ra file: {$fileName}");
 
         return Command::SUCCESS;
