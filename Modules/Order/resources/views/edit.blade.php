@@ -4,7 +4,7 @@
 <div class="container mt-4">
     <h4>Cập nhật trạng thái đơn hàng #{{ $order->id }}</h4>
 
-    <form method="POST" action="{{ route('orders.update', $order) }}">
+    <form method="POST" action="{{ route('order.update', $order) }}">
         @csrf @method('PUT')
 
         <div class="form-group">
@@ -17,7 +17,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary mt-3">Lưu thay đổi</button>
-        <a href="{{ route('orders.index') }}" class="btn btn-secondary mt-3">Hủy</a>
+        <a href="{{ route('order.index') }}" class="btn btn-secondary mt-3">Hủy</a>
     </form>
 </div>
 @endsection

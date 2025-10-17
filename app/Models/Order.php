@@ -29,4 +29,9 @@ class Order extends Model
             Mail::to($order->email)->send(new OrderCreatedMail($order));
         });
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'email', 'email');
+    }
+
 }

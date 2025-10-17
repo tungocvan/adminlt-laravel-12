@@ -32,9 +32,9 @@
                 </td>
                 <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
                 <td>
-                    <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-info">Xem</a>
-                    <a href="{{ route('orders.edit', $order) }}" class="btn btn-sm btn-primary">Sửa</a>
-                    <form action="{{ route('orders.destroy', $order) }}" method="POST" style="display:inline-block">
+                    <a href="{{ route('order.show', $order) }}" class="btn btn-sm btn-info">Xem</a>
+                    <a href="{{ route('order.edit', $order) }}" class="btn btn-sm btn-primary">Sửa</a>
+                    <form action="{{ route('order.destroy', $order) }}" method="POST" style="display:inline-block">
                         @csrf @method('DELETE')
                         <button onclick="return confirm('Bạn có chắc muốn xóa?')" class="btn btn-sm btn-danger">Xóa</button>
                     </form>
@@ -46,6 +46,10 @@
         </tbody>
     </table>
 
-    {{ $orders->links() }}
+    <div class="d-flex justify-content-center mt-3">
+        {{ $orders->links('pagination::bootstrap-4') }}
+
+    </div>
+    
 </div>
 @endsection
