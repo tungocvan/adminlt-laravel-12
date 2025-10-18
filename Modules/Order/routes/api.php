@@ -23,4 +23,6 @@ Route::prefix('/api/orders')->group(function () {
     Route::post('/update', [OrderController::class, 'store']);
     Route::put('{id}', [OrderController::class, 'update']);
     Route::delete('{id}', [OrderController::class, 'destroy']);
+    Route::post('/update-item', [OrderController::class, 'updateItem']);
+    Route::post('/remove-item', [OrderController::class, 'removeItem']);
 });

@@ -104,4 +104,61 @@ class OrderController extends Controller
 
         return response()->json(['message' => 'Đã xóa đơn hàng thành công.']);
     }
+
+    public function updateItem(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|exists:orders,id',
+            'index' => 'required|integer|min:0', // vị trí sản phẩm trong mảng
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $order = Order::find($request->order_id);
+        $details = $order->order_detail;
+
+        if (!isset($details[$request->index])) {
+            return response()->json(['message' => 'Sản phẩm không tồn tại'], 404);
+        }
+
+        // Cập nhật số lượng và total
+        $details[$request->index]['quantity'] = $request->quantity;
+        $details[$request->index]['total'] = $details[$request->index]['price'] * $request->quantity;
+
+        $order->order_detail = $details;
+        $order->total = array_sum(array_column($details, 'total'));
+        $order->save();
+
+        return response()->json([
+            'message' => 'Cập nhật thành công',
+            'order' => $order,
+        ]);
+    }
+    
+    public function removeItem(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|exists:orders,id',
+            'index' => 'required|integer|min:0',
+        ]);
+
+        $order = Order::find($request->order_id);
+        $details = $order->order_detail;
+
+        if (!isset($details[$request->index])) {
+            return response()->json(['message' => 'Sản phẩm không tồn tại'], 404);
+        }
+
+        // Xóa sản phẩm
+        array_splice($details, $request->index, 1);
+
+        $order->order_detail = $details;
+        $order->total = array_sum(array_column($details, 'total'));
+        $order->save();
+
+        return response()->json([
+            'message' => 'Xóa sản phẩm thành công',
+            'order' => $order,
+        ]);
+    }
+
 }
