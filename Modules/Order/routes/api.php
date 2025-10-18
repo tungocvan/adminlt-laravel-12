@@ -6,10 +6,21 @@ use Illuminate\Support\Facades\Route;
 use  Modules\Order\Http\Controllers\Api\OrderController;
 
 
-Route::middleware(['web'])->prefix('/api')->controller(OrderController::class)->group(function(){
-    Route::get('order', 'index');
-});
+// Route::middleware(['web'])->prefix('/api/orders')->controller(OrderController::class)->group(function(){
+//     Route::post('list','list'); 
+//     Route::get('{id}','show');
+//     Route::post('/','store');
+//     Route::put('{id}','update');
+//     Route::delete('{id}','destroy');
+// });
 
 // Route::middleware(['web','auth'])->prefix('/api')->controller(OrderController::class)->group(function(){
 //     Route::post('order', 'index');
 // });
+Route::prefix('/api/orders')->group(function () {
+    Route::post('/', [OrderController::class, 'list']); // 🔹 Dùng POST để lấy danh sách
+    Route::get('{id}', [OrderController::class, 'show']);
+    Route::post('/update', [OrderController::class, 'store']);
+    Route::put('{id}', [OrderController::class, 'update']);
+    Route::delete('{id}', [OrderController::class, 'destroy']);
+});

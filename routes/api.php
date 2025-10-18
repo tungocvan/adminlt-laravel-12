@@ -65,3 +65,4 @@ Route::prefix('user-info')->group(function () {
     Route::post('/upload', [UserOptionController::class, 'store']);
     
 });
+
