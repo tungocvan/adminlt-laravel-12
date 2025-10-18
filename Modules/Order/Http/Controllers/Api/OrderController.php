@@ -117,7 +117,6 @@ class OrderController extends Controller
 
         $order = Order::find($request->order_id);
         $details = $request->order_detail;
-        dd($details);
         // Nếu mảng rỗng → xóa đơn hàng
         if (empty($details)) {
             $order->delete();
