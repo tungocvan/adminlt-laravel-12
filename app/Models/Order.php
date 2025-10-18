@@ -26,7 +26,7 @@ class Order extends Model
     protected static function booted()
     {
         static::created(function ($order) {
-            Mail::to($order->email)->send(new OrderCreatedMail($order));
+            //Mail::to($order->email)->send(new OrderCreatedMail($order));
         });
     }
     public function user()
