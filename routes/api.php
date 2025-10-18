@@ -62,4 +62,6 @@ Route::prefix('user-info')->group(function () {
     Route::post('/update', [UserOptionController::class, 'updateUserInfo']);
     Route::get('/{user_id}', [UserOptionController::class, 'getUserInfo']);
     Route::delete('/{user_id}', [UserOptionController::class, 'deleteUserInfo']);
+    Route::post('/upload', [UserOptionController::class, 'store']);
+    
 });

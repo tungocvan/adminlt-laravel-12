@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Option;
 
 class UserOptionController extends Controller
@@ -71,6 +72,27 @@ class UserOptionController extends Controller
             'message' => $deleted
                 ? 'User info deleted successfully.'
                 : 'User info not found or already deleted.',
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        // Validate file upload
+        $request->validate([
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // tối đa 5MB
+        ]);
+
+        // Lưu vào thư mục public/uploads
+        $path = $request->file('file')->store('uploads', 'public');
+
+        // Lấy URL công khai
+        $url = asset('storage/' . $path);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Upload thành công!',
+            'path' => $path,
+            'url' => $url,
         ]);
     }
 }
