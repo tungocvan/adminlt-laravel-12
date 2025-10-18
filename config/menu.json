@@ -20,7 +20,13 @@
         "can": "admin-create"
     },
     {
-        "text": "Manage Posts  ",
+        "text": "Manage Orders",
+        "url": "\/order",
+        "icon": "fas fa-fw fa-user",
+        "can": "admin-create"
+    },
+    {
+        "text": "Manage Posts   ",
         "url": "\/posts",
         "icon": "fas fa-fw fa-user",
         "can": "admin-create"

@@ -8,7 +8,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\MobileGoogleController;
-
+use App\Http\Controllers\API\UserOptionController;
 
 
 Route::controller(AuthController::class)->group(function(){
@@ -58,4 +58,8 @@ Route::middleware('auth:sanctum')->controller(ProductController::class)->group(f
 // });
 
 
- 
+Route::prefix('user-info')->group(function () {
+    Route::post('/update', [UserOptionController::class, 'updateUserInfo']);
+    Route::get('/{user_id}', [UserOptionController::class, 'getUserInfo']);
+    Route::delete('/{user_id}', [UserOptionController::class, 'deleteUserInfo']);
+});
