@@ -109,7 +109,7 @@ class OrderController extends Controller
     {
         $request->validate([
             'order_id' => 'required|exists:orders,id',
-            'order_detail' => 'required|array',
+            'order_detail' => 'nullable|array',
             'email' => 'required|email',
             'status' => 'required|string',
         ]);
