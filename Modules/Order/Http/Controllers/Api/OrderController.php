@@ -109,30 +109,35 @@ class OrderController extends Controller
     {
         $request->validate([
             'order_id' => 'required|exists:orders,id',
-            'index' => 'required|integer|min:0', // vị trí sản phẩm trong mảng
-            'quantity' => 'required|integer|min:1',
+            'order_detail' => 'required|array',
+            'email' => 'required|email',
+            'status' => 'required|string',
         ]);
 
         $order = Order::find($request->order_id);
-        $details = $order->order_detail;
+        $details = $request->order_detail;
 
-        if (!isset($details[$request->index])) {
-            return response()->json(['message' => 'Sản phẩm không tồn tại'], 404);
+        // Nếu mảng rỗng → xóa đơn hàng
+        if (empty($details)) {
+            $order->delete();
+            return response()->json([
+                'message' => 'Đơn hàng đã bị xóa vì không còn sản phẩm nào.'
+            ]);
         }
 
-        // Cập nhật số lượng và total
-        $details[$request->index]['quantity'] = $request->quantity;
-        $details[$request->index]['total'] = $details[$request->index]['price'] * $request->quantity;
-
+        // Cập nhật order
         $order->order_detail = $details;
         $order->total = array_sum(array_column($details, 'total'));
+        $order->email = $request->email;
+        $order->status = $request->status;
         $order->save();
 
         return response()->json([
-            'message' => 'Cập nhật thành công',
-            'order' => $order,
+            'message' => 'Cập nhật đơn hàng thành công',
+            'order' => $order
         ]);
     }
+
     
     public function removeItem(Request $request)
     {
