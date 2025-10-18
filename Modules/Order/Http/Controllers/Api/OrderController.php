@@ -107,6 +107,7 @@ class OrderController extends Controller
 
     public function updateItem(Request $request)
     {
+        // kiểm tra status có phải là pending thì mới cho thực hiện, không phải thì báo đơn hàng đã được xác thực
         $request->validate([
             'order_id' => 'required|exists:orders,id',
             'email' => 'required|email',
@@ -116,6 +117,12 @@ class OrderController extends Controller
         ]);
 
         $order = Order::find($request->order_id);
+            // Chỉ cho phép update nếu pending
+        if ($order->status !== 'pending') {
+            return response()->json([
+                'message' => 'Đơn hàng đã được xác thực, không thể cập nhật.'
+            ], 403); // 403 Forbidden
+        }
         $details = $request->order_detail;
         // Nếu mảng rỗng → xóa đơn hàng
         if (empty($details)) {
