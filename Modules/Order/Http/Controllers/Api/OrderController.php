@@ -109,9 +109,10 @@ class OrderController extends Controller
     {
         $request->validate([
             'order_id' => 'required|exists:orders,id',
-            'order_detail' => 'nullable|array',
             'email' => 'required|email',
             'status' => 'required|string',
+            'order_detail' => 'nullable|array', // <-- cho phép rỗng
+            'total' => 'required|numeric',
         ]);
 
         $order = Order::find($request->order_id);
