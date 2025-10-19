@@ -23,6 +23,7 @@
         "livewire/livewire": "^3.6",
         "livewire/volt": "^1.7",
         "maatwebsite/excel": "^3.1.64",
+        "openspout/openspout": "^4.0",
         "predis/predis": "^3.1",
         "pusher/pusher-php-server": "^7.2.7",
         "spatie/image": "^3.8",

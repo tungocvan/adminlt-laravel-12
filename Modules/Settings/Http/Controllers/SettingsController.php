@@ -65,6 +65,10 @@ class SettingsController extends Controller
     {
         return view('Settings::vn-address');       
     }   
+    public function baogiathuoc()
+    {
+        return view('Settings::baogiathuoc');       
+    }   
 
 }
  

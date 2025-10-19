@@ -9,6 +9,7 @@ Route::middleware(['web','auth'])->prefix('/settings')->name('settings.')->group
     Route::get('/', [SettingsController::class,'index'])->name('index');
     Route::get('/help', [SettingsController::class,'help'])->name('help');
     Route::get('/menu', [SettingsController::class,'menu'])->name('menu');
+    Route::get('/baogiathuoc', [SettingsController::class,'baogiathuoc'])->name('baogiathuoc');
     Route::get('/artisan', [SettingsController::class,'artisan'])->name('artisan');
     Route::get('/components', [SettingsController::class,'components'])->name('components');
     Route::get('/components/tabs', [SettingsController::class,'tabs'])->name('components.tabs');
