@@ -26,7 +26,10 @@ class Order extends Model
     protected static function booted()
     {
         static::created(function ($order) {
-            //Mail::to($order->email)->send(new OrderCreatedMail($order));
+            if($order->status == "pending"){
+                Mail::to($order->email)->send(new OrderCreatedMail($order));
+            }
+            
         });
     }
     public function user()
