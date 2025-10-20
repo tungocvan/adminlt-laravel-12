@@ -15,6 +15,6 @@ Xin chào **{{ $order->email }}**,
 @endforeach
 @endcomponent
 
-Cảm ơn bạn đã mua hàng tại shop chúng tôi ❤️  
+Cảm ơn bạn đã mua hàng tại CÔNG TY TNHH INAFO VIỆT NAM chúng tôi ❤️  
 
 @endcomponent
