@@ -82,7 +82,7 @@ class ImportMedicinesCommand extends Command
                     $giayPhep = $this->cleanString($row['K'] ?? '');
                     $tenBietDuoc = $this->cleanString($row['F'] ?? '');
 
-                    if (empty($tenBietDuoc) && empty($giayPhep)) continue;
+                    if (empty($tenBietDuoc) && empty($giayPhep) || $tenBietDuoc=='' ) continue;
 
                     $data = [
                         'stt_tt20_2022'      => $this->parseInt($row['B'] ?? null),
