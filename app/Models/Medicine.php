@@ -30,4 +30,10 @@ class Medicine extends Model
         'nhom_thuoc',
         'link_hinh_anh',
     ];
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_medicine')->withTimestamps();
+    }
+
 }

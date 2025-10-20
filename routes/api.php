@@ -9,6 +9,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\MobileGoogleController;
 use App\Http\Controllers\API\UserOptionController;
+use App\Http\Controllers\API\MedicineController;
 
 
 Route::controller(AuthController::class)->group(function(){
@@ -66,3 +67,4 @@ Route::prefix('user-info')->group(function () {
     
 });
 
+Route::post('/medicines', [MedicineController::class, 'getList']);
