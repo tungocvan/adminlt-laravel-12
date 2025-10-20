@@ -21,7 +21,7 @@
 {{-- Footer --}}
 <x-slot:footer>
 <x-mail::footer>
-© {{ date('Y') }} {{ config('app.name') }}. {{ __('Copyright © 2025 Tu Ngoc Van. All rights reserved.') }}
+© {{ date('Y') }} {{ config('app.name') }}. {{ __('Copyright © 2025 Từ Ngọc Vân. All rights reserved.') }}
 </x-mail::footer>
 </x-slot:footer>
 </x-mail::layout>
