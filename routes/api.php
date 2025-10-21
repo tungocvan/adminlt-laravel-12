@@ -10,6 +10,7 @@ use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\MobileGoogleController;
 use App\Http\Controllers\API\UserOptionController;
 use App\Http\Controllers\API\MedicineController;
+use App\Http\Controllers\API\CategoryController;
 
 
 Route::controller(AuthController::class)->group(function(){
@@ -68,3 +69,11 @@ Route::prefix('user-info')->group(function () {
 });
 
 Route::post('/medicines', [MedicineController::class, 'getList']);
+
+Route::prefix('categories')->group(function () {
+    Route::post('/', [CategoryController::class, 'index']);      // Lấy danh sách (lọc, tìm kiếm)
+    Route::post('/store', [CategoryController::class, 'store']); // Tạo mới
+    Route::post('/{key}', [CategoryController::class, 'show']);   // Xem chi tiết
+    Route::post('/update/{id}', [CategoryController::class, 'update']); // Cập nhật
+    Route::post('/delete/{id}', [CategoryController::class, 'destroy']); // Xóa
+});

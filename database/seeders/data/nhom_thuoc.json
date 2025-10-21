@@ -1,0 +1,117 @@
+[
+    {
+      "name": "Nhóm thuốc",
+      "slug": "nhom-thuoc",
+      "type": "category",
+      "description": "Danh mục chứa các nhóm thuốc tân dược",
+      "icon": "medkit-outline",
+      "children": [
+        {
+          "name": "Chăm sóc cá nhân",
+          "slug": "cham-soc-ca-nhan",
+          "type": "category",
+          "icon": "person-outline",
+          "description": "Sản phẩm hỗ trợ vệ sinh, chăm sóc cơ thể"
+        },
+        {
+          "name": "Cơ, xương, khớp",
+          "slug": "co-xuong-khop",
+          "type": "category",
+          "icon": "fitness-outline",
+          "description": "Nhóm thuốc điều trị bệnh lý về xương khớp"
+        },
+        {
+          "name": "Da liễu",
+          "slug": "da-lieu",
+          "type": "category",
+          "icon": "color-palette-outline",
+          "description": "Nhóm thuốc điều trị các bệnh về da"
+        },
+        {
+          "name": "Dụng cụ y tế",
+          "slug": "dung-cu-y-te",
+          "type": "category",
+          "icon": "bandage-outline",
+          "description": "Các dụng cụ và thiết bị y tế hỗ trợ chăm sóc sức khỏe"
+        },
+        {
+          "name": "Đái tháo đường",
+          "slug": "dai-thao-duong",
+          "type": "category",
+          "icon": "water-outline",
+          "description": "Thuốc điều trị và hỗ trợ kiểm soát đường huyết"
+        },
+        {
+          "name": "Gan, mật",
+          "slug": "gan-mat",
+          "type": "category",
+          "icon": "leaf-outline",
+          "description": "Nhóm thuốc hỗ trợ chức năng gan và mật"
+        },
+        {
+          "name": "Giảm đau, hạ sốt, kháng viêm",
+          "slug": "giam-dau-ha-sot-khang-viem",
+          "type": "category",
+          "icon": "thermometer-outline",
+          "description": "Thuốc giảm đau, hạ sốt và chống viêm"
+        },
+        {
+          "name": "Hormon, sinh lý",
+          "slug": "hormon-sinh-ly",
+          "type": "category",
+          "icon": "male-female-outline",
+          "description": "Nhóm thuốc nội tiết tố và hỗ trợ sinh lý"
+        },
+        {
+          "name": "Hỗ trợ làm đẹp",
+          "slug": "ho-tro-lam-dep",
+          "type": "category",
+          "icon": "sparkles-outline",
+          "description": "Sản phẩm hỗ trợ chăm sóc da và vóc dáng"
+        },
+        {
+          "name": "Kháng Histamin (Chống dị ứng)",
+          "slug": "khang-histamin-chong-di-ung",
+          "type": "category",
+          "icon": "alert-circle-outline",
+          "description": "Thuốc chống dị ứng và kháng histamin"
+        },
+        {
+          "name": "Kháng vi sinh vật",
+          "slug": "khang-vi-sinh-vat",
+          "type": "category",
+          "icon": "bug-outline",
+          "description": "Nhóm thuốc kháng sinh, kháng nấm, kháng virus"
+        },
+        {
+          "name": "Máu, huyết học",
+          "slug": "mau-huyet-hoc",
+          "type": "category",
+          "icon": "water-outline",
+          "description": "Nhóm thuốc điều trị các bệnh lý về máu"
+        },
+        {
+          "name": "Mắt",
+          "slug": "mat",
+          "type": "category",
+          "icon": "eye-outline",
+          "description": "Thuốc điều trị bệnh về mắt và hỗ trợ thị lực"
+        },
+        {
+          "name": "Miếng dán, dầu, cao xoa",
+          "slug": "mieng-dan-dau-cao-xoa",
+          "type": "category",
+          "icon": "medkit-outline",
+          "description": "Các sản phẩm giảm đau ngoài da, dầu và cao xoa"
+        },
+        {
+          "name": "Não, thần kinh",
+          "slug": "nao-than-kinh",
+          "type": "category",
+          "icon": "brain-outline",
+          "description": "Nhóm thuốc tác động lên hệ thần kinh và não bộ"
+        }
+      ]
+    }
+  ]
+  
