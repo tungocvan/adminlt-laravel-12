@@ -20,7 +20,13 @@
         "can": "admin-create"
     },
     {
-        "text": "Manage Orders",
+        "text": "Manage Medicine",
+        "url": "\/medicine",
+        "icon": "fas fa-fw fa-user",
+        "can": "admin-create"
+    },
+    {
+        "text": "Manage Orders ",
         "url": "\/order",
         "icon": "fas fa-fw fa-user",
         "can": "admin-create"
