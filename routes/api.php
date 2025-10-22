@@ -70,6 +70,7 @@ Route::prefix('user-info')->group(function () {
 
 Route::post('/medicines', [MedicineController::class, 'getList']);
 
+
 Route::prefix('categories')->group(function () {
     Route::post('/', [CategoryController::class, 'index']);      // Lấy danh sách (lọc, tìm kiếm)
     Route::post('/store', [CategoryController::class, 'store']); // Tạo mới

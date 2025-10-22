@@ -51,12 +51,7 @@
                         @disabled(!$selectedCategory)">
                     <i class="fa fa-check"></i> Áp dụng danh mục cho {{ count($selectedProducts) }} thuốc
                 </button>
-            @else
-                <button class="btn btn-info"
-                        wire:click="filterByCategory"
-                        @disabled(!$selectedCategory)">
-                    <i class="fa fa-filter"></i> Lọc danh mục
-                </button>
+            
             @endif
         </div>
 

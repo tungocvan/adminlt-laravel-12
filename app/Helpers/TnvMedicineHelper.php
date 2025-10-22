@@ -2,17 +2,12 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Facades\Cache;
 use App\Models\Medicine;
+use App\Models\Category;
+use Illuminate\Support\Facades\Cache;
 
 class TnvMedicineHelper
 {
-    /**
-     * Lấy danh sách thuốc với tuỳ chọn tìm kiếm, lọc, sắp xếp và cache.
-     *
-     * @param  array  $params
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
     public static function getMedicine(array $params = [])
     {
         $query = Medicine::query()->with('categories');
@@ -34,12 +29,27 @@ class TnvMedicineHelper
             });
         }
 
-        // 🏷️ Lọc theo danh mục
-        if (!empty($params['category_id'])) {
+        // 🏷️ Lọc theo danh mục (category_id hoặc slug)
+        if (!empty($params['slug'])) {
+            // Nếu có slug, tìm danh mục và các con
+            $category = Category::where('slug', $params['slug'])->first();
+            if ($category) {
+                $categoryIds = Category::where('id', $category->id)
+                    ->orWhere('parent_id', $category->id)
+                    ->pluck('id')
+                    ->toArray();
+
+                $query->whereHas('categories', function ($q) use ($categoryIds) {
+                    $q->whereIn('categories.id', $categoryIds);
+                });
+            }
+        } elseif (!empty($params['category_id'])) {
+            // Nếu không có slug, lọc theo id
             $query->whereHas('categories', function ($q) use ($params) {
                 $q->where('categories.id', $params['category_id']);
             });
         }
+
         // 🧩 Lọc theo phân nhóm TT15
         if (!empty($params['phan_nhom_tt15'])) {
             $query->where('phan_nhom_tt15', $params['phan_nhom_tt15']);
@@ -83,3 +93,4 @@ class TnvMedicineHelper
             : $fetch();
     }
 }
+

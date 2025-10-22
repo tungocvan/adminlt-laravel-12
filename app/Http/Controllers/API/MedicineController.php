@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Helpers\TnvMedicineHelper;
+use App\Models\Category;
 
 class MedicineController extends Controller
 {
@@ -26,13 +27,35 @@ class MedicineController extends Controller
     public function getList(Request $request)
     {
         try {
-            // Lấy tất cả tham số từ body
+            // 🧾 Lấy tất cả tham số từ body
             $params = $request->all();
 
-            // Gọi helper xử lý
+            // 🏷️ Nếu request có slug → tìm category tương ứng
+            if (!empty($params['slug'])) {
+                $category = Category::where('slug', $params['slug'])->first();
+
+                if ($category) {
+                    // Lấy luôn các danh mục con (nếu có)
+                    $categoryIds = Category::where('id', $category->id)
+                        ->orWhere('parent_id', $category->id)
+                        ->pluck('id')
+                        ->toArray();
+
+                    // Truyền vào helper thay cho slug
+                    $params['category_ids'] = $categoryIds;
+                } else {
+                    // Nếu không tìm thấy slug → trả lỗi sớm
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Danh mục không tồn tại với slug: ' . $params['slug'],
+                    ], 404);
+                }
+            }
+
+            // 🚀 Gọi helper xử lý danh sách
             $data = TnvMedicineHelper::getMedicine($params);
 
-            // Trả về JSON chuẩn REST
+            // ✅ Trả về JSON chuẩn REST
             return response()->json([
                 'success' => true,
                 'message' => 'Lấy danh sách thuốc thành công',
@@ -45,6 +68,7 @@ class MedicineController extends Controller
                 ]
             ]);
         } catch (\Throwable $e) {
+            // ⚠️ Bắt lỗi và trả về phản hồi an toàn
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi khi lấy danh sách thuốc',
@@ -52,4 +76,5 @@ class MedicineController extends Controller
             ], 500);
         }
     }
+    
 }

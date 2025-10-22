@@ -53,6 +53,9 @@ class Medicines extends Component
     public $bulkCategory = null;
     public $slug = 'nhom-thuoc'; // slug cố định
 
+    public $editMode = false;
+    public $assignedCategories = [];
+
     protected function rules(): array
     {
         return [
@@ -85,20 +88,29 @@ class Medicines extends Component
         } else {
             $this->categories = collect(); // tránh lỗi null
         }
+      
         $this->perPage = session('medicines_per_page', $this->perPage);
     }
 
     public function render()
     {
-        $query = Medicine::query()->with('categories');
+        $query = Medicine::with('categories')
+            ->when($this->search, function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('ten_biet_duoc', 'like', "%{$this->search}%")
+                        ->orWhere('ten_hoat_chat', 'like', "%{$this->search}%");
+                });
+            })
+            ->when($this->selectedCategory, function ($q) {
+                $q->whereHas('categories', function ($sub) {
+                    $sub->where('categories.id', $this->selectedCategory);
+                });
+            })
+            ->orderBy($this->sortField, $this->sortDirection);
 
-        if (!empty($this->selectedCategories)) {
-            $query->whereHas('categories', function ($q) {
-                $q->whereIn('categories.id', $this->selectedCategories);
-            });
-        }
-
-        $medicines = $query->get();
+        $medicines = $this->perPage === 'all'
+            ? $query->get()
+            : $query->paginate($this->perPage);
 
         return view('livewire.medicines', [
             'medicines' => $medicines,
@@ -109,6 +121,7 @@ class Medicines extends Component
     public function updatedSelectedCategories()
     {
         // Cập nhật lọc danh mục khi chọn checkbox
+    
         $this->render();
     }
 
@@ -124,7 +137,7 @@ class Medicines extends Component
     public function edit($id)
     {
         $medicine = Medicine::with('categories')->findOrFail($id);
-
+        //dd($medicine);
         $this->medicineId = $medicine->id;
         $this->stt_tt20_2022 = $medicine->stt_tt20_2022;
         $this->phan_nhom_tt15 = $medicine->phan_nhom_tt15;
@@ -145,9 +158,12 @@ class Medicines extends Component
         $this->nha_phan_phoi = $medicine->nha_phan_phoi;
         $this->nhom_thuoc = $medicine->nhom_thuoc;
         $this->link_hinh_anh = $medicine->link_hinh_anh;
-        $this->selectedCategories = $medicine->categories->pluck('id')->toArray();
 
+        
+        $this->selectedCategories = $medicine->categories->pluck('id')->toArray();
+        // $this->selectedCategory = $m->categories->first()->id ?? '';
         $this->showForm = true;
+        $this->editMode = true;
         $this->dispatch('setHeader', 'Chỉnh sửa thuốc');
     }
 
@@ -243,6 +259,7 @@ class Medicines extends Component
     }
     public function updatingCategoryFilter()
     {
+        if(count($this->selectedProducts) >0) return;
         $this->resetPage();
     }
 
@@ -308,11 +325,13 @@ class Medicines extends Component
     public function filterByCategory()
     {
         // Khi người dùng bấm nút lọc
+       // dd(1);
         $this->resetPage();
     }
 
     public function applySelectedCategory()
     {
+        
         if (!$this->selectedCategory || count($this->selectedProducts) === 0) {
             session()->flash('message', 'Vui lòng chọn thuốc và danh mục để áp dụng.');
             return;
