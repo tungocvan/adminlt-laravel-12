@@ -23,6 +23,7 @@ class Medicines extends Component
 
     public $showForm = false;
     public $medicineId;
+    public $categoryFilter = '';
 
     public $stt_tt20_2022;
     public $phan_nhom_tt15;
@@ -46,10 +47,11 @@ class Medicines extends Component
 
     public $categories = [];
     public $selectedCategories = [];
-
+    public $selectedCategory = null;
     public $selectedProducts = [];
     public $selectAll = false;
     public $bulkCategory = null;
+    public $slug = 'nhom-thuoc'; // slug cố định
 
     protected function rules(): array
     {
@@ -67,52 +69,49 @@ class Medicines extends Component
         'ten_biet_duoc.required' => 'Vui lòng nhập tên biệt dược',
     ];
 
+    
+
     public function mount()
     {
+        // Lấy ID danh mục gốc theo slug
+        $root = Category::where('slug', $this->slug)->first();
+
+        if ($root) {
+            // Lấy danh mục gốc + danh mục con
+            $this->categories = Category::with('children')
+                ->where('id', $root->id)
+                ->orWhere('parent_id', $root->id)
+                ->get();
+        } else {
+            $this->categories = collect(); // tránh lỗi null
+        }
         $this->perPage = session('medicines_per_page', $this->perPage);
     }
 
     public function render()
     {
-        // giữ logic giống ProductManager: load category tree (nếu muốn dùng 4 thì giữ, nếu không hãy sửa)
-        $parent = Category::where('slug', 'nhom-thuoc')->first();
+        $query = Medicine::query()->with('categories');
 
-        if ($parent) {
-            $this->categories = Category::with('children')
-                ->where('id', $parent->id)
-                ->orWhere('parent_id', $parent->id)
-                ->get();
-        } else {
-            $this->categories = collect(); // không có danh mục nào
-        }
-        
-
-        $query = Medicine::with('categories')
-            ->when($this->search, fn($q) =>
-                $q->where('ten_biet_duoc', 'like', "%{$this->search}%")
-                  ->orWhere('ten_hoat_chat', 'like', "%{$this->search}%")
-            )
-            ->when($this->sortField, function ($q) {
-                $q->orderBy($this->sortField, $this->sortDirection);
+        if (!empty($this->selectedCategories)) {
+            $query->whereHas('categories', function ($q) {
+                $q->whereIn('categories.id', $this->selectedCategories);
             });
-
-        if ($this->perPage === 'all') {
-            $items = $query->get();
-            $medicines = new LengthAwarePaginator(
-                $items,
-                $items->count(),
-                $items->count() ?: 1,
-                1,
-                ['path' => request()->url(), 'query' => request()->query()]
-            );
-        } else {
-            $medicines = $query->paginate($this->perPage);
         }
+
+        $medicines = $query->get();
 
         return view('livewire.medicines', [
             'medicines' => $medicines,
+            'categories' => $this->categories,
         ]);
     }
+
+    public function updatedSelectedCategories()
+    {
+        // Cập nhật lọc danh mục khi chọn checkbox
+        $this->render();
+    }
+
 
     
     public function create()
@@ -242,6 +241,11 @@ class Medicines extends Component
     {
         $this->link_hinh_anh = null;
     }
+    public function updatingCategoryFilter()
+    {
+        $this->resetPage();
+    }
+
 
     public function updatingSearch()
     {
@@ -301,20 +305,28 @@ class Medicines extends Component
         session()->flash('success', "Đã nhân bản thuốc '{$medicine->ten_biet_duoc}' thành công.");
     }
 
-    public function updateCategorySelected()
+    public function filterByCategory()
     {
-        if (!empty($this->selectedProducts) && $this->bulkCategory) {
-            foreach ($this->selectedProducts as $id) {
-                $m = Medicine::find($id);
-                if ($m) {
-                    $m->categories()->sync([$this->bulkCategory]);
-                }
-            }
-            $this->selectedProducts = [];
-            $this->selectAll = false;
-            $this->bulkCategory = null;
-            session()->flash('success', 'Đã cập nhật danh mục cho các thuốc đã chọn.');
+        // Khi người dùng bấm nút lọc
+        $this->resetPage();
+    }
+
+    public function applySelectedCategory()
+    {
+        if (!$this->selectedCategory || count($this->selectedProducts) === 0) {
+            session()->flash('message', 'Vui lòng chọn thuốc và danh mục để áp dụng.');
+            return;
         }
+
+        foreach ($this->selectedProducts as $id) {
+            $medicine = Medicine::find($id);
+            if ($medicine) {
+                $medicine->categories()->syncWithoutDetaching([$this->selectedCategory]);
+            }
+        }
+
+        $this->selectedProducts = [];
+        session()->flash('success', 'Cập nhật danh mục thành công!');
     }
 
     public function exportJson()
