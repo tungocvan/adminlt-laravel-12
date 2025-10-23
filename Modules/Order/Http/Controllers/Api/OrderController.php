@@ -21,7 +21,7 @@ class OrderController extends Controller
             'min_total', 'max_total',
             'date_from', 'date_to',
             'order_by', 'sort',
-            'paginate', 'cache'
+            'paginate', 'cache','is_admin'
         ]);
 
         $orders = TnvOrderHelper::getOrders($params);

@@ -15,13 +15,16 @@ class OrderController extends Controller
      */
     public function list(Request $request)
     {
+        \Log::info('Request all:', $request->all());
         $params = $request->only([
             'fields', 'search', 'email', 'status',
             'min_total', 'max_total',
             'date_from', 'date_to',
             'order_by', 'sort',
-            'paginate', 'cache'
+            'paginate', 'cache',
+            'is_admin' 
         ]);
+        
 
         $orders = TnvOrderHelper::getOrders($params);
 
