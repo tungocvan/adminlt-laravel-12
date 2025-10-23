@@ -20,7 +20,7 @@ class UserOptionController extends Controller
             'user_info' => 'required|array',
         ]);
       
-        $optionName = 'user_' . $validated['user_id'] . '_info';
+        $optionName = 'user_' .(string) $validated['user_id'] . '_info';
         $optionValue = json_encode($validated['user_info'], JSON_UNESCAPED_UNICODE);
 
         // Sử dụng hàm tiện ích trong model Option
@@ -41,7 +41,7 @@ class UserOptionController extends Controller
      */
     public function getUserInfo($user_id)
     {
-        $optionName = 'user_' . $user_id . '_info';
+        $optionName = 'user_' .(string) $user_id . '_info';
         $data = Option::get_option($optionName);
 
         if (!$data) {

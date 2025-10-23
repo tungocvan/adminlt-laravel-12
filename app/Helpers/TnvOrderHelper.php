@@ -15,7 +15,7 @@ class TnvOrderHelper
     public static function getOrders(array $params = [])
 {
     $query = Order::query()->with('user'); // Liên kết với bảng users
-    \Log::info('Params:', $params); 
+    // \Log::info('Params:', $params); 
     // Lọc theo is_admin nếu có trong tham số
     if (isset($params['is_admin'])) {
         
