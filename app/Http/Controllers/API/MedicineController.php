@@ -27,35 +27,31 @@ class MedicineController extends Controller
     public function getList(Request $request)
     {
         try {
-            // 🧾 Lấy tất cả tham số từ body
             $params = $request->all();
 
-            // 🏷️ Nếu request có slug → tìm category tương ứng
+            // 🏷️ Nếu có slug → tìm danh mục tương ứng
             if (!empty($params['slug'])) {
                 $category = Category::where('slug', $params['slug'])->first();
 
                 if ($category) {
-                    // Lấy luôn các danh mục con (nếu có)
+                    // Lấy luôn danh mục con
                     $categoryIds = Category::where('id', $category->id)
                         ->orWhere('parent_id', $category->id)
                         ->pluck('id')
                         ->toArray();
 
-                    // Truyền vào helper thay cho slug
                     $params['category_ids'] = $categoryIds;
                 } else {
-                    // Nếu không tìm thấy slug → trả lỗi sớm
                     return response()->json([
                         'success' => false,
-                        'message' => 'Danh mục không tồn tại với slug: ' . $params['slug'],
+                        'message' => 'Không tìm thấy danh mục có slug: ' . $params['slug'],
                     ], 404);
                 }
             }
 
-            // 🚀 Gọi helper xử lý danh sách
+            // 🚀 Gọi helper xử lý
             $data = TnvMedicineHelper::getMedicine($params);
 
-            // ✅ Trả về JSON chuẩn REST
             return response()->json([
                 'success' => true,
                 'message' => 'Lấy danh sách thuốc thành công',
@@ -68,7 +64,6 @@ class MedicineController extends Controller
                 ]
             ]);
         } catch (\Throwable $e) {
-            // ⚠️ Bắt lỗi và trả về phản hồi an toàn
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi khi lấy danh sách thuốc',
@@ -76,5 +71,6 @@ class MedicineController extends Controller
             ], 500);
         }
     }
+
     
 }

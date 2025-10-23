@@ -34,6 +34,12 @@
                 <input type="number" id="don_gia" class="form-control" wire:model.defer="don_gia" step="0.01" min="0">
                 @error('don_gia') <small class="text-danger">{{ $message }}</small> @enderror
             </div>
+            {{-- Đơn giá --}}
+            <div class="form-group">
+                <label for="don_gia">Giá kê khai</label>
+                <input type="number" id="don_gia" class="form-control" wire:model.defer="gia_ke_khai" step="0.01" min="0">
+                @error('don_gia') <small class="text-danger">{{ $message }}</small> @enderror
+            </div>
 
             {{-- Danh mục --}}
             <div class="col-md-6">

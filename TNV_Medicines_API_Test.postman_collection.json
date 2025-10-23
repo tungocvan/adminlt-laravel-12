@@ -1,0 +1,182 @@
+{
+    "info": {
+      "name": "TNV Medicines API Test",
+      "_postman_id": "1c2a5d56-74d9-4c1b-9d82-tnv-api-test",
+      "description": "Bộ sưu tập API test cho TNV Medicines - Laravel 12",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "📋 Get All Medicines (default)",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{}"
+          },
+          "url": {
+            "raw": "https://adminlt.laravel.tk/api/medicines",
+            "protocol": "https",
+            "host": ["adminlt", "laravel", "tk"],
+            "path": ["api", "medicines"]
+          }
+        }
+      },
+      {
+        "name": "🔍 Search Medicines (search keyword)",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"search\": \"Paracetamol\",\n  \"paginate\": 10\n}"
+          },
+          "url": {
+            "raw": "https://adminlt.laravel.tk/api/medicines",
+            "protocol": "https",
+            "host": ["adminlt", "laravel", "tk"],
+            "path": ["api", "medicines"]
+          }
+        }
+      },
+      {
+        "name": "🏷️ Filter by Category Slug",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"slug\": \"nhom-thuoc\",\n  \"paginate\": 10\n}"
+          },
+          "url": {
+            "raw": "https://adminlt.laravel.tk/api/medicines",
+            "protocol": "https",
+            "host": ["adminlt", "laravel", "tk"],
+            "path": ["api", "medicines"]
+          }
+        }
+      },
+      {
+        "name": "🧩 With Categories (fields_categories)",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"slug\": \"nhom-thuoc\",\n  \"categories\": true,\n  \"fields_categories\": [\"id\", \"name\", \"slug\"],\n  \"paginate\": 10\n}"
+          },
+          "url": {
+            "raw": "https://adminlt.laravel.tk/api/medicines",
+            "protocol": "https",
+            "host": ["adminlt", "laravel", "tk"],
+            "path": ["api", "medicines"]
+          }
+        }
+      },
+      {
+        "name": "🎯 Select Specific Fields",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"fields\": [\"id\", \"ten_biet_duoc\", \"don_gia\"],\n  \"paginate\": 5\n}"
+          },
+          "url": {
+            "raw": "https://adminlt.laravel.tk/api/medicines",
+            "protocol": "https",
+            "host": ["adminlt", "laravel", "tk"],
+            "path": ["api", "medicines"]
+          }
+        }
+      },
+      {
+        "name": "🚫 Exclude Some Fields (except_fields)",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"slug\": \"nhom-thuoc\",\n  \"except_fields\": [\"created_at\", \"updated_at\", \"slug\"],\n  \"categories\": true,\n  \"fields_categories\": [\"id\", \"name\", \"slug\"]\n}"
+          },
+          "url": {
+            "raw": "https://adminlt.laravel.tk/api/medicines",
+            "protocol": "https",
+            "host": ["adminlt", "laravel", "tk"],
+            "path": ["api", "medicines"]
+          }
+        }
+      },
+      {
+        "name": "💰 Filter by Price Range",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"min_price\": 10000,\n  \"max_price\": 50000\n}"
+          },
+          "url": {
+            "raw": "https://adminlt.laravel.tk/api/medicines",
+            "protocol": "https",
+            "host": ["adminlt", "laravel", "tk"],
+            "path": ["api", "medicines"]
+          }
+        }
+      },
+      {
+        "name": "🏭 Filter by Manufacturer",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"manufacturer\": \"DHG Pharma\"\n}"
+          },
+          "url": {
+            "raw": "https://adminlt.laravel.tk/api/medicines",
+            "protocol": "https",
+            "host": ["adminlt", "laravel", "tk"],
+            "path": ["api", "medicines"]
+          }
+        }
+      },
+      {
+        "name": "🌍 Filter by Country (nuoc_san_xuat)",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"country\": \"Vietnam\"\n}"
+          },
+          "url": {
+            "raw": "https://adminlt.laravel.tk/api/medicines",
+            "protocol": "https",
+            "host": ["adminlt", "laravel", "tk"],
+            "path": ["api", "medicines"]
+          }
+        }
+      }
+    ]
+  }
+  
