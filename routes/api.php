@@ -60,7 +60,8 @@ Route::middleware('auth:sanctum')->controller(ProductController::class)->group(f
 // });
 
 
-Route::prefix('user-info')->group(function () {
+Route::prefix('user-info')->group(function () {    
+    Route::post('/', [UserOptionController::class, 'getFilterUserInfo']);
     Route::post('/update', [UserOptionController::class, 'updateUserInfo']);
     Route::get('/{user_id}', [UserOptionController::class, 'getUserInfo']);
     Route::delete('/{user_id}', [UserOptionController::class, 'deleteUserInfo']);
