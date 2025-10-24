@@ -139,10 +139,13 @@ class OrderController extends Controller
         $order->status = $request->status;
         $order->save();
 
+      
         return response()->json([
+            'success' => true,
             'message' => 'Cập nhật đơn hàng thành công',
-            'order' => $order
-        ]);
+            'order' => $order,
+        ], 200);
+        
     }
 
     
