@@ -53,6 +53,7 @@ class OrderController extends Controller
         $validated = $request->validate([
             'email' => 'required|email',
             'order_detail' => 'required|array',
+            'order_note' => 'nullable|string',
             'total' => 'required|numeric|min:0',
             'status' => 'nullable|string|max:50',
         ]);
@@ -78,7 +79,8 @@ class OrderController extends Controller
 
         $validated = $request->validate([
             'status' => 'nullable|string|max:50',
-            'total' => 'nullable|numeric|min:0',
+            'total' => 'nullable|numeric|min:0'
+            'order_note' => 'nullable|string',
             'order_detail' => 'nullable|array',
         ]);
 
@@ -113,6 +115,7 @@ class OrderController extends Controller
             'email' => 'required|email',
             'status' => 'required|string',
             'order_detail' => 'nullable|array', // <-- cho phép rỗng
+            'order_note' => 'nullable|string', // <-- cho phép rỗng
             'total' => 'required|numeric',
         ]);
 
@@ -137,6 +140,7 @@ class OrderController extends Controller
         $order->total = array_sum(array_column($details, 'total'));
         $order->email = $request->email;
         $order->status = $request->status;
+        $order->order_note = $request->order_note;
         $order->save();
 
       
