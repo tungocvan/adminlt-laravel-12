@@ -75,6 +75,7 @@ class OrderController extends Controller
         try {
             // ✅ 2. Tạo đơn hàng
             $order = Order::create([
+                'user_id' => $request->user_id,
                 'email' => $request->email,
                 'order_detail' => $request->orderDetail,
                 'order_note' => $request->order_note,
