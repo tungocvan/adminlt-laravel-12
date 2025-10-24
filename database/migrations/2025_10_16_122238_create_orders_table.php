@@ -14,9 +14,12 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('email');
+            $table->unsignedBigInteger('user_id');
             $table->json('order_detail'); // chứa mảng sản phẩm dạng JSON
             $table->decimal('total', 12, 2);
-            $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'finished'])->default('pending');
+            $table->text('order_note')->nullable();
+            $table->text('admin_note')->nullable();
             $table->timestamps();
         });
     }

@@ -54,6 +54,7 @@ class OrderController extends Controller
        
         // ✅ 1. Xác thực dữ liệu
         $validator = Validator::make($request->all(), [
+            'user_id' => 'required|numeric',
             'email' => 'required|email',
             'orderDetail' => 'required|array|min:1',
             'orderDetail.*.product_id' => 'required|integer',           
@@ -77,6 +78,7 @@ class OrderController extends Controller
                 'email' => $request->email,
                 'order_detail' => $request->orderDetail,
                 'order_note' => $request->order_note,
+                'admin_note' => $request->admin_note,
                 'total' => $request->total,
                 'status' => 'pending',
             ]);
@@ -112,6 +114,7 @@ class OrderController extends Controller
             'status' => 'nullable|string|max:50',
             'total' => 'nullable|numeric|min:0', 
             'order_note' => 'nullable|string',
+            'admin_note' => 'nullable|string',
             'order_detail' => 'nullable|array',
         ]);
         
@@ -148,6 +151,7 @@ class OrderController extends Controller
             'status' => 'required|string',
             'order_detail' => 'nullable|array', // <-- cho phép rỗng
             'order_note' => 'nullable|string', // <-- cho phép rỗng
+            'admin_note' => 'nullable|string', // <-- cho phép rỗng
             'total' => 'required|numeric',
         ]);
 
@@ -173,6 +177,7 @@ class OrderController extends Controller
         $order->email = $request->email;
         $order->status = $request->status;
         $order->order_note = $request->order_note;
+        $order->admin_note = $request->admin_note;
         $order->save();
 
       
