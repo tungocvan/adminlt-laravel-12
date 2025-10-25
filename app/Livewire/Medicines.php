@@ -41,6 +41,7 @@ class Medicines extends Component
     public $gia_ke_khai;
     public $don_gia;
     public $gia_von;
+    public $trang_thai_trung_thau;
     public $nha_phan_phoi;
     public $nhom_thuoc;
     public $link_hinh_anh;
@@ -98,7 +99,7 @@ class Medicines extends Component
             ->when($this->search, function ($q) {
                 $q->where(function ($sub) {
                     $sub->where('ten_biet_duoc', 'like', "%{$this->search}%")
-                        ->orWhere('ten_hoat_chat', 'like', "%{$this->search}%");
+                        ->orWhere('ten_hoat_chat', 'like', "%{$this->search}%");             
                 });
             })
             ->when($this->selectedCategory, function ($q) {

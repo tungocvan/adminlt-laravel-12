@@ -15,7 +15,7 @@ class ImportMedicinesCommand extends Command
         {file? : Đường dẫn đến file Excel (.xlsx)} 
         {--fresh : Xóa dữ liệu cũ trước khi import}';
 
-    protected $description = 'Import danh mục thuốc từ file Excel (đọc theo chunk, tối ưu RAM & tốc độ)';
+    protected $description = 'php artisan import:danhmucthuoc - Import danh mục thuốc từ file Excel (đọc theo chunk, tối ưu RAM & tốc độ)';
 
     public function handle(): int
     {
@@ -101,9 +101,10 @@ class ImportMedicinesCommand extends Command
                         'gia_ke_khai'        => $this->parseInt($row['O'] ?? null),
                         'don_gia'            => $this->parseInt($row['P'] ?? null),
                         'gia_von'            => $this->parseInt($row['Q'] ?? null),
-                        'nha_phan_phoi'      => $this->cleanString($row['R'] ?? ''),
-                        'nhom_thuoc'         => $this->cleanString($row['S'] ?? ''),
-                        'link_hinh_anh'      => trim((string)($row['T'] ?? 'images/thuoc.png')),
+                        'trang_thai_trung_thau' => $row['R'] ?? false,
+                        'nha_phan_phoi'      => $this->cleanString($row['S'] ?? ''),
+                        'nhom_thuoc'         => $this->cleanString($row['T'] ?? ''),
+                        'link_hinh_anh'      => trim((string)($row['U'] ?? 'images/thuoc.png')),
                         'created_at'         => now(),
                         'updated_at'         => now(),
                     ];

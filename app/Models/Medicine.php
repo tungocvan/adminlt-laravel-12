@@ -26,6 +26,7 @@ class Medicine extends Model
         'gia_ke_khai',
         'don_gia',
         'gia_von',
+        'trang_thai_trung_thau',
         'nha_phan_phoi',
         'nhom_thuoc',
         'link_hinh_anh',

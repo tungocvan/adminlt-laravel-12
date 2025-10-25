@@ -29,6 +29,7 @@ return new class extends Migration
             $table->unsignedBigInteger('gia_ke_khai')->nullable();
             $table->unsignedBigInteger('don_gia')->nullable();
             $table->unsignedBigInteger('gia_von')->nullable();
+            $table->boolean('trang_thai_trung_thau')->default(false);
             $table->string('nha_phan_phoi')->nullable();
             $table->string('nhom_thuoc')->nullable();
             $table->string('link_hinh_anh')->nullable();
