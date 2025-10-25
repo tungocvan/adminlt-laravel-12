@@ -47,8 +47,8 @@
       <!-- Ứng dụng + kết nối -->
       <div class="col-md-2 mb-4 text-center">
         <h6 class="text-uppercase font-weight-bold">Tải Ứng Dụng</h6>
-        <a href="#"><img src="https://cdn-web-next.thuocsi.vn/images/footer-v2/Download/appstore_v2.png" width="120" class="mb-2"></a>
-        <a href="#"><img src="https://cdn-web-next.thuocsi.vn/images/footer-v2/Download/googleplay_v2.png" width="120"></a>
+        <a class="openAppButton" href="exp://u.expo.dev/65def5d4-5f12-40d5-91a5-df9c677e2406/group/6d1fe5e4-e424-4038-a271-e7e276e239ad"><img src="https://cdn-web-next.thuocsi.vn/images/footer-v2/Download/appstore_v2.png" width="120" class="mb-2"></a>
+        <a class="openAppButton" href="exp://u.expo.dev/65def5d4-5f12-40d5-91a5-df9c677e2406/group/6d1fe5e4-e424-4038-a271-e7e276e239ad"><img src="https://cdn-web-next.thuocsi.vn/images/footer-v2/Download/googleplay_v2.png" width="120"></a>
         <div class="mt-3">
           <img src="https://cdn-web-next.thuocsi.vn/images/home/footer-phone-new.png" alt="App" class="img-fluid" style="max-height:200px">
         </div>
@@ -72,4 +72,24 @@
     </div>
   </div>
 </footer>
+<script>
+  const appLink = "exp://u.expo.dev/65def5d4-5f12-40d5-91a5-df9c677e2406/group/6d1fe5e4-e424-4038-a271-e7e276e239ad";
+  const fallbackLink = "https://expo.dev/go"; // nếu chưa có app Expo Go
+
+  document.querySelectorAll('.openAppButton').forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      const start = Date.now();
+      window.location.href = appLink;
+
+      // Nếu sau 1s không mở được app => chuyển hướng sang cài Expo Go
+      setTimeout(() => {
+        if (Date.now() - start < 1500) {
+          window.location.href = fallbackLink;
+        }
+      }, 1000);
+    });
+  });
+</script>
 
