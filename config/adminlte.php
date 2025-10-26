@@ -21,12 +21,12 @@ $menuNavbar = [
         'type' => 'navbar-notification',
         'id' => 'my-notification',
         'icon' => 'fas fa-bell',
-        'url' => 'notifications/show',
+        'url' => env('APP_URL') . '/notifications/show',
         'topnav_right' => true,
         'dropdown_mode' => true,
         'dropdown_flabel' => 'All notifications',
         'update_cfg' => [
-            'url' => env('NOTIFICATION_URL', '/notifications/get'),
+            'url' => env('APP_URL') . '/notifications/get',
             'period' => 30,
         ],
         'can' => 'user-list',
@@ -322,14 +322,14 @@ return [
     |
     */
 
-    'use_route_url' => true,
+    'use_route_url' => false,
     'dashboard_url' => '/',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
     'password_reset_url' => 'password/reset',
     'password_email_url' => 'password/email',
-    'profile_url' => true,
+    'profile_url' => false,
 
     /*
     |--------------------------------------------------------------------------
