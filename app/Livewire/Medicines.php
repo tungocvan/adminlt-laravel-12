@@ -14,16 +14,27 @@ class Medicines extends Component
 {
     use WithPagination, WithFileUploads;
     use FillsComponentFromModel;
-    public $search = '', $perPage = 10, $sortField = 'id', $sortDirection = 'desc';
-    public $showForm = false, $medicineId, $activeTab = 'general', $image, $link_hinh_anh;
-    public $selectedProducts = [], $selectAll = false, $selectedCategory = null;
+    public $search = '',
+        $perPage = 10,
+        $sortField = 'id',
+        $sortDirection = 'desc';
+    public $showForm = false,
+        $medicineId,
+        $activeTab = 'general',
+        $image,
+        $link_hinh_anh;
+    public $selectedProducts = [],
+        $selectAll = false,
+        $selectedCategory = null;
     public $ten_biet_duoc, $ten_hoat_chat, $dang_bao_che, $duong_dung;
     public $nong_do_ham_luong, $don_vi_tinh, $quy_cach_dong_goi, $giay_phep_luu_hanh;
     public $han_dung, $co_so_san_xuat, $nuoc_san_xuat, $gia_ke_khai, $don_gia, $gia_von;
     public $trang_thai_trung_thau, $nha_phan_phoi, $nhom_thuoc, $stt_tt20_2022, $phan_nhom_tt15;
     public $link_hssp, $han_dung_visa, $han_dung_gmp;
-    
-    public $categories = [], $selectedCategories = [], $bulkCategory = null;
+
+    public $categories = [],
+        $selectedCategories = [],
+        $bulkCategory = null;
 
     protected $listeners = [
         'categoriesApplied' => 'onCategoriesApplied',
@@ -60,22 +71,22 @@ class Medicines extends Component
         session()->flash('success', 'Đã áp dụng danh mục cho các thuốc đã chọn thành công!');
     }
 
-    public function removeCategory($productId, $categoryId, $catName='')
+    public function removeCategory($productId, $categoryId, $catName = '')
     {
-       
         //dd($productId, $categoryId);
         $medicine = Medicine::find($productId);
-        if (!$medicine) return;
+        if (!$medicine) {
+            return;
+        }
         $name = $medicine['ten_biet_duoc'];
-       
+
         $medicine->categories()->detach($categoryId);
-       
+
         session()->flash('message', "Đã xóa danh mục $catName ra khỏi sản phẩm: $name");
     }
 
-
-    public function onCategoriesUpdated($selected)    {
-      
+    public function onCategoriesUpdated($selected)
+    {
         $this->selectedCategories = $selected;
     }
 
@@ -92,76 +103,55 @@ class Medicines extends Component
 
     public function mount()
     {
-        $root = Category::where('slug','nhom-thuoc')->first();       
-        if ($root) {          
-            $this->categories = Category::with('children')
-                ->where('id', $root->id)
-                ->orWhere('parent_id', $root->id)
-                ->get();
-           
+        $root = Category::where('slug', 'nhom-thuoc')->first();
+        if ($root) {
+            $this->categories = Category::with('children')->where('id', $root->id)->orWhere('parent_id', $root->id)->get();
         } else {
             $this->categories = collect();
         }
         //dd($this->categories);
         $this->perPage = session('medicines_per_page', $this->perPage);
     }
-    
-
-
-
 
     public function render()
     {
-        $query = Medicine::with('categories')
-            ->when($this->search, fn($q) => $q->where(fn($sub) => 
-                $sub->where('ten_biet_duoc','like',"%$this->search%")
-                    ->orWhere('ten_hoat_chat','like',"%$this->search%")
-            ))
-            ->when($this->selectedCategory, fn($q) => 
-                $q->whereHas('categories', fn($sub) => $sub->where('categories.id', $this->selectedCategory))
-            )
-            ->orderBy($this->sortField, $this->sortDirection);
-    
+        $query = Medicine::with('categories')->when($this->search, fn($q) => $q->where(fn($sub) => $sub->where('ten_biet_duoc', 'like', "%$this->search%")->orWhere('ten_hoat_chat', 'like', "%$this->search%")))->when($this->selectedCategory, fn($q) => $q->whereHas('categories', fn($sub) => $sub->where('categories.id', $this->selectedCategory)))->orderBy($this->sortField, $this->sortDirection);
+
         $medicines = $this->perPage === 'all' ? $query->get() : $query->paginate($this->perPage);
-    
+
         return view('livewire.medicines', ['medicines' => $medicines]);
     }
-    
-    public function create(){ $this->resetForm(); $this->showForm=true; $this->dispatch('setHeader','Thêm thuốc'); }
 
-    public function edit($id){
-      
+    public function create()
+    {
+        $this->resetForm();
+        $this->showForm = true;
+        $this->dispatch('setHeader', 'Thêm thuốc');
+    }
+
+    public function edit($id)
+    {
         $m = Medicine::with('categories')->findOrFail($id);
         $this->fillFromModel($m, ['categories']);
         $this->selectedCategories = $m->categories->pluck('id')->toArray();
         //dd($this->selectedCategories);
         $this->medicineId = $id;
         $this->showForm = true;
-        $this->dispatch('setHeader','Chỉnh sửa thuốc');
+        $this->dispatch('setHeader', 'Chỉnh sửa thuốc');
     }
 
     public function save()
     {
         $this->validate();
-    
+
         // Lưu ảnh nếu có
         if ($this->image) {
             $this->link_hinh_anh = $this->image->store('medicines', 'public');
         }
-    
+
         // Lưu hoặc cập nhật thuốc
-        $medicine = Medicine::updateOrCreate(
-            ['id' => $this->medicineId],
-            $this->only([
-                'stt_tt20_2022','phan_nhom_tt15','ten_hoat_chat','nong_do_ham_luong',
-                'ten_biet_duoc','dang_bao_che','duong_dung','don_vi_tinh',
-                'quy_cach_dong_goi','giay_phep_luu_hanh','han_dung',
-                'co_so_san_xuat','nuoc_san_xuat','gia_ke_khai','don_gia','gia_von',
-                'trang_thai_trung_thau','nha_phan_phoi','nhom_thuoc','link_hinh_anh','link_hssp',
-                'han_dung_visa','han_dung_gmp'
-            ])
-        );
-    
+        $medicine = Medicine::updateOrCreate(['id' => $this->medicineId], $this->only(['stt_tt20_2022', 'phan_nhom_tt15', 'ten_hoat_chat', 'nong_do_ham_luong', 'ten_biet_duoc', 'dang_bao_che', 'duong_dung', 'don_vi_tinh', 'quy_cach_dong_goi', 'giay_phep_luu_hanh', 'han_dung', 'co_so_san_xuat', 'nuoc_san_xuat', 'gia_ke_khai', 'don_gia', 'gia_von', 'trang_thai_trung_thau', 'nha_phan_phoi', 'nhom_thuoc', 'link_hinh_anh', 'link_hssp', 'han_dung_visa', 'han_dung_gmp']));
+
         // 👉 Cập nhật liên kết danh mục
         if (!empty($this->selectedCategories)) {
             $medicine->categories()->sync($this->selectedCategories);
@@ -169,55 +159,59 @@ class Medicines extends Component
             // Nếu không chọn danh mục nào thì bỏ hết liên kết cũ
             $medicine->categories()->detach();
         }
-    
+
         // Thông báo thành công
         session()->flash('success', 'Đã lưu thông tin thuốc thành công!');
-    
+
         // Reset form
         $this->resetForm();
         $this->showForm = false;
-    
+
         // Đổi header
         $this->dispatch('setHeader', 'Danh sách thuốc');
     }
-    
-    
 
-    public function cancel(){ $this->resetForm(); $this->showForm=false; $this->dispatch('setHeader','Danh sách thuốc'); }
+    public function cancel()
+    {
+        $this->resetForm();
+        $this->showForm = false;
+        $this->dispatch('setHeader', 'Danh sách thuốc');
+    }
 
-    public function delete($id){
+    public function delete($id)
+    {
         $m = Medicine::findOrFail($id);
-        if($m->link_hinh_anh) Storage::disk('public')->delete($m->link_hinh_anh);
+        if ($m->link_hinh_anh) {
+            Storage::disk('public')->delete($m->link_hinh_anh);
+        }
         $m->delete();
-        session()->flash('success',"Đã xoá {$m->ten_biet_duoc} thành công.");
+        session()->flash('success', "Đã xoá {$m->ten_biet_duoc} thành công.");
     }
 
-    private function resetForm(){
-        $this->reset([
-            'medicineId','ten_biet_duoc','ten_hoat_chat','dang_bao_che','duong_dung','nong_do_ham_luong','don_vi_tinh','quy_cach_dong_goi',
-            'giay_phep_luu_hanh','han_dung','co_so_san_xuat','nuoc_san_xuat','gia_ke_khai','don_gia','gia_von','trang_thai_trung_thau','nha_phan_phoi','nhom_thuoc',
-            'link_hinh_anh','selectedCategories','image','link_hssp','han_dung_visa','han_dung_gmp'
-        ]);
+    private function resetForm()
+    {
+        $this->reset(['medicineId', 'ten_biet_duoc', 'ten_hoat_chat', 'dang_bao_che', 'duong_dung', 'nong_do_ham_luong', 'don_vi_tinh', 'quy_cach_dong_goi', 'giay_phep_luu_hanh', 'han_dung', 'co_so_san_xuat', 'nuoc_san_xuat', 'gia_ke_khai', 'don_gia', 'gia_von', 'trang_thai_trung_thau', 'nha_phan_phoi', 'nhom_thuoc', 'link_hinh_anh', 'selectedCategories', 'image', 'link_hssp', 'han_dung_visa', 'han_dung_gmp']);
     }
 
-    public function removeImage(){
-        if($this->link_hinh_anh){
+    public function removeImage()
+    {
+        if ($this->link_hinh_anh) {
             Storage::disk('public')->delete($this->link_hinh_anh);
         }
         $this->link_hinh_anh = null;
         $this->image = null; // reset file upload Livewire
         $this->dispatch('image-removed', ['tab' => $this->activeTab]);
     }
-    
 
-    public function clearSearch(){ $this->reset('search'); $this->resetPage(); }
+    public function clearSearch()
+    {
+        $this->reset('search');
+        $this->resetPage();
+    }
 
     public function updatedSelectAll($val)
     {
-        $query = Medicine::when($this->search, fn($q) =>
-            $q->where('ten_biet_duoc','like',"%$this->search%")
-            ->orWhere('ten_hoat_chat','like',"%$this->search%")
-        )->orderBy($this->sortField, $this->sortDirection);
+        $query = Medicine::when($this->search, fn($q) => $q->where('ten_biet_duoc', 'like', "%$this->search%")->orWhere('ten_hoat_chat', 'like', "%$this->search%"))->orderBy($this->sortField, $this->sortDirection);
 
         if ($val) {
             // Lấy ID của trang hiện tại
@@ -228,39 +222,39 @@ class Medicines extends Component
         }
     }
 
-  
-
     public function updatedSelectedProducts()
     {
-        $query = Medicine::when($this->search, fn($q) =>
-            $q->where('ten_biet_duoc','like',"%$this->search%")
-            ->orWhere('ten_hoat_chat','like',"%$this->search%")
-        );
+        $query = Medicine::when($this->search, fn($q) => $q->where('ten_biet_duoc', 'like', "%$this->search%")->orWhere('ten_hoat_chat', 'like', "%$this->search%"));
 
         $medicinesOnPage = $this->perPage === 'all' ? $query->get() : $query->paginate($this->perPage);
 
         $this->selectAll = count($this->selectedProducts) === $medicinesOnPage->count();
     }
 
-    
-
-  
-
-    public function deleteSelected(){
-        if($this->selectedProducts){
-            $items = Medicine::whereIn('id',$this->selectedProducts)->get();
-            foreach($items as $m){ if($m->link_hinh_anh) Storage::disk('public')->delete($m->link_hinh_anh); }
-            Medicine::whereIn('id',$this->selectedProducts)->delete();
-            $this->selectedProducts=[]; $this->selectAll=false;
-            session()->flash('message','Đã xóa các thuốc đã chọn.');
+    public function deleteSelected()
+    {
+        if ($this->selectedProducts) {
+            $items = Medicine::whereIn('id', $this->selectedProducts)->get();
+            foreach ($items as $m) {
+                if ($m->link_hinh_anh) {
+                    Storage::disk('public')->delete($m->link_hinh_anh);
+                }
+            }
+            Medicine::whereIn('id', $this->selectedProducts)->delete();
+            $this->selectedProducts = [];
+            $this->selectAll = false;
+            session()->flash('message', 'Đã xóa các thuốc đã chọn.');
         }
     }
 
-    public function duplicate($id){
+    public function duplicate($id)
+    {
         $m = Medicine::with('categories')->findOrFail($id);
-        $new = $m->replicate(); $new->ten_biet_duoc .= ' (Bản sao)'; $new->save();
+        $new = $m->replicate();
+        $new->ten_biet_duoc .= ' (Bản sao)';
+        $new->save();
         $new->categories()->sync($m->categories->pluck('id')->toArray());
-        session()->flash('success',"Đã nhân bản thuốc '{$m->ten_biet_duoc}' thành công.");
+        session()->flash('success', "Đã nhân bản thuốc '{$m->ten_biet_duoc}' thành công.");
     }
 
     public function applySelectedCategory()
@@ -290,25 +284,34 @@ class Medicines extends Component
         session()->flash('success', 'Cập nhật danh mục thành công!');
     }
 
-
-    public function exportJson(){
-        $categories = Category::select('id','name','slug','type','is_active')->get();
+    public function exportJson()
+    {
+        $categories = Category::select('id', 'name', 'slug', 'type', 'is_active')->get();
         $query = Medicine::with('categories');
-        if($this->selectedProducts) $query->whereIn('id',$this->selectedProducts);
+        if ($this->selectedProducts) {
+            $query->whereIn('id', $this->selectedProducts);
+        }
         $medicines = $query->get();
         $data = [
-            'categories'=>$categories->map(fn($c)=>['id'=>$c->id,'name'=>$c->name,'slug'=>$c->slug,'type'=>$c->type,'is_active'=>(bool)($c->is_active??false)])->toArray(),
-            'medicines'=>$medicines->map(fn($m)=>['id'=>$m->id,'ten_biet_duoc'=>$m->ten_biet_duoc,'ten_hoat_chat'=>$m->ten_hoat_chat,'don_gia'=>$m->don_gia,'gia_ke_khai'=>$m->gia_ke_khai,'link_hinh_anh'=>$m->link_hinh_anh??'images/default.jpg','categories'=>$m->categories->pluck('id')->toArray()])->toArray()
+            'categories' => $categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'slug' => $c->slug, 'type' => $c->type, 'is_active' => (bool) ($c->is_active ?? false)])->toArray(),
+            'medicines' => $medicines->map(fn($m) => ['id' => $m->id, 'ten_biet_duoc' => $m->ten_biet_duoc, 'ten_hoat_chat' => $m->ten_hoat_chat, 'don_gia' => $m->don_gia, 'gia_ke_khai' => $m->gia_ke_khai, 'link_hinh_anh' => $m->link_hinh_anh ?? 'images/default.jpg', 'categories' => $m->categories->pluck('id')->toArray()])->toArray(),
         ];
-        $filename="medicines_export_".now()->format('Ymd_His').".json";
-        return response()->streamDownload(fn()=>print(json_encode($data,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)),$filename,['Content-Type'=>'application/json']);
+        $filename = 'medicines_export_' . now()->format('Ymd_His') . '.json';
+        return response()->streamDownload(fn() => print json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), $filename, ['Content-Type' => 'application/json']);
     }
     public function updatedActiveTab($tab)
-{
-    $this->activeTab = $tab;
-}
-    public function updatingSearch(){ $this->resetPage(); }
-    public function updatingPerPage($val){ session(['medicines_per_page'=>$val]); $this->resetPage(); }
+    {
+        $this->activeTab = $tab;
+    }
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+    public function updatingPerPage($val)
+    {
+        session(['medicines_per_page' => $val]);
+        $this->resetPage();
+    }
     public function sortBy($field)
     {
         if ($this->sortField === $field) {

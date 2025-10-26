@@ -17,21 +17,14 @@ class CategoryDropdown extends Component
     public function mount($categories = [], $selected = [], $placeholder = null, $width = null, $maxHeight = null)
     {
         // Nếu truyền danh sách chưa lọc, component sẽ tự lọc lại để tránh trùng
-        $this->categories = collect($categories)->isNotEmpty()
-            ? collect($categories)->whereNull('parent_id')
-            : Category::whereNull('parent_id')
-                ->with('childrenRecursive')
-                ->get();
-    
+        $this->categories = collect($categories)->isNotEmpty() ? collect($categories)->whereNull('parent_id') : Category::whereNull('parent_id')->with('childrenRecursive')->get();
+
         $this->selectedCategories = $selected;
         $this->placeholder = $placeholder ?? 'Áp dụng danh mục';
         $this->width = $width ?? '40%';
         $this->maxHeight = $maxHeight ?? '300px';
-      
     }
-    
 
-    
     public function updatedSelectedCategories()
     {
         // Gửi event khi thay đổi lựa chọn

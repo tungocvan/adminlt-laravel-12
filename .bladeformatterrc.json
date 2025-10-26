@@ -1,0 +1,7 @@
+{
+  "indentSize": 4,
+  "wrapAttributes": "auto",
+  "sortTailwindcssClasses": true,
+  "noMultipleEmptyLines": true,
+  "endWithNewLine": true
+}
