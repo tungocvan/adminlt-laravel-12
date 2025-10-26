@@ -46,7 +46,7 @@ class ModuleServiceProvider extends ServiceProvider
             // Đa ngôn ngữ theo file php
             // Dùng đa ngôn ngữ tại file php resources/lang/en/general. php : @lang( ' Demo: : general. hello' ) Laravel Modules 4
             $this->loadTranslationsFrom($modulePath . '/resources/lang', $module);
-            // Đa ngôn ngữ theo file j son
+            // Đa ngôn ngữ theo file json
             $this->loadJSONTranslationsFrom($modulePath . '/resources/lang');
         }
         // Khai báo helpers
