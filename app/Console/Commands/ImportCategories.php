@@ -8,7 +8,7 @@ use App\Models\Category;
 
 class ImportCategories extends Command
 {
-    protected $signature = 'categories:import 
+    protected $signature = 'import:danhmuc 
                             {path : Đường dẫn file JSON chứa dữ liệu categories} 
                             {--truncate : Xóa toàn bộ dữ liệu categories trước khi import} 
                             {--update : Update dữ liệu nếu trùng slug thay vì tạo mới} 

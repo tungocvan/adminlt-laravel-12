@@ -5,9 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Database\Seeders\PermissionTableSeeder;
 use Database\Seeders\CreateAdminUserSeeder;
-use Database\Seeders\ProductSeeder;
 use Database\Seeders\VnAdministrativeUnitSeeder;
-
+use Illuminate\Support\Facades\Artisan; 
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,9 +17,13 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             PermissionTableSeeder::class,
-            CreateAdminUserSeeder::class,
-            ProductSeeder::class,
+            CreateAdminUserSeeder::class,        
             VnAdministrativeUnitSeeder::class
         ]);
+        Artisan::call('import:danhmuc', [
+            'path' => 'database/seeders/data/nhom_thuoc.json',
+        ]);
+        Artisan::call('import:danhmucthuoc');
+      
     }
 }
