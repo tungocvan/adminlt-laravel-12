@@ -1,141 +1,197 @@
 <div>
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">
-                {{ $editMode ? 'Cập nhật thuốc' : 'Thêm thuốc mới' }}
-            </h5>
-        </div>
+    {{-- NAV TAB --}}
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link {{ $activeTab === 'general' ? 'active' : '' }}" data-toggle="tab" href="#general" role="tab">
+                <i class="fas fa-capsules mr-1"></i> Thông tin chính
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ $activeTab === 'extend' ? 'active' : '' }}" data-toggle="tab" href="#extend" role="tab">
+                <i class="fas fa-layer-group mr-1"></i> Phần mở rộng
+            </a>
+        </li>
+    </ul>
 
-        <div class="card-body">
-            {{-- Tên biệt dược --}}
-            <div class="form-group">
-                <label for="ten_biet_duoc">Tên biệt dược <span class="text-danger">*</span></label>
-                <input type="text" id="ten_biet_duoc" class="form-control" wire:model.defer="ten_biet_duoc">
-                @error('ten_biet_duoc') <small class="text-danger">{{ $message }}</small> @enderror
-            </div>
-
-            {{-- Hoạt chất --}}
-            <div class="form-group">
-                <label for="ten_hoat_chat">Tên hoạt chất</label>
-                <input type="text" id="ten_hoat_chat" class="form-control" wire:model.defer="ten_hoat_chat">
-                @error('ten_hoat_chat') <small class="text-danger">{{ $message }}</small> @enderror
-            </div>
-
-            {{-- Dạng bào chế --}}
-            <div class="form-group">
-                <label for="dang_bao_che">Dạng bào chế</label>
-                <input type="text" id="dang_bao_che" class="form-control" wire:model.defer="dang_bao_che">
-                @error('dang_bao_che') <small class="text-danger">{{ $message }}</small> @enderror
-            </div>
-
-            {{-- Đơn giá --}}
-            <div class="form-group">
-                <label for="don_gia">Đơn giá</label>
-                <input type="number" id="don_gia" class="form-control" wire:model.defer="don_gia" step="0.01" min="0">
-                @error('don_gia') <small class="text-danger">{{ $message }}</small> @enderror
-            </div>
-            {{-- Đơn giá --}}
-            <div class="form-group">
-                <label for="don_gia">Giá kê khai</label>
-                <input type="number" id="don_gia" class="form-control" wire:model.defer="gia_ke_khai" step="0.01" min="0">
-                @error('don_gia') <small class="text-danger">{{ $message }}</small> @enderror
-            </div>
-
-            {{-- Danh mục --}}
-            <div class="col-md-6">
-                <div class="card card-primary collapsed-card">
-                  <div class="card-header">
-                    <h3 class="card-title"><label class="font-weight-bold mb-2">Danh mục thuốc</label></h3>
-    
-                    <div class="card-tools">
-                      <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                        <i class="fas fa-plus"></i>
-                      </button>
-                    </div>
-                    <!-- /.card-tools -->
-                  </div>
-                  <!-- /.card-header -->
-                  <div class="card-body" style="display: none;">
-                    <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto;">
-                        @foreach($categories as $category)
-                            <div class="form-check">
-                                <input type="checkbox"
-                                       class="form-check-input"
-                                       id="cat-{{ $category->id }}"
-                                       wire:model="selectedCategories"
-                                       value="{{ $category->id }}">
-                                <label class="form-check-label" for="cat-{{ $category->id }}">
-                                    {{ $category->name }}
-                                </label>
+    {{-- TAB CONTENT --}}
+    <div class="tab-content mt-3">
+        {{-- TAB CHÍNH --}}
+        <div class="tab-pane fade {{ $activeTab === 'general' ? 'show active' : '' }}" id="general" role="tabpanel">
+            <div class="row">
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Tên biệt dược</label>
+                                <input type="text" wire:model.defer="ten_biet_duoc" class="form-control" placeholder="Nhập tên biệt dược...">
+                                @error('ten_biet_duoc') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
-                
-                            {{-- nếu bạn có danh mục con --}}
-                            @if($category->children && $category->children->count())
-                                @foreach($category->children as $child)
-                                    <div class="form-check ml-4">
-                                        <input type="checkbox"
-                                               class="form-check-input"
-                                               id="cat-{{ $child->id }}"
-                                               wire:model="selectedCategories"
-                                               value="{{ $child->id }}">
-                                        <label class="form-check-label" for="cat-{{ $child->id }}">
-                                            — {{ $child->name }}
-                                        </label>
-                                    </div>
-                                @endforeach
-                            @endif
-                        @endforeach
-                    </div>
-                  </div>
-                  <!-- /.card-body -->
-                </div>
-                @error('selectedCategories')
-                <small class="text-danger">{{ $message }}</small>
-                 @enderror
-                <!-- /.card -->
-              </div>
-            
-            
-            
-      
-   
         
+                            <div class="form-group">
+                                <label>Tên hoạt chất</label>
+                                <input type="text" wire:model.defer="ten_hoat_chat" class="form-control" placeholder="Nhập tên hoạt chất...">
+                            </div>
+        
+                            <div class="row">
+                                <div class="col-5">
+                                    <div class="form-group">
+                                        <label>Nồng độ / Hàm lượng</label>
+                                        <input type="text" wire:model.defer="nong_do_ham_luong" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Đơn giá</label>
+                                        <input type="number" wire:model.defer="don_gia" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Đơn vị tính</label>
+                                        <input type="text" wire:model.defer="don_vi_tinh" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Trạng thái trúng thầu</label>
+                                        <div class="custom-control custom-switch">
+                                            <input {{ $trang_thai_trung_thau ? 'checked' : '' }} type="checkbox" class="custom-control-input" id="switchTrungThau" wire:model.live="trang_thai_trung_thau">
+                                            <label class="custom-control-label" for="switchTrungThau">
+                                                {{ $trang_thai_trung_thau ? 'Đã trúng thầu' : 'Chưa trúng thầu' }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-7">
+                                    <x-image-upload 
+                                    label="Hình ảnh thuốc"
+                                    model="image"
+                                    :current="$link_hinh_anh"
+                                    removeMethod="removeImage"
+                                     />
+                                   
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Danh mục thuốc</label>                    
+                                {!! renderCategoryTree($categories, $selectedCategories) !!}
+                             </div>
+                        </div>
+                    </div>
+                  
+                </div>
+            </div>
+            
+        </div>
 
-            {{-- Ghi chú / mô tả --}}
-            <div class="form-group">
-                <label for="ghi_chu">Ghi chú / mô tả</label>
-                <textarea id="ghi_chu" rows="3" class="form-control" wire:model.defer="ghi_chu"></textarea>
+        {{-- TAB PHẦN MỞ RỘNG --}}
+        <div class="tab-pane fade {{ $activeTab === 'extend' ? 'show active' : '' }}" id="extend" role="tabpanel">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label>Giá kê khai</label>
+                            <input type="number" wire:model.defer="gia_ke_khai" class="form-control">
+                        </div>
+                        
+                        <div class="form-group col-md-3">
+                            <label>Giá vốn</label>
+                            <input type="number" wire:model.defer="gia_von" class="form-control">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Số TT20/2022</label>
+                            <input type="number" wire:model.defer="stt_tt20_2022" class="form-control">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Phân nhóm TT15</label>
+                            <input type="text" wire:model.defer="phan_nhom_tt15" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-row">     
+                        <div class="form-group col-md-3">
+                            <label>Dạng bào chế</label>
+                            <input type="text" wire:model.defer="dang_bao_che" class="form-control">
+                        </div>
+    
+                        <div class="form-group col-md-3">
+                            <label>Đường dùng</label>
+                            <input type="text" wire:model.defer="duong_dung" class="form-control">
+                        </div>      
+                        <div class="form-group col-md-3">
+                            <label>Quy cách đóng gói</label>
+                            <input type="text" wire:model.defer="quy_cach_dong_goi" class="form-control">
+                        </div>           
+                        
+                        <div class="form-group col-md-3">
+                            <label>Hạn dùng sản phẩm</label>
+                            <input type="text" wire:model.defer="han_dung" class="form-control">
+                        </div>   
+                    </div>
+
+                    
+
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label>Giấy phép lưu hành</label>
+                            <input type="text" wire:model.defer="giay_phep_luu_hanh" class="form-control">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Hạn dùng Giấy phép lưu hành</label>
+                            <input type="text" wire:model.defer="han_dung_visa" class="form-control">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Nhóm thuốc</label>
+                            <input type="text" wire:model.defer="nhom_thuoc" class="form-control">
+                        </div>                  
+                    </div>
+
+                    <div class="form-row">                        
+                        <div class="form-group col-md-5">
+                            <label>Cơ sở sản xuất</label>
+                            <input type="text" wire:model.defer="co_so_san_xuat" class="form-control">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label>Nước sản xuất</label>
+                            <input type="text" wire:model.defer="nuoc_san_xuat" class="form-control">
+                        </div>
+                        <div class="form-group col-md-5">
+                            <label>Nhà phân phối</label>
+                            <input type="text" wire:model.defer="nha_phan_phoi" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-row">                        
+                        <div class="form-group col-md-4">
+                            <label>Hạn dùng GMP</label>
+                            <input type="text" wire:model.defer="han_dung_gmp" class="form-control">
+                        </div>                      
+                        <div class="form-group col-md-8">
+                            <label>Link Hồ sơ sản phẩm</label>
+                            <input type="text" wire:model.defer="link_hssp" class="form-control">
+                        </div>                      
+                    </div>
+
+                    
+                  
+                    
+                    
+                   
+                </div>
             </div>
         </div>
-
-        <div class="card-footer d-flex justify-content-between">
-            <button type="button" class="btn btn-secondary" wire:click="cancel">
-                <i class="fa fa-arrow-left"></i> Quay lại
-            </button>
-
-            @if($editMode)
-                <button type="button" class="btn btn-success" wire:click="save">
-                    <i class="fa fa-save"></i> Cập nhật
-                </button>
-            @else
-                <button type="button" class="btn btn-primary" wire:click="store">
-                    <i class="fa fa-plus-circle"></i> Thêm mới
-                </button>
-            @endif
-        </div>
     </div>
 
-    {{-- Loading --}}
-    <div wire:loading wire:target="store,update" class="text-center mt-3">
-        <div class="spinner-border text-primary" role="status"></div>
-        <div>Đang xử lý...</div>
+    {{-- BUTTONS --}}
+    <div class="mt-3 text-right">
+        <button  type="button" wire:click="cancel" class="btn btn-secondary">
+            <i class="fas fa-save mr-1"></i> Quay lại
+        </button>
+        <button wire:click="save" class="btn btn-primary">
+            <i class="fas fa-save mr-1"></i> Lưu lại
+        </button>
     </div>
+  
 </div>
-<script>
-    document.addEventListener('livewire:load', function () {
-        $('#categorySelect').select2();
-        $('#categorySelect').on('change', function (e) {
-            @this.set('selectedCategories', $(this).val());
-        });
-    });
-</script>
+
+
+
+    

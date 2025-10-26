@@ -27,7 +27,11 @@
            @change="previewImage($event)">
 
     {{-- Ảnh cũ trong DB --}}
-    @if(!empty($current))
+    @php
+        $hasFile = !empty($current) && \Illuminate\Support\Facades\Storage::disk('public')->exists($current);
+    @endphp
+
+    @if($hasFile)
         <div class="position-relative mr-2 mb-2 d-inline-block mt-1">
             <img src="{{ asset('storage/'.$current) }}" width="120" class="img-thumbnail">
             <button type="button"
@@ -36,6 +40,7 @@
                     style="top:-5px; right:-5px;">×</button>
         </div>
     @endif
+
 
     {{-- Ảnh preview mới chọn --}}
     <template x-if="imagePreview">

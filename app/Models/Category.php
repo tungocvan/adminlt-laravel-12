@@ -55,4 +55,11 @@ class Category extends Model
     {
         return $query->where('type', 'category');
     }
+
+    public function childrenRecursive()
+    {
+        return $this->children()->with('childrenRecursive');
+    }
+
+
 }

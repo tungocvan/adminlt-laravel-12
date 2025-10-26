@@ -83,9 +83,9 @@ class TnvMedicineHelper
         $query->where(function ($q) use ($search) {
             $q->where('ten_biet_duoc', 'like', "%$search%")
                 ->orWhere('ten_hoat_chat', 'like', "%$search%")
-                ->orWhere('nha_phan_phoi', 'like', "%$search%")
-                ->orWhere('phan_nhom_tt15', 'like', "%$search%")
-                ->orWhere('co_so_san_xuat', 'like', "%$search%");
+                // ->orWhere('nha_phan_phoi', 'like', "%$search%")
+                // ->orWhere('phan_nhom_tt15', 'like', "%$search%")
+                // ->orWhere('co_so_san_xuat', 'like', "%$search%");
         });
     }
 
@@ -97,16 +97,19 @@ class TnvMedicineHelper
         $query->where('phan_nhom_tt15', $params['phan_nhom_tt15']);
     }
     if (!empty($params['min_price'])) {
-        $query->where('don_gia', '>=', $params['min_price']);
+        $query->where('don_gia', '>=', $params['don_gia']);
     }
     if (!empty($params['max_price'])) {
-        $query->where('don_gia', '<=', $params['max_price']);
+        $query->where('don_gia', '<=', $params['gia_ke_khai']);
     }
-    if (!empty($params['manufacturer'])) {
-        $query->where('co_so_san_xuat', 'like', "%{$params['manufacturer']}%");
+    if (!empty($params['co_so_san_xuat'])) {
+        $query->where('co_so_san_xuat', 'like', "%{$params['co_so_san_xuat']}%");
     }
-    if (!empty($params['country'])) {
-        $query->where('nuoc_san_xuat', 'like', "%{$params['country']}%");
+    if (!empty($params['nuoc_san_xuat'])) {
+        $query->where('nuoc_san_xuat', 'like', "%{$params['nuoc_san_xuat']}%");
+    }
+    if (!empty($params['nha_phan_phoi'])) {
+        $query->where('nha_phan_phoi', 'like', "%{$params['nha_phan_phoi']}%");
     }
 
     // 🔽 Sắp xếp

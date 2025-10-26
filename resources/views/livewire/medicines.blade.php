@@ -2,28 +2,23 @@
     @if(!$showForm)
         {{-- Toolbar trên cùng --}}
         <div class="d-flex justify-content-between mb-2">
-            <div class="d-flex">
-                <button class="btn btn-primary mr-2" wire:click="create">+ Thêm thuốc</button>
-
-                @if(count($selectedProducts) == 0)
-                    <button class="btn btn-info mr-2" wire:click="exportJson">
-                        <i class="fa fa-file-code"></i> Export All / Filtered
-                    </button>
-                @endif
-
-                @if(count($selectedProducts) > 0)
-                    <button class="btn btn-danger mr-2"
-                            wire:click="deleteSelected"
-                            onclick="return confirm('Bạn có chắc muốn xóa các thuốc đã chọn?')">
-                        <i class="fa fa-trash"></i> Xóa đã chọn ({{ count($selectedProducts) }})
-                    </button>
-                    <button class="btn btn-info mr-2" wire:click="exportJson">
-                        <i class="fa fa-file-code"></i> Xuất JSON
-                    </button>
-                @endif
-            </div>
-
-            <div class="input-group" style="width:50%">
+            @if(count($selectedProducts) == 0)
+            <button class="btn btn-primary mr-2" wire:click="create">+ Thêm thuốc</button>
+            <button class="btn btn-info mr-2" wire:click="exportJson">
+                <i class="fa fa-file-code"></i> Export All / Filtered
+            </button>
+            <select wire:model.live="selectedCategory" class="form-control" style="width:40%">
+                @foreach($categories as $cat)
+                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+            
+                    @if($cat->children)
+                        @foreach($cat->children as $child)
+                            <option value="{{ $child->id }}">— {{ $child->name }}</option>
+                        @endforeach
+                    @endif
+                @endforeach
+            </select>  
+            <div class="input-group" style="width:30%">
                 <input type="text"
                        class="form-control"
                        placeholder="Tìm thuốc..."
@@ -34,26 +29,38 @@
                     </div>
                 @endif
             </div>
-        </div>
+        @endif
 
-        {{-- Combobox danh mục (lọc hoặc áp dụng) --}}
-        <div class="d-flex mb-2 align-items-center">
-            <select class="form-control mr-2 w-50" wire:model.live="selectedCategory">
-                <option value="">-- Tất cả danh mục --</option>
-                @foreach($categories as $cat)
-                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                @endforeach
-            </select>
-
-            @if(count($selectedProducts) > 0)
-                <button class="btn btn-success"
-                        wire:click="applySelectedCategory"
-                        @disabled(!$selectedCategory)">
-                    <i class="fa fa-check"></i> Áp dụng danh mục cho {{ count($selectedProducts) }} thuốc
-                </button>
             
-            @endif
         </div>
+      
+        <div class="d-flex justify-content-between mb-2">
+            @if(count($selectedProducts) > 0)
+            <button class="btn btn-danger mr-2"
+                    wire:click="deleteSelected"
+                    onclick="return confirm('Bạn có chắc muốn xóa các thuốc đã chọn?')">
+                <i class="fa fa-trash"></i> Xóa đã chọn ({{ count($selectedProducts) }})
+            </button>
+            <button class="btn btn-info mr-2" wire:click="exportJson">
+                <i class="fa fa-file-code"></i> Xuất JSON
+            </button>            
+            @endif   
+        </div>
+        <div class="d-flex mb-2">
+            @if(count($selectedProducts) > 0)
+            
+            <livewire:category-dropdown 
+                :categories="$categories" 
+                wire:model="selectedCategories"
+                applyMethod="applySelectedCategory"
+            />
+
+            
+            
+            
+            @endif   
+        </div>
+        
 
         {{-- Thông báo --}}
         @if (session('success'))
@@ -82,7 +89,7 @@
         <table class="table table-bordered">
             <thead>
             <tr>
-                <th style="width:32px;"><input type="checkbox" wire:model.live="selectAll"></th>
+                <th style="width:32px;"><input type="checkbox" wire:model.live="selectAll"></th> 
                 <x-sortable-column field="id" label="ID" :sortField="$sortField" :sortDirection="$sortDirection" />
                 <x-sortable-column field="ten_biet_duoc" label="Tên biệt dược" :sortField="$sortField" :sortDirection="$sortDirection" />
                 <th>Hoạt chất</th>
@@ -104,9 +111,21 @@
                     <td>{{ number_format($m->don_gia ?? 0) }}</td>
                     <td>
                         @foreach($m->categories as $cat)
-                            <span class="badge badge-info">{{ $cat->name }}</span>
+                            @php
+                               // $cateName ='BCD';
+                            @endphp
+                            <span class="badge badge-info position-relative mr-1">
+                                {{ $cat->name }}
+                                <a href="#"
+                                   wire:click.prevent="removeCategory({{ $m->id }}, {{ $cat->id }}, @js($cat->name))"
+                                   class="text-white ml-1"
+                                   style="font-weight:bold; text-decoration:none;">
+                                   &times;
+                                </a>
+                            </span>
                         @endforeach
                     </td>
+                    
                     <td>{{ $m->created_at ? $m->created_at->format('d/m/Y') : '' }}</td>
                     <td>
                         <button class="btn btn-sm btn-warning" title="Sửa" wire:click="edit({{ $m->id }})">
@@ -129,12 +148,14 @@
         {{ $medicines instanceof \Illuminate\Pagination\LengthAwarePaginator ? $medicines->links() : '' }}
     @else
         {{-- Form thêm / sửa thuốc --}}
+       
         @include('livewire.medicines-form')
     @endif
 </div>
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
+    
     window.addEventListener('setHeader', function(e) {
         const title = e.detail ? e.detail[0] : null;
         if (title) {
@@ -143,5 +164,29 @@
             document.title = title;
         }
     });
+    document.addEventListener("DOMContentLoaded", () => {    
+
+        $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+            const tabId = $(e.target).attr('href').replace('#', '');
+            Livewire.first().set('activeTab', tabId);
+            localStorage.setItem('activeTab', tabId);
+        });
+
+        Livewire.hook('message.processed', (message, component) => {
+            let tab = localStorage.getItem('activeTab') || 'general';
+            $('a[href="#' + tab + '"]').tab('show');
+        });
+
+        Livewire.on('image-removed', (data) => {
+            const tab = data.tab || localStorage.getItem('activeTab') || 'extend';
+            $('a[href="#' + tab + '"]').tab('show');
+            localStorage.setItem('activeTab', tab);
+        });
+        $('.dropdown-menu').on('click', function(e) {
+            e.stopPropagation();
+        });
+        
+});
+
 </script>
 

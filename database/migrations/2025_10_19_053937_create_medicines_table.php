@@ -33,6 +33,9 @@ return new class extends Migration
             $table->string('nha_phan_phoi')->nullable();
             $table->string('nhom_thuoc')->nullable();
             $table->string('link_hinh_anh')->nullable();
+            $table->string('link_hssp')->nullable();
+            $table->string('han_dung_visa')->nullable();
+            $table->string('han_dung_gmp')->nullable();
             $table->timestamps();
         });
     }

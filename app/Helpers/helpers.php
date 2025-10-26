@@ -141,60 +141,101 @@ if (! function_exists('lang_label')) {
         return app()->getLocale() == 'vi' ? '🇻🇳 VI' : '🇺🇸 EN';
     }
 }
+
 if (! function_exists('renderCategoryTree')) {
-    function renderCategoryTree($categories, $selectedCategories = [], $level = 0)
-        {
-            $html = '';
-
-            foreach ($categories as $category) {
-                $margin = $level * 20;
-
-                $html .= '<div class="form-check" style="margin-left:'.$margin.'px">';
-                $html .= '<input type="checkbox" 
-                            class="form-check-input"
-                            wire:model="selectedCategories" 
-                            value="'.$category->id.'" 
-                            id="cat_'.$category->id.'"> ';
-                $html .= '<label class="form-check-label" for="cat_'.$category->id.'">'.$category->name.'</label>';
-                $html .= '</div>';
-
-
-                if ($category->children && $category->children->count()) {
-                    $html .= renderCategoryTree($category->children, $selectedCategories, $level + 1);
-                }
-            }
-
-            return $html;
-        }
-}
-if (! function_exists('renderCategoryRows')) {
-function renderCategoryRows($categories, $parentId = null, $prefix = '')
+    /**
+     * Render category tree as nested checkboxes.
+     *
+     * @param \Illuminate\Support\Collection|array $categories  Collection of categories (ideally root nodes)
+     * @param array $selectedCategories             Array of selected category ids
+     * @param int $level
+     * @param array|null &$rendered                Internal: track rendered ids to avoid duplicates
+     * @return string
+     */
+    function renderCategoryTree($categories, $selectedCategories = [], $level = 0, &$rendered = null)
     {
+        // init visited set
+        if ($rendered === null) $rendered = [];
+
         $html = '';
 
-        foreach ($categories->where('parent_id', $parentId) as $category) {
-            $html .= '<tr>';
-            $html .= '<td>' . $category->id . '</td>';
-            $html .= '<td>' . $prefix . e($category->name) . '</td>';
-            $html .= '<td>' . e($category->slug) . '</td>';
-            $html .= '<td><span class="badge badge-info">' . e($category->type) . '</span></td>';
-            $html .= '<td>' . ($category->is_active
-                ? '<span class="badge badge-success">Active</span>'
-                : '<span class="badge badge-secondary">Inactive</span>') . '</td>';
-            $html .= '<td>
-                        <button wire:click="openEdit(' . $category->id . ')" class="btn btn-sm btn-warning">
-                            <i class="fa fa-edit"></i> Sửa
-                        </button>
-                        <button wire:click="deleteCategory(' . $category->id . ')" onclick="return confirm(\'Xác nhận xóa?\')" class="btn btn-sm btn-danger">
-                            <i class="fa fa-trash"></i> Xóa
-                        </button>
-                      </td>';
-            $html .= '</tr>';
+        foreach ($categories as $category) {
+            // skip if already rendered
+            if (in_array($category->id, $rendered, true)) {
+                continue;
+            }
 
-            // Gọi đệ quy để render con
-            $html .= renderCategoryRows($categories, $category->id, $prefix . '— ');
+            // mark as rendered
+            $rendered[] = $category->id;
+
+            $margin = $level * 20;
+
+            // checked attribute nếu id nằm trong selectedCategories
+            $checked = in_array($category->id, $selectedCategories) ? 'checked' : '';
+
+            $html .= '<div class="form-check" style="margin-left:'.$margin.'px">';
+            $html .= '<input type="checkbox"
+                        class="form-check-input"
+                        wire:model="selectedCategories"
+                        value="'.htmlspecialchars($category->id, ENT_QUOTES).'"
+                        id="cat_'.htmlspecialchars($category->id, ENT_QUOTES).'" '.$checked.'>';
+            $html .= '<label class="form-check-label" for="cat_'.htmlspecialchars($category->id, ENT_QUOTES).'">'
+                     .htmlspecialchars($category->name, ENT_QUOTES).'</label>';
+            $html .= '</div>';
+
+            // nếu có children thì đệ quy
+            if (!empty($category->children) && $category->children->count()) {
+                $html .= renderCategoryTree($category->children, $selectedCategories, $level + 1, $rendered);
+            }
         }
 
         return $html;
     }
 }
+
+
+
+
+
+if (! function_exists('renderCategoryRows')) {
+    function renderCategoryRows($categories, $parentId = null, $prefix = '')
+        {
+            $html = '';
+
+            foreach ($categories->where('parent_id', $parentId) as $category) {
+                $html .= '<tr>';
+                $html .= '<td>' . $category->id . '</td>';
+                $html .= '<td>' . $prefix . e($category->name) . '</td>';
+                $html .= '<td>' . e($category->slug) . '</td>';
+                $html .= '<td><span class="badge badge-info">' . e($category->type) . '</span></td>';
+                $html .= '<td>' . ($category->is_active
+                    ? '<span class="badge badge-success">Active</span>'
+                    : '<span class="badge badge-secondary">Inactive</span>') . '</td>';
+                $html .= '<td>
+                            <button wire:click="openEdit(' . $category->id . ')" class="btn btn-sm btn-warning">
+                                <i class="fa fa-edit"></i> Sửa
+                            </button>
+                            <button wire:click="deleteCategory(' . $category->id . ')" onclick="return confirm(\'Xác nhận xóa?\')" class="btn btn-sm btn-danger">
+                                <i class="fa fa-trash"></i> Xóa
+                            </button>
+                        </td>';
+                $html .= '</tr>';
+
+                // Gọi đệ quy để render con
+                $html .= renderCategoryRows($categories, $category->id, $prefix . '— ');
+            }
+
+            return $html;
+        }
+}
+// if (! function_exists('cleanString')) {
+//     function cleanString(?string $value): string
+//     {
+  
+//         if ($value === null) return '';
+//         $value = trim((string)$value);
+//         $value = str_replace(["\n", "\r", "\t"], ' ', $value);
+        
+//         return preg_replace('/\s+/', ' ', $value);
+//     }
+// }

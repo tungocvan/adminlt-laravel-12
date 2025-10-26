@@ -60,7 +60,7 @@ class ImportMedicinesCommand extends Command
 
             $reader->setReadFilter($chunkFilter);
 
-            $rowStart = 10; // bắt đầu đọc từ dòng 10
+            $rowStart = 2; // bắt đầu đọc từ dòng 10
             $totalImported = 0;
             $insertBuffer = [];
 
@@ -105,6 +105,9 @@ class ImportMedicinesCommand extends Command
                         'nha_phan_phoi'      => $this->cleanString($row['S'] ?? ''),
                         'nhom_thuoc'         => $this->cleanString($row['T'] ?? ''),
                         'link_hinh_anh'      => trim((string)($row['U'] ?? 'images/thuoc.png')),
+                        'link_hssp'          => $this->cleanString($row['V'] ?? ''),    
+                        'han_dung_visa'      => $this->cleanString($row['W'] ?? ''), 
+                        'han_dung_gmp'       => $this->cleanString($row['X'] ?? ''), 
                         'created_at'         => now(),
                         'updated_at'         => now(),
                     ];

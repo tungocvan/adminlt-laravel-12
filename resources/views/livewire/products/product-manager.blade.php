@@ -244,10 +244,6 @@
                                     
                                 </div>
                             </div>
-                        
-
-                        
-
                             <div class="d-flex">
                                 <button type="submit" class="btn btn-success">Lưu</button>
                                 <button type="button" class="btn btn-secondary ml-2" wire:click="cancel">Huỷ</button>

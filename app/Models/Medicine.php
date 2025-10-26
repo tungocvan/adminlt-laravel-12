@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Medicine extends Model
 {
     use HasFactory;
-
+ 
     protected $fillable = [
         'stt_tt20_2022',
         'phan_nhom_tt15',
@@ -30,11 +30,17 @@ class Medicine extends Model
         'nha_phan_phoi',
         'nhom_thuoc',
         'link_hinh_anh',
+        'link_hssp',
+        'han_dung_visa',
+        'han_dung_gmp'
     ];
 
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'category_medicine')->withTimestamps();
     }
+
+   
+
 
 }
