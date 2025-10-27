@@ -11,7 +11,7 @@ Xin chào **{{ $order->email }}**,
 | Sản phẩm | SL | ĐVT | Giá | Thành tiền |
 |:---------|:--:|:---:|----:|-----------:|
 @foreach ($order->order_detail as $item)
-| {{ $item['title'] }} | {{ $item['quantity'] }} | {{ $item['dvt'] }}| {{ number_format($item['price'], 0, ',', '.') }} | {{ number_format($item['total'], 0, ',', '.') }} |
+| {{ $item['title'] }}-({{ $item['quy_cach'] }}) | {{ $item['quantity'] }} | {{ $item['dvt'] }}| {{ number_format($item['price'], 0, ',', '.') }} | {{ number_format($item['total'], 0, ',', '.') }} |
 @endforeach
 @endcomponent
 
