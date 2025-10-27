@@ -41,6 +41,13 @@
                 <button class="btn btn-info mr-2" wire:click="exportJson">
                     <i class="fa fa-file-code"></i> Xuất JSON
                 </button>
+                <div class="mb-2">
+                    @if(count($selectedProducts) > 0)
+                        <button wire:click="exportSelectedToExcel" class="btn btn-success">
+                            <i class="fa fa-file-excel"></i> Xuất Excel
+                        </button>
+                    @endif
+                </div>
             @endif
         </div>
         <div class="d-flex mb-2">
@@ -49,6 +56,14 @@
                     applyMethod="applySelectedCategory" />
             @endif
         </div>
+        <div class="mb-2">
+            @if(count($selectedProducts) > 0)
+                <button wire:click="exportWithTemplate" class="btn btn-success">
+                    <i class="fa fa-file-excel"></i> Xuất bảng giá
+                </button>
+            @endif
+        </div>
+        
 
 
         {{-- Thông báo --}}
