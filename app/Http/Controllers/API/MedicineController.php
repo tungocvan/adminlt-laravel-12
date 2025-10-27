@@ -49,6 +49,8 @@ class MedicineController extends Controller
                 }
             }
 
+   
+
             // 🚀 Gọi helper xử lý
             $data = TnvMedicineHelper::getMedicine($params);
 
