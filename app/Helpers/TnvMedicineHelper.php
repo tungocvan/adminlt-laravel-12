@@ -82,7 +82,7 @@ class TnvMedicineHelper
         $search = $params['search'];
         $query->where(function ($q) use ($search) {
             $q->where('ten_biet_duoc', 'like', "%$search%")
-                ->orWhere('ten_hoat_chat', 'like', "%$search%")
+                ->orWhere('ten_hoat_chat', 'like', "%$search%");
                 // ->orWhere('nha_phan_phoi', 'like', "%$search%")
                 // ->orWhere('phan_nhom_tt15', 'like', "%$search%")
                 // ->orWhere('co_so_san_xuat', 'like', "%$search%");
@@ -102,15 +102,15 @@ class TnvMedicineHelper
     if (!empty($params['max_price'])) {
         $query->where('don_gia', '<=', $params['gia_ke_khai']);
     }
-    if (!empty($params['co_so_san_xuat'])) {
-        $query->where('co_so_san_xuat', 'like', "%{$params['co_so_san_xuat']}%");
-    }
-    if (!empty($params['nuoc_san_xuat'])) {
-        $query->where('nuoc_san_xuat', 'like', "%{$params['nuoc_san_xuat']}%");
-    }
-    if (!empty($params['nha_phan_phoi'])) {
-        $query->where('nha_phan_phoi', 'like', "%{$params['nha_phan_phoi']}%");
-    }
+    // if (!empty($params['co_so_san_xuat'])) {
+    //     $query->where('co_so_san_xuat', 'like', "%{$params['co_so_san_xuat']}%");
+    // }
+    // if (!empty($params['nuoc_san_xuat'])) {
+    //     $query->where('nuoc_san_xuat', 'like', "%{$params['nuoc_san_xuat']}%");
+    // }
+    // if (!empty($params['nha_phan_phoi'])) {
+    //     $query->where('nha_phan_phoi', 'like', "%{$params['nha_phan_phoi']}%");
+    // }
 
     // 🔽 Sắp xếp
     $orderBy = $params['order_by'] ?? 'created_at';
