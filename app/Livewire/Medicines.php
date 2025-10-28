@@ -345,65 +345,58 @@ class Medicines extends Component
         return Excel::download(new MedicinesExport($this->selectedProducts), $fileName);
     }
   
-    public function exportWithTemplate()
+    public function exportWithTemplate(array $options = [])
     {
         if (empty($this->selectedProducts)) {
             $this->dispatch('notify', 'Vui lòng chọn ít nhất một sản phẩm để xuất Excel.');
             return;
         }
-
-        // Đường dẫn file template
-        $templatePath = database_path('exports/MAU-BANG-BAO-GIA.xlsx');
-        $sheetName = 'Sheet1';
-        $startRow = 10;
-
-        // Khai báo cột và kiểu dữ liệu
-        $columns = [
-            ['field' => 'stt_tt20_2022'],
-            ['field' => 'phan_nhom_tt15'],
-            ['field' => 'ten_hoat_chat','align' => 'left'],
-            ['field' => 'nong_do_ham_luong'],
-            ['field' => 'ten_biet_duoc','align' => 'left'],
-            ['field' => 'dang_bao_che'],
-            ['field' => 'don_vi_tinh'],
-            ['field' => 'quy_cach_dong_goi'],
-            ['field' => 'giay_phep_luu_hanh'],
-            ['field' => 'han_dung'],
-            ['field' => 'co_so_san_xuat','align' => 'left'],
-            ['field' => 'don_gia', 'type' => 'numeric'],
-            ['field' => 'gia_ke_khai', 'type' => 'numeric'],
+    
+        // ----- 1️⃣ Mặc định các tham số -----
+        $defaultColumns = [
+            ['field' => 'stt_tt20_2022', 'title' => 'STT TT20/2022'],
+            ['field' => 'phan_nhom_tt15', 'title' => 'Phân nhóm TT15'],
+            ['field' => 'ten_hoat_chat', 'title' => 'Tên hoạt chất', 'align' => 'left'],
+            ['field' => 'nong_do_ham_luong', 'title' => 'Nồng độ / Hàm lượng'],
+            ['field' => 'ten_biet_duoc', 'title' => 'Tên biệt dược', 'align' => 'left'],
+            ['field' => 'dang_bao_che', 'title' => 'Dạng bào chế'],
+            ['field' => 'don_vi_tinh', 'title' => 'Đơn vị tính'],
+            ['field' => 'quy_cach_dong_goi', 'title' => 'Quy cách đóng gói'],
+            ['field' => 'giay_phep_luu_hanh', 'title' => 'Số GPLH'],
+            ['field' => 'han_dung', 'title' => 'Hạn dùng'],
+            ['field' => 'co_so_san_xuat', 'title' => 'Cơ sở sản xuất', 'align' => 'left'],
+            ['field' => 'don_gia', 'title' => 'Đơn giá', 'type' => 'numeric'],
+            ['field' => 'gia_ke_khai', 'title' => 'Giá kê khai', 'type' => 'numeric'],
         ];
-
-        // Lấy dữ liệu từ DB, chỉ lấy đúng các trường cần thiết
+    
+        $defaults = [
+            'templatePath' => database_path('exports/MAU-BANG-BAO-GIA.xlsx'),
+            'sheetName'    => 'Sheet1',
+            'startRow'     => 10,
+            'columns'      => $defaultColumns,
+            'auto_width'   => false,
+            'auto_height'  => true,
+            'fit_to_page'  => true,
+            'row_font'     => ['name' => 'Times New Roman', 'size' => 12],
+            'titles'       => [
+                ['cell' => 'A1', 'text' => 'BẢNG BÁO GIÁ', 'style' => ['bold' => true, 'size' => 16, 'align' => 'center'], 'merge' => 'A1:F1'],
+                ['cell' => 'L12', 'text' => 'TP.HCM, ngày ' . now()->day . ' tháng ' . now()->month . ' năm ' . now()->year, 'style' => ['align' => 'right']]
+            ],
+        ];
+    
+        // Merge options người dùng truyền vào
+        $options = array_merge($defaults, $options);
+    
+        // ----- 2️⃣ Lấy dữ liệu từ DB -----
+        $fields = array_column($options['columns'], 'field');
         $data = \App\Models\Medicine::whereIn('id', $this->selectedProducts)
-            ->get(array_column($columns, 'field'));
-
-        // Gọi hàm export từ trait
-        return $this->exportTemplate(
-            $templatePath,
-            $sheetName,
-            $data,
-            $columns,
-            $startRow,
-            [
-                'titles' => [
-                    [
-                        'cell' => 'C7',
-                        'text' => 'QUÝ KHÁCH HÀNG',
-                        'style' => ['bold' => true, 'size' => 16, 'align' => 'left'],
-                        'merge' => 'C7:H7'
-                    ],
-                    [
-                        'cell' => 'L12',
-                        'text' => 'Tp.HCM, ngày ' . now()->day . ' tháng ' . now()->month . ' năm ' . now()->year,
-                        'style' => ['align' => 'center', 'italic' => true, 'size' => 11],
-                    ],
-                ],
-                'auto_height' => true,
-                'auto_width' => false,
-                'fit_to_page' => true,
-            ]
-        );
+            ->get($fields);
+    
+        $options['data'] = $data;
+    
+        // ----- 3️⃣ Gọi exportTemplate -----
+        return $this->exportTemplate($options);
     }
+    
 
 }

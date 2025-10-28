@@ -15,10 +15,23 @@ trait HasExcelExportTemplate
     /**
      * Xuất dữ liệu ra Excel từ file template có sẵn.
      */
-    public function exportTemplate($templatePath, $sheetName, $data, $columns, $startRow = 10, $options = [])
+    public function exportTemplate(array $options)
     {
+        $templatePath = $options['templatePath'] ?? null;
+        $sheetName    = $options['sheetName'] ?? 'Sheet1';
+        $data         = $options['data'] ?? [];
+        $columns      = $options['columns'] ?? [];
+        $startRow     = $options['startRow'] ?? 10;
+
+        if (!$templatePath || !file_exists($templatePath)) {
+            abort(404, "Template Excel không tồn tại: {$templatePath}");
+        }
+
         $spreadsheet = IOFactory::load($templatePath);
         $sheet = $spreadsheet->getSheetByName($sheetName);
+        if (!$sheet) {
+            abort(400, "Không tìm thấy sheet '{$sheetName}' trong file template.");
+        }
 
         // ====== 1️⃣ Ghi Titles (có thể nhiều dòng) ======
         if (!empty($options['titles'])) {
@@ -26,9 +39,39 @@ trait HasExcelExportTemplate
                 $this->applyTextStyle($sheet, $titleOption);
             }
         } elseif (!empty($options['title'])) {
-            // Giữ tương thích cũ
             $this->applyTextStyle($sheet, $options['title']);
         }
+
+
+        // ====== 2️⃣ Ghi tiêu đề cột nếu có ======
+        $currentRow = $startRow;
+        $hasHeader = collect($columns)->contains(fn($col) => !empty($col['title']));
+
+        if ($hasHeader) {
+            $headerRow = $startRow - 1;
+            $colIndex = 1;
+        
+            // Ghi cột STT
+            $sheet->setCellValueByColumnAndRow($colIndex++, $headerRow, 'STT');
+        
+            foreach ($columns as $col) {
+                $title = $col['title'] ?? strtoupper($col['field']);
+                $sheet->setCellValueByColumnAndRow($colIndex++, $headerRow, $title);
+            }
+        
+            // Style cho header (in đậm + căn giữa)
+            $lastCol = Coordinate::stringFromColumnIndex(count($columns) + 1);
+            $headerRange = "A{$headerRow}:{$lastCol}{$headerRow}";
+            $sheet->getStyle($headerRange)->getFont()->setBold(true);
+            $sheet->getStyle($headerRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle($headerRange)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        
+            // Wrap text + auto row height
+            $sheet->getStyle($headerRange)->getAlignment()->setWrapText(true);
+            $sheet->getRowDimension($headerRow)->setRowHeight(-1); // Excel tự tính chiều cao
+        }
+        
+
 
         // ====== 2️⃣ Ghi dữ liệu ======
         $currentRow = $startRow;
@@ -53,7 +96,7 @@ trait HasExcelExportTemplate
 
             foreach ($columns as $col) {
                 $field = $col['field'];
-                $type = $col['type'] ?? 'string';
+                $type  = $col['type'] ?? 'string';
                 $align = $col['align'] ?? null;
                 $value = $item[$field] ?? ($item->$field ?? '');
 
@@ -84,8 +127,8 @@ trait HasExcelExportTemplate
                 if ($align) {
                     $alignConst = match ($align) {
                         'center' => Alignment::HORIZONTAL_CENTER,
-                        'right' => Alignment::HORIZONTAL_RIGHT,
-                        default => Alignment::HORIZONTAL_LEFT,
+                        'right'  => Alignment::HORIZONTAL_RIGHT,
+                        default  => Alignment::HORIZONTAL_LEFT,
                     };
                     $sheet->getStyleByColumnAndRow($colIndex, $currentRow)
                         ->getAlignment()->setHorizontal($alignConst);
@@ -121,22 +164,34 @@ trait HasExcelExportTemplate
             }
         }
 
-        // ====== 6️⃣ Fit All Columns on One Page ======
+        // ====== 5️⃣ Fit All Columns on One Page ======
         if (!empty($options['fit_to_page'])) {
             $pageSetup = $sheet->getPageSetup();
-            $pageSetup->setFitToWidth(1);  // Fit toàn bộ cột trong 1 trang
-            $pageSetup->setFitToHeight(0); // Không giới hạn số trang theo chiều dọc
+            $pageSetup->setFitToWidth(1);
+            $pageSetup->setFitToHeight(0);
             $pageSetup->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
             $pageSetup->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
         }
 
-        // ====== 5️⃣ Xuất file ======
-        $fileName = 'Bao_gia_' . now()->format('Ymd_His') . '.xlsx';
-        $filePath = storage_path("app/{$fileName}");
-        (new Xlsx($spreadsheet))->save($filePath);
+        // ====== 6️⃣ Font vùng dữ liệu ======
+        $defaultFont = ['name' => 'Times New Roman', 'size' => 12];
+        $font = $options['row_font'] ?? $defaultFont;
+        $range = "A{$startRow}:{$lastCol}" . ($currentRow - 1);
+        $fontStyle = $sheet->getStyle($range)->getFont();
 
+        if (!empty($font['name'])) $fontStyle->setName($font['name']);
+        if (!empty($font['size'])) $fontStyle->setSize($font['size']);
+        if (!empty($font['bold'])) $fontStyle->setBold(true);
+        if (!empty($font['color'])) $fontStyle->getColor()->setRGB($font['color']);
+
+        // ====== 7️⃣ Xuất file ======
+        $fileName = $options['fileName'] ?? ('Bao_gia_' . now()->format('Ymd_His') . '.xlsx');
+        $filePath = storage_path("app/{$fileName}");
+
+        (new Xlsx($spreadsheet))->save($filePath);
         return response()->download($filePath)->deleteFileAfterSend(true);
     }
+
 
     /**
      * Ghi text + style cho 1 vùng ô, dùng được cho title, subtitle, footer, ...

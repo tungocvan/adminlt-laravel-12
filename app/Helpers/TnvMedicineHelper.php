@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Models\Medicine;
 use App\Models\Category;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class TnvMedicineHelper
 {
@@ -78,7 +79,7 @@ class TnvMedicineHelper
 
         // 🚫 Bỏ qua các field nếu có "except_fields"
         if (!empty($params['except_fields'])) {
-            $allColumns = \Schema::getColumnListing('medicines');
+            $allColumns = Schema::getColumnListing('medicines');
             $except = is_array($params['except_fields'])
                 ? $params['except_fields']
                 : array_map('trim', explode(',', $params['except_fields']));
@@ -136,10 +137,11 @@ class TnvMedicineHelper
         };
 
         return $cacheMinutes > 0
-            ? \Cache::remember($cacheKey, now()->addMinutes($cacheMinutes), $fetch)
+            ? Cache::remember($cacheKey, now()->addMinutes($cacheMinutes), $fetch)
             : $fetch();
     }
 
+     
 
 }
 
