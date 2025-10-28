@@ -44,15 +44,23 @@ class BangBaoGia extends Model
                     'note'          => $model->ghi_chu,
                 ]);
 
+                $path = null;
                 if (is_array($file) && isset($file['path'])) {
+                    $path = $file['path'];
+                } elseif (is_string($file)) {
+                    $path = $file;
+                }
+
+                if ($path) {
                     $model->update([
-                        'file_path'   => $file['path'],
+                        'file_path'   => $path,
                         'exported_at' => now(),
                     ]);
                 }
             } catch (\Throwable $th) {
-                // \Log::error('❌ Lỗi tạo file báo giá tự động: ' . $th->getMessage());
+                \Log::error('❌ Lỗi tạo file báo giá tự động: ' . $th->getMessage());
             }
         });
     }
+
 }
