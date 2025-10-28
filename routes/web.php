@@ -19,6 +19,11 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\NotificationController;
 
 use App\Http\Controllers\StudentController;
+
+Route::get('/google/callback', function (Request $request) {
+    return view('google-callback'); // file resources/views/google-callback.blade.php
+});
+
 Route::get('/tra-cuu-ho-so', function(){
     return view('students.lookup');
 })->name('students.lookup');
