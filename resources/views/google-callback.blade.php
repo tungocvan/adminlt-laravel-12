@@ -18,7 +18,7 @@
     // Nếu dùng Expo WebBrowser.openAuthSessionAsync
     // chrome custom tabs / safari view controller sẽ detect URL scheme
     const urlScheme = new URLSearchParams({ token });
-    window.location = `myapp://oauth2redirect?${urlScheme.toString()}`;
+    window.location = `https://cxokmka-tungocvan-8081.exp.direct?${urlScheme.toString()}`;
   }
 </script>
 </body>
