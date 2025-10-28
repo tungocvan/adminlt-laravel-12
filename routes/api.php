@@ -11,7 +11,9 @@ use App\Http\Controllers\API\MobileGoogleController;
 use App\Http\Controllers\API\UserOptionController;
 use App\Http\Controllers\API\MedicineController;
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\Api\GoogleAuthController;
 
+Route::post('/google/callback', [GoogleAuthController::class, 'callback']);
 
 Route::controller(AuthController::class)->group(function(){
     Route::get('init', 'init');
