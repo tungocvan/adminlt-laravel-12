@@ -8,6 +8,9 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+
+
 use Carbon\Carbon;
 
 trait HasExcelExportTemplate
@@ -42,6 +45,13 @@ trait HasExcelExportTemplate
             $this->applyTextStyle($sheet, $options['title']);
         }
 
+
+        if (!empty($options['images'])) {
+            foreach ($options['images'] as $imgOption) {
+                $this->applyImage($sheet, $imgOption);
+            }
+        }
+        
 
         // ====== 2️⃣ Ghi tiêu đề cột nếu có ======
         $currentRow = $startRow;
@@ -229,4 +239,44 @@ trait HasExcelExportTemplate
             $sheet->mergeCells($option['merge']);
         }
     }
+
+    
+    
+
+    protected function applyImage($sheet, array $option): void
+    {
+        $path = $option['path'] ?? null;
+        $cell = $option['cell'] ?? null;
+
+        if (!$path || !file_exists($path) || !$cell) return;
+
+        $drawing = new Drawing();
+        $drawing->setPath($path);
+        $drawing->setCoordinates($cell);
+        $drawing->setOffsetX($option['offsetX'] ?? 0);
+        $drawing->setOffsetY($option['offsetY'] ?? 0);
+
+        // ✅ Hỗ trợ inch → pixel
+        $inchToPx = fn($inch) => $inch * 96;
+
+        if (!empty($option['width_in'])) {
+            $drawing->setWidth($inchToPx($option['width_in']));
+        } elseif (!empty($option['width'])) {
+            $drawing->setWidth($option['width']);
+        }
+
+        if (!empty($option['height_in'])) {
+            $drawing->setHeight($inchToPx($option['height_in']));
+        } elseif (!empty($option['height'])) {
+            $drawing->setHeight($option['height']);
+        }
+
+        // 🔥 Move and size with cells
+        if (method_exists($drawing, 'setResizeWithCells')) {
+            $drawing->setResizeWithCells(true);
+        }
+
+        $drawing->setWorksheet($sheet);
+    }
+
 }

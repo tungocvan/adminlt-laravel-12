@@ -380,8 +380,19 @@ class Medicines extends Component
             'row_font'     => ['name' => 'Times New Roman', 'size' => 12],
             'titles'       => [
                 ['cell' => 'A1', 'text' => 'BẢNG BÁO GIÁ', 'style' => ['bold' => true, 'size' => 16, 'align' => 'center'], 'merge' => 'A1:F1'],
-                ['cell' => 'L12', 'text' => 'TP.HCM, ngày ' . now()->day . ' tháng ' . now()->month . ' năm ' . now()->year, 'style' => ['align' => 'right']]
+                ['cell' => 'L12', 'text' => 'TP.HCM, ngày ' . now()->day . ' tháng ' . now()->month . ' năm ' . now()->year, 'style' => ['align' => 'right']],
+                ['cell' => 'J13', 'text' => 'PHONG KINH DOANH', 'style' => ['bold' => true,'align' => 'center']]
             ],
+            'images' => [
+                [
+                    'path' => storage_path('app/ck.png'),
+                    'cell' => 'L14',
+                    'width_in' => 2,     // 2 inch = 192 px
+                    'height_in' => 1.33, // 1.33 inch = ~128 px
+                    'offsetX' => 0,
+                    'offsetY' => 0,
+                ]
+            ]
         ];
     
         // Merge options người dùng truyền vào
