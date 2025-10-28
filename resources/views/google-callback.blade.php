@@ -1,24 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Google OAuth Callback</title>
+  <title>Google Login</title>
 </head>
 <body>
 <script>
   // 1️⃣ Lấy access_token từ fragment
-  const hash = window.location.hash.substring(1); // bỏ #
+  const hash = window.location.hash.substr(1);
   const params = Object.fromEntries(new URLSearchParams(hash));
   const token = params.access_token;
 
-  // 2️⃣ Gửi token về React Native bằng postMessage
-  if (window.ReactNativeWebView) {
-    // nếu chạy trong WebView, gửi về RN
-    window.ReactNativeWebView.postMessage(JSON.stringify({ token }));
+  if (!token) {
+    document.body.innerHTML = "No token found!";
   } else {
-    // Nếu dùng Expo WebBrowser.openAuthSessionAsync
-    // chrome custom tabs / safari view controller sẽ detect URL scheme
-    const urlScheme = new URLSearchParams({ token });
-    window.location = `https://cxokmka-tungocvan-8081.exp.direct?${urlScheme.toString()}`;
+    // 2️⃣ Gửi token lên backend để xác thực và tạo user
+    fetch('https://adminlt.tungocvan.com/api/google/callback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_token: token })
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log('✅ Backend response:', data);
+      // 3️⃣ Redirect về app bằng deep link
+      window.location = `myapp://google-callback?token=${token}`;
+    })
+    .catch(err => {
+      console.error(err);
+      document.body.innerHTML = "Error sending token to backend!";
+    });
   }
 </script>
 </body>
