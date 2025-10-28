@@ -38,7 +38,7 @@ class BangBaoGia extends Model
     {
         static::created(function ($model) {
             try {
-                $file = \App\Helpers\TnvMedicineHelper::exportWithTemplate([
+                $file = TnvMedicineHelper::exportWithTemplate([
                     'selectedId'    => $model->product_ids ?? [],
                     'customer_name' => $model->ten_khach_hang,
                     'note'          => $model->ghi_chu,
