@@ -3,12 +3,14 @@
 namespace App\Helpers;
 
 use App\Models\Medicine;
-use App\Models\Category;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use App\Traits\HasExcelExportTemplate;
 
 class TnvMedicineHelper
 {
+    use HasExcelExportTemplate;
     public static function getMedicine(array $params = [])
     {
         $query = Medicine::query();
@@ -141,7 +143,67 @@ class TnvMedicineHelper
             : $fetch();
     }
 
-     
+    public static function exportWithTemplate(array $options = [])
+    {
+        // ----- 1️⃣ Mặc định các tham số -----
+        $defaultColumns = [
+            ['field' => 'stt_tt20_2022', 'title' => 'STT TT20/2022'],
+            ['field' => 'phan_nhom_tt15', 'title' => 'Phân nhóm TT15'],
+            ['field' => 'ten_hoat_chat', 'title' => 'Tên hoạt chất', 'align' => 'left'],
+            ['field' => 'nong_do_ham_luong', 'title' => 'Nồng độ / Hàm lượng'],
+            ['field' => 'ten_biet_duoc', 'title' => 'Tên biệt dược', 'align' => 'left'],
+            ['field' => 'dang_bao_che', 'title' => 'Dạng bào chế'],
+            ['field' => 'don_vi_tinh', 'title' => 'Đơn vị tính'],
+            ['field' => 'quy_cach_dong_goi', 'title' => 'Quy cách đóng gói'],
+            ['field' => 'giay_phep_luu_hanh', 'title' => 'Số GPLH'],
+            ['field' => 'han_dung', 'title' => 'Hạn dùng'],
+            ['field' => 'co_so_san_xuat', 'title' => 'Cơ sở sản xuất', 'align' => 'left'],
+            ['field' => 'don_gia', 'title' => 'Đơn giá', 'type' => 'numeric'],
+            ['field' => 'gia_ke_khai', 'title' => 'Giá kê khai', 'type' => 'numeric'],
+        ];
+
+        $defaults = [
+            'templatePath' => database_path('exports/MAU-BANG-BAO-GIA.xlsx'),
+            'sheetName'    => 'Sheet1',
+            'startRow'     => 10,
+            'columns'      => $defaultColumns,
+            'auto_width'   => false,
+            'auto_height'  => true,
+            'fit_to_page'  => true,
+            'row_font'     => ['name' => 'Times New Roman', 'size' => 12],
+            'titles'       => [
+                ['cell' => 'A6', 'text' => 'BẢNG BÁO GIÁ', 'style' => ['bold' => true, 'size' => 28, 'align' => 'center'], 'merge' => 'A6:N6'],
+                ['cell' => 'L12', 'text' => 'TP.HCM, ngày ' . now()->day . ' tháng ' . now()->month . ' năm ' . now()->year, 'style' => ['align' => 'right']],
+                ['cell' => 'J13', 'text' => 'PHÒNG KINH DOANH', 'style' => ['bold' => true, 'align' => 'center']]
+            ],
+            'images' => [
+                ['path' => storage_path('app/logo.png'), 'cell' => 'B1', 'width_in' => 1.86, 'height_in' => 1.18, 'offsetX' => 0, 'offsetY' => 0],
+                ['path' => storage_path('app/ck.png'), 'cell' => 'L14', 'width_in' => 2, 'height_in' => 1.33, 'offsetX' => 0, 'offsetY' => 0],
+            ],
+            'selectedId' => [], // ← thêm ở đây
+        ];
+
+        $options = array_merge($defaults, $options);
+
+        // ----- 2️⃣ Kiểm tra danh sách sản phẩm -----
+        if (empty($options['selectedId'])) {
+            throw new \Exception('Vui lòng chọn ít nhất một sản phẩm để xuất Excel.');
+        }
+
+        // ----- 3️⃣ Lấy dữ liệu từ DB -----
+        $fields = array_column($options['columns'], 'field');
+        $data = Medicine::whereIn('id', $options['selectedId'])->get($fields);
+
+        $options['data'] = $data;
+
+        // ----- 4️⃣ Gọi hàm exportTemplate (bạn đã có sẵn trong class khác) -----
+        if (!method_exists(static::class, 'exportTemplate') && !function_exists('exportTemplate')) {
+            throw new \Exception('Hàm exportTemplate chưa được định nghĩa hoặc include.');
+        }
+
+        return (new static)->exportTemplate($options);
+
+    }
 
 }
 

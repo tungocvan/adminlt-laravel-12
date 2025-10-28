@@ -170,7 +170,7 @@ trait HasExcelExportTemplate
             if (($col['type'] ?? '') === 'numeric') {
                 $colLetter = Coordinate::stringFromColumnIndex($i + 2);
                 $sheet->getStyle("{$colLetter}{$startRow}:{$colLetter}" . ($currentRow - 1))
-                    ->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+                    ->getNumberFormat()->setFormatCode('#,##0');
             }
         }
 
