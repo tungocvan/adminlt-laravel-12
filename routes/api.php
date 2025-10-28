@@ -12,6 +12,10 @@ use App\Http\Controllers\API\UserOptionController;
 use App\Http\Controllers\API\MedicineController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\GoogleAuthController;
+use App\Http\Controllers\API\BangBaoGiaController;
+
+Route::post('/bang-bao-gia', [BangBaoGiaController::class, 'store']);
+Route::get('/bang-bao-gia', [BangBaoGiaController::class, 'index']);
 
 Route::post('/google/callback', [GoogleAuthController::class, 'callback']);
 

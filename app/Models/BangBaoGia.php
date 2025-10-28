@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Helpers\TnvMedicineHelper;
+use App\Models\User;
 
 class BangBaoGia extends Model
 {
     use HasFactory;
 
-    protected $table = 'bang_bao_gia';
+    protected $table = 'bang_bao_gia'; // hoặc 'bang_bao_gias' nếu bạn đặt theo Laravel convention
 
     protected $fillable = [
         'ma_so',
@@ -37,13 +38,12 @@ class BangBaoGia extends Model
     {
         static::created(function ($model) {
             try {
-                $file = TnvMedicineHelper::exportWithTemplate([
+                $file = \App\Helpers\TnvMedicineHelper::exportWithTemplate([
                     'selectedId'    => $model->product_ids ?? [],
                     'customer_name' => $model->ten_khach_hang,
                     'note'          => $model->ghi_chu,
                 ]);
 
-                // Nếu helper trả về path file, lưu lại
                 if (is_array($file) && isset($file['path'])) {
                     $model->update([
                         'file_path'   => $file['path'],
@@ -51,7 +51,7 @@ class BangBaoGia extends Model
                     ]);
                 }
             } catch (\Throwable $th) {
-                \Log::error('Lỗi tạo file báo giá tự động: ' . $th->getMessage());
+                // \Log::error('❌ Lỗi tạo file báo giá tự động: ' . $th->getMessage());
             }
         });
     }
