@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -11,6 +11,7 @@ class GoogleAuthController extends Controller
 {
     public function callback(Request $request)
     {
+       
         $idToken = $request->input('id_token');
 
         // 1️⃣ Xác minh token với Google

@@ -9,6 +9,7 @@
         "barryvdh/laravel-dompdf": "^3.1",
         "google/apiclient": "^2.15",
         "google/auth": "^1.47",
+        "guzzlehttp/guzzle": "^7.10",
         "intervention/image": "^3.11",
         "intervention/image-laravel": "^1.5",
         "jeroennoten/laravel-adminlte": "^3.13",
