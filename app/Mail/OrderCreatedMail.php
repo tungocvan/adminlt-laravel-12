@@ -6,8 +6,9 @@ use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class OrderCreatedMail extends Mailable
+class OrderCreatedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -20,7 +21,9 @@ class OrderCreatedMail extends Mailable
 
     public function build()
     {
+        
         return $this->subject('Xác nhận đơn hàng #' . $this->order->id)
                     ->markdown('emails.orders.created');
     }
+    
 }

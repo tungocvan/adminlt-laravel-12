@@ -220,6 +220,9 @@
                     <strong>{{ number_format($order->total, 0, ',', '.') }} ₫</strong>
                 </td>
             </tr>
+            <tr>
+                <td colspan="8" style="text-align: center;">{{ vn_number_to_words($order->total) }}</td>
+            </tr>
         </tbody>
     </table>
 
@@ -230,7 +233,7 @@
          {{-- HEADER --}}
         <table class="header-table">
             <tr>
-                <td style="width: 25%;">
+                <td style="width: 25%;text-align: left;">
                     <strong>Người lập phiếu</strong>
                 </td>
                 <td style="width: 25%;">
@@ -239,8 +242,8 @@
                 <td style="width: 25%;">
                     <strong>Người nhận hàng</strong>
                 </td>
-                <td style="width: 25%;">
-                    <strong>Người nhận hàng</strong>
+                <td style="width: 25%;text-align: center;">
+                    <strong>Giám đốc</strong>
                 </td>
                
             </tr>

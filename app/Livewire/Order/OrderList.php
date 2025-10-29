@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use App\Models\Order;
 use App\Models\Medicine;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class OrderList extends Component
 {
@@ -49,6 +50,7 @@ class OrderList extends Component
 
     public function updatedSelectAllProducts($value)
     {
+       
         $query = Medicine::query();
       
         if ($this->productSearch) {
@@ -251,6 +253,9 @@ class OrderList extends Component
         }
 
         try {
+            if ($order->link_download) {
+                Storage::disk('public')->delete($order->link_download);
+            }
             $order->delete();
             session()->flash('message', "Đơn hàng #{$orderId} đã xóa thành công.");
         } catch (\Exception $e) {

@@ -239,3 +239,84 @@ if (! function_exists('renderCategoryRows')) {
 //         return preg_replace('/\s+/', ' ', $value);
 //     }
 // }
+
+
+if (!function_exists('vn_number_to_words')) {
+    function vn_number_to_words($number)
+    {
+        $dictionary  = [
+            0 => 'không',
+            1 => 'một',
+            2 => 'hai',
+            3 => 'ba',
+            4 => 'bốn',
+            5 => 'năm',
+            6 => 'sáu',
+            7 => 'bảy',
+            8 => 'tám',
+            9 => 'chín'
+        ];
+
+        $units = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ', 'tỷ tỷ'];
+
+        if (!is_numeric($number)) {
+            return false;
+        }
+
+        // Tránh lỗi số âm
+        $number = abs($number);
+
+        $result = '';
+        $unitIndex = 0;
+
+        do {
+            $chunk = $number % 1000;
+            $number = floor($number / 1000);
+
+            if ($chunk > 0) {
+                $chunkText = readThreeDigits($chunk, $dictionary);
+                $result = $chunkText . ' ' . $units[$unitIndex] . ' ' . $result;
+            }
+
+            $unitIndex++;
+        } while ($number > 0 && $unitIndex < count($units));
+
+        $result = trim(preg_replace('/\s+/', ' ', $result));
+
+        return ucfirst($result) . ' đồng';
+    }
+
+    function readThreeDigits($number, $dictionary)
+    {
+        $hundreds = floor($number / 100);
+        $tens = floor(($number % 100) / 10);
+        $ones = $number % 10;
+
+        $text = '';
+
+        if ($hundreds > 0) {
+            $text .= $dictionary[$hundreds] . ' trăm';
+            if ($tens == 0 && $ones > 0) {
+                $text .= ' lẻ';
+            }
+        }
+
+        if ($tens > 1) {
+            $text .= ' ' . $dictionary[$tens] . ' mươi';
+            if ($ones == 1) $text .= ' mốt';
+            elseif ($ones == 4) $text .= ' tư';
+            elseif ($ones == 5) $text .= ' lăm';
+            elseif ($ones > 0) $text .= ' ' . $dictionary[$ones];
+        } elseif ($tens == 1) {
+            $text .= ' mười';
+            if ($ones == 5) $text .= ' lăm';
+            elseif ($ones > 0) $text .= ' ' . $dictionary[$ones];
+        } elseif ($tens == 0 && $hundreds == 0 && $ones > 0) {
+            $text .= $dictionary[$ones];
+        } elseif ($tens == 0 && $ones > 0) {
+            $text .= ' ' . $dictionary[$ones];
+        }
+
+        return trim($text);
+    }
+}
