@@ -20,8 +20,9 @@ class OrderController extends Controller
     }
     public function index()
     {
-        $orders = Order::latest()->paginate(10);
-        return view('Order::index', compact('orders'));
+        //$orders = Order::latest()->paginate(10);
+       // return view('Order::index', compact('orders'));
+        return view('Order::index');
     }
 
     public function show(Order $order)

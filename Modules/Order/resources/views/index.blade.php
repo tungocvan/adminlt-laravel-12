@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('content')
-<div class="container mt-4">
+{{-- <div class="container mt-4">
     <h4 class="mb-3">Danh sách đơn hàng</h4>
 
     @if (session('success'))
@@ -51,5 +51,6 @@
 
     </div>
     
-</div>
+</div> --}}
+@livewire('order.order-list')
 @endsection

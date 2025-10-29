@@ -34,7 +34,7 @@ class Order extends Model
         // 🔹 Khi tạo đơn hàng mới
         static::created(function ($order) {
             if ($order->status == "pending") {
-                Mail::to($order->email)->send(new OrderCreatedMail($order));
+               // Mail::to($order->email)->send(new OrderCreatedMail($order));
             }
         });
 
@@ -80,7 +80,7 @@ class Order extends Model
                 // 4️⃣ Gửi email xác nhận kèm link PDF
                 // -----------------------------
                 try {
-                    Mail::to($order->email)->send(new OrderConfirmedMail($order));
+                   // Mail::to($order->email)->send(new OrderConfirmedMail($order));
                 } catch (\Exception $e) {
                     \Log::error('Gửi email thất bại: ' . $e->getMessage());
                 }
