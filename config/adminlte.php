@@ -1,6 +1,6 @@
 <?php
 
-$filePath = config_path('menu.json');
+$filePath = base_path('Modules/Menu/menu.json') ?? config_path('menu.json');
 $menuArray = loadMenuFromJson($filePath);
 
 $menuNavbar = [    
@@ -16,7 +16,7 @@ $menuNavbar = [
     [
         'type' => 'fullscreen-widget',
         'topnav_right' => true,
-    ],
+    ],  
     [
         'type' => 'navbar-notification',
         'id' => 'my-notification',

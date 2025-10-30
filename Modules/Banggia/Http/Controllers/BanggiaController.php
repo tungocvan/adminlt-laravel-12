@@ -33,6 +33,7 @@ class BanggiaController extends Controller
         if (!$record->file_path) {
             return back()->with('error', '❌ File chưa được tạo.');
         }
+     //   dd($record);
 
         // Gọi hàm tái sử dụng
         return TnvHelper::downloadFile($record->file_path, 'public');

@@ -143,10 +143,6 @@
                                     <a href="{{ route('banggia.download', $r->id) }}" class="btn btn-sm btn-success">
                                         <i class="fas fa-download"></i> Excel
                                     </a>
-                            
-                                    <a href="{{ route('banggia.downloadPdf', $r->id) }}" class="btn btn-sm btn-primary" target="_blank">
-                                        <i class="fas fa-file-pdf"></i> PDF
-                                    </a>
                                 @else
                                     <span class="text-muted">Chưa có file</span>
                                 @endif

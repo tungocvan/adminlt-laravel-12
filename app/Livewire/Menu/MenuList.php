@@ -22,10 +22,11 @@ class MenuList extends Component
     public $backupFiles = [];
     public $nameJson = 'menu-backup';
     private $iconMenu = 'far fa-caret-square-right';
+    public $filePath;
     public function mount()
     {
-        $filePath = config_path('menu.json');
-        $this->menuItems = json_decode(file_get_contents($filePath), true);
+        $this->filePath = base_path('Modules/Menu/menu.json');
+        $this->menuItems = json_decode(file_get_contents($this->filePath), true);
     }
 
     public function render()
@@ -57,7 +58,7 @@ class MenuList extends Component
         ];
         $this->menuItems[]= $subMenu;
 
-        // $filePath = config_path('menu.json');
+        // $filePath = $this->filePath;
         // file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT)); 
 
         
@@ -77,7 +78,7 @@ class MenuList extends Component
         ];
         $this->menuItems[$index]['submenu'][] = $submenu;
 
-        // $filePath = config_path('menu.json');
+        // $filePath = $this->filePath;
         // file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT));    
         
         // // Thông báo thành công
@@ -179,7 +180,7 @@ class MenuList extends Component
             // Cập nhật file menu.json
             
 
-            // $filePath = config_path('menu.json');
+            // $filePath = $this->filePath;
             // file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT)); 
 
             
@@ -236,7 +237,7 @@ class MenuList extends Component
         // Cập nhật file menu.json
        
 
-        // $filePath = config_path('menu.json');
+        // $filePath = $this->filePath;
         // file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT));
         // // Optionally, you can add a success message
         // session()->flash('message', 'Item duplicated successfully.');
@@ -253,7 +254,7 @@ class MenuList extends Component
             array_splice($this->menuItems,$index,1);
         }
         // Cập nhật file menu.json
-        // $filePath = config_path('menu.json');
+        // $filePath = $this->filePath;
         // file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT));
         // // Optionally, you can add a success message
         // session()->flash('message', 'Item duplicated successfully.');
@@ -303,7 +304,7 @@ class MenuList extends Component
     
         
             // Cập nhật file menu.json
-        // $filePath = config_path('menu.json');
+        // $filePath = $this->filePath;
         // file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT));
         //     // Thông báo thành công
         // session()->flash('message', 'Đã thay đổi vị trí mục.');
@@ -317,7 +318,7 @@ class MenuList extends Component
         $this->actionMenu = $action;
         $this->showMenuModal = true;
         if($this->actionMenu === 'restore') {
-            $backupDir = config_path('menu');
+            $backupDir = base_path('Modules/Menu/menu');
             $this->backupFiles = array_diff(scandir($backupDir), ['..', '.']);
             if(count($this->backupFiles) == 0){
                 session()->flash('message', 'No have restore file.');
@@ -337,13 +338,13 @@ class MenuList extends Component
     public function updateMenuJson()
     {
        // dd($this->actionMenu);         
-        $menuFilePath = config_path('menu.json');
-        $backupDir = config_path('menu');
+        $menuFilePath = $this->filePath;
+        $backupDir = base_path('Modules/Menu/menu');
         
         if (!is_dir($backupDir)) {
             mkdir($backupDir, 0755, true);
         }
-
+        
         if ($this->actionMenu === 'backup') {
             $timestamp = now()->format('Y-m-d_H-i-s');
             $backupFileName = $this->nameJson."-{$timestamp}.json";
@@ -360,9 +361,9 @@ class MenuList extends Component
 
     public function restoreFile($fileName)
     {
-        $backupDir = config_path('menu');
+        $backupDir = base_path('Modules/Menu/menu');
         $sourceFile = $backupDir . '/' . $fileName;
-        $destinationFile = config_path('menu.json');
+        $destinationFile = $this->filePath;
 
         if (copy($sourceFile, $destinationFile)) {
             session()->flash('message', 'Menu restored successfully from ' . $fileName);
@@ -375,7 +376,7 @@ class MenuList extends Component
 
     public function deleteFile($fileName)
     {
-        $backupDir = config_path('menu');
+        $backupDir = base_path('Modules/Menu/menu');
         $filePath = $backupDir . '/' . $fileName;
      
         if (unlink($filePath)) {
@@ -389,7 +390,7 @@ class MenuList extends Component
 
     public function downloadFile($fileName)
     {
-        $backupDir = config_path('menu');
+        $backupDir = base_path('Modules/Menu/menu');
         $filePath = $backupDir . '/' . $fileName;
 
         if (file_exists($filePath)) {
@@ -402,7 +403,7 @@ class MenuList extends Component
     public function saveMenuJson($title='')
     {
         // Cập nhật file menu.json
-        $filePath = config_path('menu.json');
+        $filePath = $this->filePath;
         file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT));
         // Optionally, you can add a success message
         session()->flash('message', $title);

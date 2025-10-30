@@ -145,6 +145,8 @@ class TnvMedicineHelper
 
     public static function exportWithTemplate(array $options = [])
     {
+      
+        $company =['name' => 'CÔNG TY TNHH DP HUTRAPHARMA','address' => ' 240/127/26 Nguyễn Văn Luông, Phường Bình Phú, TP. Hồ Chí Minh'];
         // ----- 1️⃣ Mặc định các tham số -----
         $defaultColumns = [
             ['field' => 'stt_tt20_2022', 'title' => 'STT TT20/2022'],
@@ -165,6 +167,7 @@ class TnvMedicineHelper
         $defaults = [
             'templatePath' => database_path('exports/MAU-BANG-BAO-GIA.xlsx'),
             'sheetName'    => 'Sheet1',
+            'company'     => $company,
             'startRow'     => 10,
             'columns'      => $defaultColumns,
             'auto_width'   => false,
@@ -172,6 +175,8 @@ class TnvMedicineHelper
             'fit_to_page'  => true,
             'row_font'     => ['name' => 'Times New Roman', 'size' => 12],
             'titles'       => [
+                ['cell' => 'D1', 'text' => $company['name'] , 'style' => ['bold' => true, 'size' => 12, 'align' => 'left']],
+                ['cell' => 'C7', 'text' => $options['customer_name'] , 'style' => ['bold' => true, 'size' => 16, 'align' => 'left']],
                 ['cell' => 'A6', 'text' => 'BẢNG BÁO GIÁ', 'style' => ['bold' => true, 'size' => 28, 'align' => 'center'], 'merge' => 'A6:N6'],
                 ['cell' => 'L12', 'text' => 'TP.HCM, ngày ' . now()->day . ' tháng ' . now()->month . ' năm ' . now()->year, 'style' => ['align' => 'right']],
                 ['cell' => 'J13', 'text' => 'PHÒNG KINH DOANH', 'style' => ['bold' => true, 'align' => 'center']]
@@ -182,9 +187,9 @@ class TnvMedicineHelper
             ],
             'selectedId' => [], // ← thêm ở đây
         ];
-
+        
         $options = array_merge($defaults, $options);
-
+        //dd($options);
         // ----- 2️⃣ Kiểm tra danh sách sản phẩm -----
         if (empty($options['selectedId'])) {
             throw new \Exception('Vui lòng chọn ít nhất một sản phẩm để xuất Excel.');
@@ -200,7 +205,7 @@ class TnvMedicineHelper
         if (!method_exists(static::class, 'exportTemplate') && !function_exists('exportTemplate')) {
             throw new \Exception('Hàm exportTemplate chưa được định nghĩa hoặc include.');
         }
-
+       // dd($options);
         return (new static)->exportTemplate($options);
 
     }

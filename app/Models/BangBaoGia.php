@@ -8,7 +8,7 @@ use App\Helpers\TnvMedicineHelper;
 use App\Models\User;
 
 class BangBaoGia extends Model
-{
+{ 
     use HasFactory;
 
     protected $table = 'bang_bao_gia'; // hoặc 'bang_bao_gias' nếu bạn đặt theo Laravel convention

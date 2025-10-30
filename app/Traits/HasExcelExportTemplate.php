@@ -194,12 +194,26 @@ trait HasExcelExportTemplate
         if (!empty($font['bold'])) $fontStyle->setBold(true);
         if (!empty($font['color'])) $fontStyle->getColor()->setRGB($font['color']);
 
-        // ====== 7️⃣ Xuất file ======
+       // ====== 7️⃣ Xuất file ======
         $fileName = $options['fileName'] ?? ('Bao_gia_' . now()->format('Ymd_His') . '.xlsx');
-        $filePath = storage_path("app/{$fileName}");
+        $storageDir = 'baogia'; // Thư mục trong storage/app/public
+        $filePath = "{$storageDir}/{$fileName}";
 
-        (new Xlsx($spreadsheet))->save($filePath);
-        return response()->download($filePath)->deleteFileAfterSend(true);
+        // ✅ Tạo thư mục nếu chưa tồn tại
+        \Storage::disk('public')->makeDirectory($storageDir);
+
+        // ✅ Đường dẫn đầy đủ
+        $fullPath = storage_path("app/public/{$filePath}");
+
+        // ✅ Ghi file Excel
+        (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet))->save($fullPath);
+
+        // ✅ Trả về đường dẫn tương đối
+        return [
+            'path' => $filePath, // baogia/Bao_gia_20251029_143055.xlsx
+            'name' => $fileName,
+        ];
+
     }
 
 
