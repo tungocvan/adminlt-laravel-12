@@ -123,3 +123,4 @@ Route::post('/submit-form', [App\Http\Controllers\FormController::class, 'store'
 Route::get('/tailwind', function () {    
     return view('tailwind');
 });
+

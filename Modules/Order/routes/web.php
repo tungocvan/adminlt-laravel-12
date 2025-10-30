@@ -12,3 +12,18 @@ Route::middleware(['web', 'auth'])
 Route::middleware(['web','auth'])
 ->get('order/pdf/{order}/{type?}', [OrderController::class, 'exportPdf'])
 ->name('order.pdf');
+
+Route::get('/orders/{folder}/{filename}', function ($folder, $filename) {
+    $path = storage_path("app/public/orders/{$folder}/{$filename}");
+
+    if (!file_exists($path)) {
+        abort(404, 'Không tìm thấy file PDF');
+    }
+
+    return response()->file($path, [
+        'Content-Type' => 'application/pdf',
+        'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        'Pragma' => 'no-cache',
+        'Expires' => '0',
+    ]);
+});
