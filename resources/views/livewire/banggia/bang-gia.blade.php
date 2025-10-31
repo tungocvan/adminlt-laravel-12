@@ -2,40 +2,63 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Danh sách Bảng Báo Giá</h5>
-            <button class="btn btn-primary btn-sm" wire:click="toggleForm">
-                {{ $formVisible ? 'Ẩn Form' : '➕ Thêm mới' }}
-            </button>
+
+            <div>
+                {{-- Nút xóa hàng loạt --}}
+                @if (count($selectedRows) > 0)
+                    <button class="btn btn-danger btn-sm mr-2"
+                            wire:click="deleteSelected"
+                            onclick="return confirm('Bạn có chắc muốn xóa các bản ghi đã chọn không?')">
+                        🗑️ Xóa đã chọn ({{ count($selectedRows) }})
+                    </button>
+                @endif
+
+                {{-- Nút thêm mới --}}
+                <button class="btn btn-primary btn-sm" wire:click="toggleForm">
+                    {{ $formVisible ? 'Ẩn Form' : '➕ Thêm mới' }}
+                </button>
+            </div>
         </div>
 
         <div class="card-body">
+            {{-- Thông báo --}}
             @if (session()->has('message'))
                 @php $msg = session('message'); @endphp
                 <div class="alert alert-success mt-2">
-                    {!! str_contains($msg, 'storage/') 
-                        ? '✅ <a href="' . asset($msg) . '" target="_blank">Tải file báo giá</a>' 
+                    {!! str_contains($msg, 'storage/')
+                        ? '✅ <a href="' . asset($msg) . '" target="_blank">Tải file báo giá</a>'
                         : e($msg) !!}
                 </div>
             @endif
 
-
+            {{-- Ô tìm kiếm --}}
             <div class="form-group">
                 <input type="text" class="form-control" placeholder="Tìm kiếm..." wire:model.debounce.500ms="search">
             </div>
 
-            {{-- Form thêm/sửa --}}
+            {{-- Form thêm mới --}}
             @if ($formVisible)
                 <div class="border p-3 mb-3 rounded bg-light">
                     <div class="form-row">
-                        {{-- <div class="form-group col-md-4">
-                            <label>Mã số</label>
-                            <input type="text" class="form-control" wire:model="ma_so">
-                            @error('ma_so') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div> --}}
-
-                        <div class="form-group col-md-8">
+                        <div class="form-group col-md-3">
                             <label>Tên khách hàng</label>
                             <input type="text" class="form-control" wire:model="ten_khach_hang">
                             @error('ten_khach_hang') <small class="text-danger">{{ $message }}</small> @enderror
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Người duyệt Báo giá</label>
+                            <input type="text" class="form-control" wire:model="nguoi_duyet_bg">
+                            @error('nguoi_duyet_bg') <small class="text-danger">{{ $message }}</small> @enderror
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Tiêu đề báo giá</label>
+                            <input type="text" class="form-control" wire:model="tieu_de_bg">
+                            @error('tieu_de_bg') <small class="text-danger">{{ $message }}</small> @enderror
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label>Ngày lập Báo giá</label>
+                            <input type="text" class="form-control" wire:model="ngay_lap_bg">
+                            @error('ngay_lap_bg') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>
                     </div>
 
@@ -44,21 +67,19 @@
                         <textarea class="form-control" wire:model="ghi_chu" rows="2"></textarea>
                     </div>
 
-                    {{-- File path (auto-generated) --}}
+                    {{-- File báo giá --}}
                     @if ($file_path)
                         <div class="form-group">
-                            <label>File báo giá đã tạo</label><br>                            
-                            <a href="{{ asset('storage/' . $record->file_path) }}" download>
+                            <label>File báo giá đã tạo</label><br>
+                            <a href="{{ asset('storage/' . $file_path) }}" download>
                                 📄 Xem / Tải báo giá
                             </a>
                         </div>
                     @endif
 
-                   {{-- Danh sách thuốc áp dụng --}}
+                    {{-- Danh sách thuốc --}}
                     <div class="form-group" x-data="{ search: '' }">
                         <label class="font-weight-bold">Danh sách thuốc áp dụng</label>
-
-                        {{-- Ô tìm kiếm --}}
                         <input
                             type="text"
                             x-model="search"
@@ -66,13 +87,11 @@
                             class="form-control form-control-sm mb-2"
                         >
 
-                        {{-- Checkbox chọn tất cả --}}
                         <div class="custom-control custom-checkbox mb-2">
                             <input type="checkbox" id="selectAll" class="custom-control-input" wire:model="selectAll">
                             <label for="selectAll" class="custom-control-label font-weight-bold">Chọn tất cả</label>
                         </div>
 
-                        {{-- Danh sách thuốc --}}
                         <div class="border rounded bg-white p-2" style="max-height: 250px; overflow-y: auto;">
                             @forelse ($medicines as $m)
                                 <div 
@@ -97,8 +116,6 @@
                         </div>
                     </div>
 
-
-
                     <div class="d-flex justify-content-end">
                         <button class="btn btn-secondary mr-2" wire:click="toggleForm">Hủy</button>
                         <button class="btn btn-success" wire:click="save">Lưu</button>
@@ -107,20 +124,26 @@
             @endif
 
             {{-- Bảng danh sách --}}
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover mt-3">
                 <thead class="thead-light">
                     <tr>
+                        <th style="width:40px; text-align:center;">
+                            <input type="checkbox" wire:model.live="selectAllRows">
+                        </th>
                         <th wire:click="sortBy('ma_so')" style="cursor:pointer;">Mã số</th>
                         <th wire:click="sortBy('ten_khach_hang')" style="cursor:pointer;">Khách hàng</th>
                         <th>Thuốc áp dụng</th>
                         <th>File báo giá</th>
                         <th>Ngày tạo</th>
-                        <th width="120">Hành động</th>
+                        <th width="80">Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($records as $r)
                         <tr>
+                            <td class="text-center">
+                                <input type="checkbox" wire:model="selectedRows" value="{{ $r->id }}">
+                            </td>
                             <td>{{ $r->ma_so }}</td>
                             <td>{{ $r->ten_khach_hang }}</td>
                             <td>
@@ -130,13 +153,11 @@
                                         : (is_string($r->product_ids) ? json_decode($r->product_ids, true) : []);
                                     $ids = $ids ?? [];
                                 @endphp
-
                                 @if(count($ids))
                                     @foreach(\App\Models\Medicine::whereIn('id', $ids)->get() as $m)
                                         <span class="badge badge-info">{{ $m->ten_biet_duoc }}</span>
                                     @endforeach
                                 @endif
-
                             </td>
                             <td>
                                 @if ($r->file_path)
@@ -147,16 +168,17 @@
                                     <span class="text-muted">Chưa có file</span>
                                 @endif
                             </td>
-                            
                             <td>{{ $r->created_at->format('d/m/Y') }}</td>
-                            <td>
-                                <button class="btn btn-sm btn-warning" wire:click="toggleForm({{ $r->id }})">Sửa</button>
-                                <button class="btn btn-sm btn-danger" wire:click="delete({{ $r->id }})"
-                                    onclick="return confirm('Xóa bản ghi này?')">Xóa</button>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-danger"
+                                        wire:click="delete({{ $r->id }})"
+                                        onclick="return confirm('Xóa bản ghi này?')">
+                                    Xóa
+                                </button>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="text-center text-muted">Không có dữ liệu</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted">Không có dữ liệu</td></tr>
                     @endforelse
                 </tbody>
             </table>

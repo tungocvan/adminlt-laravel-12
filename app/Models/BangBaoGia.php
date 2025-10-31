@@ -21,10 +21,12 @@ class BangBaoGia extends Model
         'ghi_chu',
         'file_path',
         'exported_at',
+        'company'
     ];
 
     protected $casts = [
         'product_ids' => 'array',
+        'company' => 'array',
         'exported_at' => 'datetime',
     ];
 
@@ -36,12 +38,15 @@ class BangBaoGia extends Model
     // 🔥 Khi tạo bảng báo giá mới => tự động export file Excel
     protected static function booted()
     {
+       
         static::created(function ($model) {
             try {
+                
                 $file = TnvMedicineHelper::exportWithTemplate([
                     'selectedId'    => $model->product_ids ?? [],
                     'customer_name' => $model->ten_khach_hang,
                     'note'          => $model->ghi_chu,
+                    'company'       => $model->company ?? []
                 ]);
 
                 $path = null;

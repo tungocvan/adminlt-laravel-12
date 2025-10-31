@@ -146,7 +146,15 @@ class TnvMedicineHelper
     public static function exportWithTemplate(array $options = [])
     {
       
-        $company =['name' => 'CÔNG TY TNHH DP HUTRAPHARMA','address' => ' 240/127/26 Nguyễn Văn Luông, Phường Bình Phú, TP. Hồ Chí Minh'];
+        $company = ['title' => 'BẢNG BÁO GIÁ',
+                   'departments' => 'PHÒNG KINH DOANH',
+                   'date' => 'TP.HCM, ngày ' . now()->day . ' tháng ' . now()->month . ' năm ' . now()->year
+                  ];
+        if(isset($options['company'])){
+            $company =  array_merge($company, $options['company']); 
+        }
+              
+
         // ----- 1️⃣ Mặc định các tham số -----
         $defaultColumns = [
             ['field' => 'stt_tt20_2022', 'title' => 'STT TT20/2022'],
@@ -163,7 +171,7 @@ class TnvMedicineHelper
             ['field' => 'don_gia', 'title' => 'Đơn giá', 'type' => 'numeric'],
             ['field' => 'gia_ke_khai', 'title' => 'Giá kê khai', 'type' => 'numeric'],
         ];
-
+       // dd($options);
         $defaults = [
             'templatePath' => database_path('exports/MAU-BANG-BAO-GIA.xlsx'),
             'sheetName'    => 'Sheet1',
@@ -174,12 +182,11 @@ class TnvMedicineHelper
             'auto_height'  => true,
             'fit_to_page'  => true,
             'row_font'     => ['name' => 'Times New Roman', 'size' => 12],
-            'titles'       => [
-                ['cell' => 'D1', 'text' => $company['name'] , 'style' => ['bold' => true, 'size' => 12, 'align' => 'left']],
+            'titles'       => [                
                 ['cell' => 'C7', 'text' => $options['customer_name'] , 'style' => ['bold' => true, 'size' => 16, 'align' => 'left']],
-                ['cell' => 'A6', 'text' => 'BẢNG BÁO GIÁ', 'style' => ['bold' => true, 'size' => 28, 'align' => 'center'], 'merge' => 'A6:N6'],
-                ['cell' => 'L12', 'text' => 'TP.HCM, ngày ' . now()->day . ' tháng ' . now()->month . ' năm ' . now()->year, 'style' => ['align' => 'right']],
-                ['cell' => 'J13', 'text' => 'PHÒNG KINH DOANH', 'style' => ['bold' => true, 'align' => 'center']]
+                ['cell' => 'A6', 'text' => $company['title'], 'style' => ['bold' => true, 'size' => 28, 'align' => 'center'], 'merge' => 'A6:N6'],
+                ['cell' => 'J12', 'text' => $company['date'], 'style' => ['align' => 'right']],
+                ['cell' => 'J13', 'text' => $company['departments'], 'style' => ['bold' => true, 'align' => 'center']]
             ],
             'images' => [
                 ['path' => storage_path('app/logo.png'), 'cell' => 'B1', 'width_in' => 1.86, 'height_in' => 1.18, 'offsetX' => 0, 'offsetY' => 0],

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('ten_khach_hang')->nullable();
             $table->string('file_path')->nullable()->comment('Đường dẫn file Excel đã tạo');
             $table->json('product_ids')->nullable()->comment('Danh sách ID sản phẩm');
+            $table->json('company')->nullable()->comment('Lưu thông tin bảng giá');
             $table->text('ghi_chu')->nullable();
             $table->timestamp('exported_at')->nullable()->comment('Thời điểm tạo bảng báo giá');
             $table->timestamps();

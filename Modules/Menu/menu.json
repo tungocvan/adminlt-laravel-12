@@ -67,12 +67,18 @@
     },
     {
         "text": "Manage Users  ",
-        "url": "admin\/users",
+        "url": "user",
         "icon": "fas fa-fw fa-user",
         "can": "admin-create"
     },
     {
         "text": "Manage Role",
+        "url": "role",
+        "icon": "fas fa-fw fa-user-shield",
+        "can": "admin-create"
+    },
+    {
+        "text": "Manage Admin Roles",
         "url": "admin\/roles",
         "icon": "fas fa-fw fa-user-shield",
         "can": "admin-create"

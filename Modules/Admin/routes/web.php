@@ -9,6 +9,6 @@ Route::middleware(['web','auth'])->prefix('/admin')->name('admin.')->group(funct
     Route::get('/datatables', [AdminController::class,'datatables'])->name('datatables');
 });
 
-Route::middleware(['web','auth'])->prefix('/user')->name('user.')->group(function(){
-    Route::get('/', [AdminController::class,'user'])->name('index');
-});
+// Route::middleware(['web','auth'])->prefix('/user')->name('user.')->group(function(){
+//     Route::get('/', [AdminController::class,'user'])->name('index');
+// });
