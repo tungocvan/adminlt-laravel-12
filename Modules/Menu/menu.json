@@ -66,7 +66,13 @@
         "can": "admin-create"
     },
     {
-        "text": "Manage Users  ",
+        "text": "Manage Menu",
+        "url": "menu",
+        "icon": "fas fa-fw fa-list",
+        "can": "admin-create"
+    },
+    {
+        "text": "Manage Users   ",
         "url": "user",
         "icon": "fas fa-fw fa-user",
         "can": "admin-create"
@@ -74,12 +80,6 @@
     {
         "text": "Manage Role",
         "url": "role",
-        "icon": "fas fa-fw fa-user-shield",
-        "can": "admin-create"
-    },
-    {
-        "text": "Manage Admin Roles",
-        "url": "admin\/roles",
         "icon": "fas fa-fw fa-user-shield",
         "can": "admin-create"
     },
@@ -104,12 +104,6 @@
                 "url": "settings",
                 "icon": "fas fa-fw fa-list",
                 "can": "settings-list"
-            },
-            {
-                "text": "Qu\u1ea3n tr\u1ecb Menu",
-                "url": "\/menu",
-                "icon": "fas fa-fw fa-user",
-                "can": "menu-list"
             },
             {
                 "text": "Qu\u1ea3n tr\u1ecb Upload",

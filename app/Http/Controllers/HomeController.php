@@ -24,6 +24,7 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $roleName = $request->user()->getRoleNames()[0];
+        //dd($roleName);
         switch ($roleName) {
             case 'Admin':
                 return redirect()->route('admin.index');

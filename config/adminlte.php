@@ -1,70 +1,7 @@
 <?php
+use App\Helpers\TnvMenuHelper;
 
-$filePath = base_path('Modules/Menu/menu.json') ?? config_path('menu.json');
-$menuArray = loadMenuFromJson($filePath);
-
-$menuNavbar = [    
-    [
-        'type' => 'navbar-search',
-        'text' => 'search',
-        'topnav_right' => true,
-        'url' => 'navbar/search',
-        'method' => 'post',
-        'input_name' => 'searchVal',
-        'id' => 'navbarSearch'
-    ],
-    [
-        'type' => 'fullscreen-widget',
-        'topnav_right' => true,
-    ],  
-    [
-        'type' => 'navbar-notification',
-        'id' => 'my-notification',
-        'icon' => 'fas fa-bell',
-        'url' => env('APP_URL') . '/notifications/show',
-        'topnav_right' => true,
-        'dropdown_mode' => true,
-        'dropdown_flabel' => 'All notifications',
-        'update_cfg' => [
-            'url' => env('APP_URL') . '/notifications/get',
-            'period' => 30,
-        ],
-        'can' => 'user-list',
-    ],
-    [
-        'text' => 'Profile',
-        'url' => 'admin/profile',
-        'icon' => 'fas fa-fw fa-user',
-        'topnav_user' => true,
-        'can' => 'admin-list',
-    ],
-    [
-        'text' => 'Settings',
-        'url' => 'admin/settings',
-        'icon' => 'fas fa-fw fa-cog',
-        'topnav_user' => true,
-        'icon_color' => 'primary',
-        'can' => 'user-list',
-    ],  
-    
-];
-
-$menuSidebar = [
-    [
-        'type' => 'sidebar-menu-search',
-        'text' => 'search',
-    ],
-    ...$menuArray,
-];
-
-$menu = [    
-    // Navbar items:    
-    
-     ...$menuNavbar,
-    // Sidebar items:
-    ...$menuSidebar
-];
-
+$menu = TnvMenuHelper::showMenu();
 
 return [
 

@@ -2,10 +2,13 @@
     {{-- DANH SÁCH VAI TRÒ --}}
     @if(!$formVisible)
         <div class="card shadow-sm">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-left align-items-center">
                 <h4 class="mb-0">Danh sách vai trò</h4>
-                <button wire:click.prevent="create" class="btn btn-primary btn-sm">
+                <button wire:click.prevent="create" class="btn btn-primary btn-sm mx-2">
                     <i class="fas fa-plus-circle"></i> Thêm vai trò
+                </button>
+                <button wire:click.prevent="permission" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus-circle"></i> Thêm module để phân quyền
                 </button>
             </div>
 
@@ -124,6 +127,49 @@
             </div>
         </div>
     @endif
+
+    @if($isModuleMode)
+    <div class="card card-outline card-info mt-3">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Tạo quyền mặc định cho Module</h5>
+        </div>
+
+        <div class="card-body">
+            @if(empty($modules))
+                <div class="alert alert-warning mb-0">
+                    <i class="fas fa-info-circle"></i>
+                    Tất cả các module đã được phân quyền đầy đủ.
+                </div>
+            @else
+                <div class="form-group">
+                    <label>Chọn module</label>
+                    <select wire:model="module" class="form-control">
+                        <option value="">-- Chọn module --</option>
+                        @foreach($modules as $mod)
+                            <option value="{{ $mod }}">{{ $mod }}</option>
+                        @endforeach
+                    </select>
+                    @error('module')
+                        <span class="text-danger small">{{ $message }}</span>
+                    @enderror
+                </div>
+            @endif
+        </div>
+
+        <div class="card-footer d-flex justify-content-between">
+            @if(!empty($modules))
+                <button wire:click="storePermission" class="btn btn-success">
+                    <i class="fa fa-plus-circle"></i> Tạo quyền
+                </button>
+            @endif
+            <button wire:click="$set('isModuleMode', false)" class="btn btn-secondary">
+                <i class="fa fa-times"></i> Hủy
+            </button>
+        </div>
+    </div>
+    @endif
+
+
 </div>
 <script>
  

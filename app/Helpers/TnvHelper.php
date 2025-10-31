@@ -24,6 +24,7 @@ class TnvHelper
      * @param string $footer            Chữ ký hoặc footer
      * @return array
      */
+    
     public static function exportToExcel(
         string|Model $modelClass,
         array $ids = [],

@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\File;
 
 class RoleList extends Component
 {
@@ -15,16 +16,18 @@ class RoleList extends Component
     public $perPage = 10;
     public $formVisible = false;
     public $isEditMode = false;
+    public $isModuleMode = false;
     public $name;
     public $roleId;
-
+    public $modules = [];
+    public $module = '';
     public $permissionsByModule = [];
     public $selectedPermissions = [];
     public $selectAll = false;
 
     protected $rules = [
         'name' => 'required|string|max:255',
-    ];
+    ]; 
 
     public function mount()
     {
@@ -65,6 +68,67 @@ class RoleList extends Component
         $this->formVisible = true;
         $this->resetPage();
     }
+   
+    /**
+ * Lấy danh sách module trong thư mục /Modules chưa có quyền
+ */
+public function permission()
+{
+    $pathModule = base_path('Modules/');
+    $directories = File::directories($pathModule);
+    $directoryNames = array_map('basename', $directories);
+
+    $this->modules = [];
+
+    foreach ($directoryNames as $moduleName) {
+        $prefix = strtolower($moduleName);
+        $exists = Permission::where('name', 'like', "{$prefix}-%")->exists();
+
+        // Nếu chưa có quyền nào của module này thì thêm vào danh sách hiển thị
+        if (!$exists) {
+            $this->modules[] = $moduleName;
+        }
+    }
+
+    $this->isModuleMode = true;
+}
+
+/**
+ * Sinh ra các quyền mặc định: list, create, edit, delete cho module đã chọn
+ */
+public function storePermission()
+{
+    $this->validate([
+        'module' => 'required|string',
+    ]);
+
+    $name = strtolower(trim($this->module));
+
+    $permissionsArray = [
+        "{$name}-list",
+        "{$name}-create",
+        "{$name}-edit",
+        "{$name}-delete",
+    ];
+
+    foreach ($permissionsArray as $permissionName) {
+        // ✅ Dùng firstOrCreate để tránh lỗi trùng unique
+        Permission::firstOrCreate(['name' => $permissionName]);
+    }
+
+    // Cập nhật lại danh sách modules chưa có quyền
+    $this->permission();
+
+    // Ẩn form chọn module
+    $this->isModuleMode = false;
+    $this->module = '';
+
+    // ✅ Livewire 3 — thông báo
+    $this->dispatch('notify', [
+        'message' => 'Đã tạo quyền mặc định cho module ' . strtoupper($name),
+    ]);
+}
+
 
     public function save()
     {

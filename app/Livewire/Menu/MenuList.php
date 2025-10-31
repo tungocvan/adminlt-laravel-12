@@ -65,7 +65,7 @@ class MenuList extends Component
         // Thông báo thành công
         // session()->flash('message', 'SubMenu updated successfully.');
         $this->saveMenuJson('SubMenu updated successfully.');
-        $this->redirectRoute('settings.menu');
+        $this->redirectRoute('menu.index');
     }
 
     public function addSubMenuByIndex($index,$key=null){
@@ -84,7 +84,7 @@ class MenuList extends Component
         // // Thông báo thành công
         // session()->flash('message', 'SubMenu updated successfully.');
         $this->saveMenuJson('SubMenu updated successfully.');
-        $this->redirectRoute('settings.menu');
+        $this->redirectRoute('menu.index');
         //dd($this->menuItems[$index]);
     }
 
@@ -189,7 +189,7 @@ class MenuList extends Component
             // Đóng modal sau khi cập nhật
             $this->saveMenuJson('menu updated successfully');
             $this->showModal  = false;
-            $this->redirectRoute('settings.menu');
+            $this->redirectRoute('menu.index');
 
         }
     public function duplicateItem($itemJson, $index, $key=null)
@@ -242,7 +242,7 @@ class MenuList extends Component
         // // Optionally, you can add a success message
         // session()->flash('message', 'Item duplicated successfully.');
         $this->saveMenuJson('Item duplicated successfully.');
-        $this->redirectRoute('settings.menu');
+        $this->redirectRoute('menu.index');
     }
 
     public function deleteItem($index, $key=null) {
@@ -259,7 +259,7 @@ class MenuList extends Component
         // // Optionally, you can add a success message
         // session()->flash('message', 'Item duplicated successfully.');
         $this->saveMenuJson('Item duplicated successfully.');
-        $this->redirectRoute('settings.menu');
+        $this->redirectRoute('menu.index');
     }
 
     public function moveUp($index, $key=null)
@@ -309,7 +309,7 @@ class MenuList extends Component
         //     // Thông báo thành công
         // session()->flash('message', 'Đã thay đổi vị trí mục.');
         $this->saveMenuJson('Đã thay đổi vị trí mục.');
-        $this->redirectRoute('settings.menu');
+        $this->redirectRoute('menu.index');
 
     }
 
@@ -322,7 +322,7 @@ class MenuList extends Component
             $this->backupFiles = array_diff(scandir($backupDir), ['..', '.']);
             if(count($this->backupFiles) == 0){
                 session()->flash('message', 'No have restore file.');
-                $this->redirectRoute('settings.menu');
+                $this->redirectRoute('menu.index');
                 
             }
             
@@ -368,7 +368,7 @@ class MenuList extends Component
         if (copy($sourceFile, $destinationFile)) {
             session()->flash('message', 'Menu restored successfully from ' . $fileName);
             $this->showMenuModal = false;
-            $this->redirectRoute('settings.menu');
+            $this->redirectRoute('menu.index');
         } else {
             session()->flash('message', 'Failed to restore menu.');
         }
@@ -407,7 +407,7 @@ class MenuList extends Component
         file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT));
         // Optionally, you can add a success message
         session()->flash('message', $title);
-        // $this->redirectRoute('settings.menu');
+        // $this->redirectRoute('menu.index');
     }
 
     

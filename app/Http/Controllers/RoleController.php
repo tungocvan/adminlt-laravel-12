@@ -100,7 +100,7 @@ class RoleController extends Controller
             'name' => 'required|unique:roles,name',
             'permission' => 'required',
         ]);
-
+ 
         //dd($request->input('permission'));
 
         $permissionsID = array_map(

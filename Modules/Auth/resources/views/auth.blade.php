@@ -5,6 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             @if (Route::is('auth.login'))
+                <h2>login</h2>
                 @livewire('auth.login')
             @elseif (Route::is('auth.register'))
                 @livewire('auth.register')            

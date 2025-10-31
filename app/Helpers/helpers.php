@@ -86,26 +86,7 @@ function generateMenuJson()
     return response()->json(['message' => 'Menu JSON created successfully!', 'path' => url('menu.json')]);
 }
 
-function loadMenuFromJson($filePath)
-{
-    // Kiểm tra xem file có tồn tại không
-    if (!file_exists($filePath)) {
-        throw new Exception("File not found: " . $filePath);
-    }
 
-    // Đọc nội dung file
-    $jsonContent = file_get_contents($filePath);
-
-    // Chuyển đổi JSON thành mảng
-    $menuArray = json_decode($jsonContent, true);
-
-    // Kiểm tra xem có lỗi trong việc chuyển đổi không
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new Exception("JSON decode error: " . json_last_error_msg());
-    }
-
-    return $menuArray;
-}
 
 function getCategories($taxonomy)
 {
