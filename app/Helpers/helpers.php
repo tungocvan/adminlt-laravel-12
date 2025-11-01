@@ -178,37 +178,7 @@ if (! function_exists('renderCategoryTree')) {
 
 
 
-if (! function_exists('renderCategoryRows')) {
-    function renderCategoryRows($categories, $parentId = null, $prefix = '')
-        {
-            $html = '';
 
-            foreach ($categories->where('parent_id', $parentId) as $category) {
-                $html .= '<tr>';
-                $html .= '<td>' . $category->id . '</td>';
-                $html .= '<td>' . $prefix . e($category->name) . '</td>';
-                $html .= '<td>' . e($category->slug) . '</td>';
-                $html .= '<td><span class="badge badge-info">' . e($category->type) . '</span></td>';
-                $html .= '<td>' . ($category->is_active
-                    ? '<span class="badge badge-success">Active</span>'
-                    : '<span class="badge badge-secondary">Inactive</span>') . '</td>';
-                $html .= '<td>
-                            <button wire:click="openEdit(' . $category->id . ')" class="btn btn-sm btn-warning">
-                                <i class="fa fa-edit"></i> Sửa
-                            </button>
-                            <button wire:click="deleteCategory(' . $category->id . ')" onclick="return confirm(\'Xác nhận xóa?\')" class="btn btn-sm btn-danger">
-                                <i class="fa fa-trash"></i> Xóa
-                            </button>
-                        </td>';
-                $html .= '</tr>';
-
-                // Gọi đệ quy để render con
-                $html .= renderCategoryRows($categories, $category->id, $prefix . '— ');
-            }
-
-            return $html;
-        }
-}
 // if (! function_exists('cleanString')) {
 //     function cleanString(?string $value): string
 //     {

@@ -5,7 +5,7 @@
 @section('content_header')
 <h1>{{ __('messages.dashboard') }}</h1>
 <h3>{{ __('messages.language') }}</h3>
-@stop
+@stop 
   
 @section('content')
     {{-- @livewire('vn-address')    --}}    

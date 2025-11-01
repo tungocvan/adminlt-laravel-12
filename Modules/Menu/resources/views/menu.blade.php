@@ -3,7 +3,7 @@
 @section('title', 'Quản trị menu')
 
 @section('content_header')
-    <h1>Menu Manager</h1>
+    <h3>{{ __('messages.menu') }}</h3>
 @stop
 
 @section('content')

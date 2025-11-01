@@ -72,6 +72,12 @@
         "can": "admin-create"
     },
     {
+        "text": "Manage Files",
+        "url": "\/file",
+        "icon": "fas fa-fw fa-list",
+        "can": "admin-create"
+    },
+    {
         "text": "Manage Users   ",
         "url": "user",
         "icon": "fas fa-fw fa-user",

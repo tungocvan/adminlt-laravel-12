@@ -92,7 +92,7 @@
         {{-- Bảng danh sách thuốc --}}
         <table class="table table-bordered">
             <thead>
-                <tr>
+                <tr> 
                     <th style="width:32px;"><input type="checkbox" wire:model.live="selectAll"></th>
                     <x-sortable-column field="id" label="ID" :sortField="$sortField" :sortDirection="$sortDirection" />
                     <x-sortable-column field="ten_biet_duoc" label="Tên biệt dược" :sortField="$sortField"

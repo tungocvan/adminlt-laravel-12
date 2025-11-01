@@ -13,8 +13,17 @@
 
 @section('content') 
 <div class="container">
-   {{-- gọi component livewire/User/UserList.php --}}
-   {{-- @livewire('user.user-list') --}}
+    <div class="row">
+        <div class="col-md-4">
+            <a href="/file/json-excel" type="button" class="btn btn-outline-primary btn-block"> <i class="fas fa-file-code mx-2"></i>JSON TO EXCEL</a>           
+        </div>
+        <div class="col-md-4">            
+            <a href="/file/db-excel" type="button" class="btn btn-outline-info btn-block"><i class="fa fa-book mx-2"></i>DB TO EXCEL</a>            
+        </div>
+        <div class="col-md-4">            
+            <a href="/file/migrations" type="button" class="btn btn-outline-info btn-block"><i class="fa fa-book mx-2"></i>Manager Migrations</a>            
+        </div>
+       
 </div>
 
 @endsection

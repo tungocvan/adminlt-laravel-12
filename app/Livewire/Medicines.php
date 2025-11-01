@@ -30,7 +30,7 @@ class Medicines extends Component
     public $search = '',
         $perPage = 10,
         $sortField = 'id',
-        $sortDirection = 'desc';
+        $sortDirection = 'desc'; 
     public $showForm = false,
         $medicineId,
         $activeTab = 'general',

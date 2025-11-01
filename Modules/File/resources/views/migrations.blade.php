@@ -1,21 +1,15 @@
 @extends('adminlte::page')
 
-@section('title', 'New Module')
+@section('title', 'migrations')
 
 @section('content_header')
-        {{-- 
-            khai báo ngôn ngữ: 
-            tiếng anh: resources/lang/en
-            tiếng việt: resources/lang/vi 
-        --}}
-        <h3>{{ __('messages.language') }}</h3>
+<a href="{{ route('file.index') }}" class="btn btn-secondary btn-sm">
+    <i class="fas fa-arrow-left"></i> Back
+</a>
 @stop
 
 @section('content') 
-<div class="container">
-   {{-- gọi component livewire/User/UserList.php --}}
-   {{-- @livewire('user.user-list') --}}
-</div>
+@livewire('file.Migrations')
 
 @endsection
 
