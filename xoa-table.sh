@@ -7,4 +7,4 @@ if [ -z "$param1" ]; then
   exit 1
 fi
 php artisan clean:table $param1
-php artisan migrate
+php artisan migrate 

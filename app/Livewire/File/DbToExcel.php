@@ -11,6 +11,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Artisan;
 
 class DbToExcel extends Component
 {
@@ -64,6 +65,7 @@ class DbToExcel extends Component
 
     public function export($tableName)
     {
+        
         $rows = DB::table($tableName)->get();
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -132,15 +134,29 @@ class DbToExcel extends Component
         $path = "public/excel/database/{$tableName}.xlsx";
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $writer->save(storage_path("app/{$path}"));
-
-        // 8️⃣ Cập nhật trạng thái hiển thị
+        
+        // 8️⃣  Cập nhật trạng thái hiển thị
+     
         $this->loadTables();
 
         $this->message = "✅ Đã xuất bảng <b>{$tableName}</b> thành công!";
         $this->alertType = 'success';
     }
 
-
+    public function exportMyslq($tableName){
+        // 8️⃣ Xuất mysql 
+        
+        try {
+            Artisan::call('export:table', [
+                'table' => strtolower($tableName)
+            ]); 
+            $output = Artisan::output();
+            $this->message = $output ;
+            $this->alertType = 'success';
+        } catch (\Exception $e) {
+            session()->flash('error', "Lỗi migrate: " . $e->getMessage());
+        }
+    }
 
 
     public function deleteFile($tableName)

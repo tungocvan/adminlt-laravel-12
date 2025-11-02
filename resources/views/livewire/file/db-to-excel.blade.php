@@ -29,10 +29,10 @@
                             <th style="width:40px;">
                                 <input type="checkbox" wire:model="selectAll">
                             </th>
-                            <th>#</th>
+                            <th style="width:60px;">#</th>
                             <th>Tên bảng</th>
-                            <th>Trạng thái</th>
-                            <th style="width:220px;">Hành động</th>
+                            <th style="width:120px;text-align:center">Trạng thái</th>
+                            <th style="width:300px;">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -55,7 +55,10 @@
                                 <td class="text-center">
                                     <div class="btn-group">
                                         <button class="btn btn-sm btn-primary" wire:click="export('{{ $table['name'] }}')">
-                                            <i class="fas fa-file-export"></i> Xuất
+                                            <i class="fas fa-file-export"></i> Xuất excel
+                                        </button>
+                                        <button class="btn btn-sm btn-primary mx-1" wire:click="exportMyslq('{{ $table['name'] }}')">
+                                            <i class="fas fa-file-export"></i> Xuất mysql
                                         </button>
 
                                         @if($table['exists'])

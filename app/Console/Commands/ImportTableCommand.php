@@ -8,14 +8,15 @@ use Illuminate\Support\Facades\Schema;
 
 class ImportTableCommand extends Command
 {
-    protected $signature = 'import:table {file} {--update : Cập nhật và thêm mới thay vì xóa toàn bộ dữ liệu}';
+    protected $signature = 'import:table {table} {--update : Cập nhật và thêm mới thay vì xóa toàn bộ dữ liệu}';
     protected $description = 'Import dữ liệu từ file .mysql vào database. Dùng --update để update/thêm mới thay vì xóa.';
 
     public function handle()
     {
-        $file = $this->argument('file');
+        $file = $this->argument('table');
         $isUpdate = $this->option('update');
-        $path = database_path("exports/{$file}");
+        //$path = database_path("exports/{$file}");
+        $path = storage_path("app/public/mysql/{$file}.mysql");
 
         if (!file_exists($path)) {
             $this->error("❌ File '{$path}' không tồn tại.");

@@ -170,7 +170,7 @@ class MysqlDatabase extends Command
         
         // Tạo lệnh mysqldump
         $command = "mysqldump --user={$username} --password={$password} --host={$host} {$database} > {$filePath}";
-    
+        //dd($command);
         // Thực thi lệnh
         system($command, $returnVar);
     
@@ -178,8 +178,8 @@ class MysqlDatabase extends Command
         if ($returnVar !== 0) {
             throw new \Exception("Backup database failed.");
         }
-    
-        return true; // Hoàn thành backup
+        $this->info("✅ Đã backup  $database ra file đường dẫn {$filePath}");
+        return Command::SUCCESS;
     }
 
     protected function restoreDatabase($filePath) {
@@ -202,6 +202,7 @@ class MysqlDatabase extends Command
             throw new \Exception("Restore database failed.");
         }
     
-        return true; // Hoàn thành khôi phục
+        $this->info("✅ Đã Restore  $database từ đường dẫn {$filePath}");
+        return Command::SUCCESS;
     }
 }

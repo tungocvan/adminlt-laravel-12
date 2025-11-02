@@ -26,10 +26,10 @@ class CleanTable extends Command
             $this->warn("⚪ Bảng '{$table}' không tồn tại trong database.");
         } else {
             // Hỏi xác nhận
-            if (!$this->confirm("⚠️ Bạn có chắc chắn muốn xóa bảng '{$table}' trong database không?", false)) {
-                $this->info('❌ Hủy thao tác.');
-                return Command::SUCCESS;
-            }
+            // if (!$this->confirm("⚠️ Bạn có chắc chắn muốn xóa bảng '{$table}' trong database không?", false)) {
+            //     $this->info('❌ Hủy thao tác.');
+            //     return Command::SUCCESS;
+            // }
 
             try {
                 // Tạm thời tắt kiểm tra khóa ngoại

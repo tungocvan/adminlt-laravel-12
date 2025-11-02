@@ -7,13 +7,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\GenericImport;
 
 class Migrations extends Component
 {
     public $migrations = [];
     public $groupedMigrations = [];
+
+    public $newTables = []; // Bảng mới add
 
     // Modal state
     public $modalVisible = false;
@@ -29,6 +29,14 @@ class Migrations extends Component
     {
         $this->migrations = DB::table('migrations')->orderBy('id', 'desc')->get();
         $this->groupMigrations();
+
+        // Kiểm tra bảng mới add (chưa tồn tại trong database)
+        $this->newTables = [];
+        foreach ($this->groupedMigrations as $table => $migrations) {
+            if (!Schema::hasTable($table)) {
+                $this->newTables[] = $table;
+            }
+        }
     }
 
     private function groupMigrations()
@@ -66,7 +74,7 @@ class Migrations extends Component
         return $tables;
     }
 
-    // Mở modal xác nhận trước khi xóa
+    // Modal xác nhận bảng cũ
     public function confirmDelete($table)
     {
         $this->selectedTable = $table;
@@ -74,7 +82,6 @@ class Migrations extends Component
         $this->modalVisible = true;
     }
 
-    // Hủy modal
     public function cancelDelete()
     {
         $this->modalVisible = false;
@@ -82,83 +89,91 @@ class Migrations extends Component
         $this->tablesToDrop = [];
     }
 
-    // Xóa bảng, migrate lại và import dữ liệu Excel
+    // Xóa bảng cũ & migrate lại
     public function deleteTableMigrations($table = null)
     {
         $table = $table ?? $this->selectedTable;
         if (!$table) return;
-
-        $path = storage_path("app/public/excel/database/{$table}.xlsx");
-
-        // Kiểm tra file Excel
-        if (!File::exists($path)) {
-            session()->flash('error', "Không thể xóa bảng '$table' vì chưa có file Excel để import.");
-            $this->modalVisible = false;
-            return;
-        }
-
-        // --- Bắt đầu drop bảng và các bảng phụ thuộc ---
-        Schema::disableForeignKeyConstraints(); // Tắt kiểm tra FK tạm thời
-
-        $this->dropTableWithDependencies($table);
-
-        Schema::enableForeignKeyConstraints(); // Bật lại kiểm tra FK
-
-        // --- Migrate bảng chính + các bảng liên quan ---
+       
         try {
-            Artisan::call('migrate'); // Chỉ migrate những migration chưa có
+            Artisan::call('clean:table', [
+                'table' => strtolower($table)
+            ]); 
         } catch (\Exception $e) {
             session()->flash('error', "Lỗi migrate: " . $e->getMessage());
         }
 
-        // --- Import dữ liệu từ Excel ---
-        Excel::import(new GenericImport($table), $path);
+        try {
+            Artisan::call('migrate');
+        } catch (\Exception $e) {
+            session()->flash('error', "Lỗi migrate: " . $e->getMessage());
+        }
 
-        // --- Reset trạng thái modal ---
         $this->modalVisible = false;
         $this->selectedTable = null;
         $this->tablesToDrop = [];
 
         $this->loadMigrations();
-        session()->flash('message', "Bảng '$table' đã xóa, migrate lại và import dữ liệu từ Excel thành công!");
+        session()->flash('message', "Bảng '$table' đã xóa và migrate lại thành công!");
     }
 
-
-    /**
-     * Drop bảng và tất cả bảng phụ thuộc đệ quy
-     */
-    private function dropTableWithDependencies($table)
-    {
-        // Lấy danh sách các bảng phụ thuộc trực tiếp
-        $dependentTables = DB::select(
-            "SELECT TABLE_NAME 
-         FROM information_schema.KEY_COLUMN_USAGE 
-         WHERE REFERENCED_TABLE_SCHEMA = DATABASE() 
-           AND REFERENCED_TABLE_NAME = ?",
-            [$table]
-        );
-
-        $dependentTables = array_map(fn($row) => $row->TABLE_NAME, $dependentTables);
-
-        // Drop các bảng phụ thuộc đệ quy trước
-        foreach ($dependentTables as $dep) {
-            $this->dropTableWithDependencies($dep);
-        }
-
-        // Drop bảng chính
-        if (Schema::hasTable($table)) {
-            Schema::dropIfExists($table);
-        }
-
-        // Xóa migration liên quan
-        if (isset($this->groupedMigrations[$table])) {
-            foreach ($this->groupedMigrations[$table] as $migration) {
-                DB::table('migrations')->where('migration', $migration->migration)->delete();
-            }
+    public function exportMyslq($tableName){
+        // 8️⃣ Xuất mysql 
+        
+        try {
+            Artisan::call('export:table', [
+                'table' => strtolower($tableName)
+            ]); 
+            $output = Artisan::output();
+            session()->flash('message', $output);
+        } catch (\Exception $e) {
+            session()->flash('error', "Lỗi migrate: " . $e->getMessage());
         }
     }
-
-
+    public function importMyslq($tableName){
+        // 8️⃣ Import mysql 
+        
+        try {
+            Artisan::call('import:table', [
+                'table' => strtolower($tableName)
+            ]); 
+            $output = Artisan::output();
+            session()->flash('message', $output);
+        } catch (\Exception $e) {
+            session()->flash('error', "Lỗi migrate: " . $e->getMessage());
+        }
+    }
+    public function backupDatabase(){
+        // 8️⃣ Import mysql 
+        $database = env('DB_DATABASE');        
+        $fileName = storage_path('app/public/mysql')."/{$database}.mysql";;
+        try { 
+            Artisan::call('db:mysql', [
+                'action' => 'backup',
+                'name' => $fileName
+            ]); 
+            $output = Artisan::output();
+            session()->flash('message', $output);
+        } catch (\Exception $e) {
+            session()->flash('error', "Lỗi migrate: " . $e->getMessage());
+        }
+    }
+    public function restoreDatabase(){
+        // 8️⃣ Import mysql 
+        $database = env('DB_DATABASE');        
+        $fileName = storage_path('app/public/mysql')."/{$database}.mysql";;
+        try { 
+            Artisan::call('db:mysql', [
+                'action' => 'restore',
+                'name' => $fileName
+            ]); 
+            $output = Artisan::output();
+            session()->flash('message', $output);
+        } catch (\Exception $e) {
+            session()->flash('error', "Lỗi migrate: " . $e->getMessage());
+        }
+    }
+    
 
     public function render()
     {
