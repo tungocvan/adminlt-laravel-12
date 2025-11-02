@@ -25,20 +25,20 @@ class TnvMenuHelper
             throw new Exception("JSON decode error: " . json_last_error_msg());
         }
 
-        $headerSidebar =  [
-            'type' => 'sidebar-menu-search',
-            'text' => 'search',
-        ];
+        // $headerSidebar =  [
+        //     'type' => 'sidebar-menu-search',
+        //     'text' => 'search',
+        // ];
 
         return [
-           $headerSidebar,
+        //    $headerSidebar,
             ...$menuArray,
         ];
     }
 
     public static function loadMenuNavbar()
     {
-        return $menuNavbar = [    
+        return [    
             [
                 'type' => 'navbar-search',
                 'text' => 'search',

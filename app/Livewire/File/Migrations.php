@@ -94,11 +94,11 @@ class Migrations extends Component
     {
         $table = $table ?? $this->selectedTable;
         if (!$table) return;
-       
+
         try {
             Artisan::call('clean:table', [
                 'table' => strtolower($table)
-            ]); 
+            ]);
         } catch (\Exception $e) {
             session()->flash('error', "Lỗi migrate: " . $e->getMessage());
         }
@@ -117,63 +117,90 @@ class Migrations extends Component
         session()->flash('message', "Bảng '$table' đã xóa và migrate lại thành công!");
     }
 
-    public function exportMyslq($tableName){
+    public function exportMyslq($tableName)
+    {
         // 8️⃣ Xuất mysql 
-        
+
         try {
             Artisan::call('export:table', [
                 'table' => strtolower($tableName)
-            ]); 
+            ]);
             $output = Artisan::output();
             session()->flash('message', $output);
         } catch (\Exception $e) {
             session()->flash('error', "Lỗi migrate: " . $e->getMessage());
         }
     }
-    public function importMyslq($tableName){
+    public function importMyslq($tableName)
+    {
         // 8️⃣ Import mysql 
-        
+
         try {
             Artisan::call('import:table', [
                 'table' => strtolower($tableName)
-            ]); 
+            ]);
             $output = Artisan::output();
             session()->flash('message', $output);
         } catch (\Exception $e) {
             session()->flash('error', "Lỗi migrate: " . $e->getMessage());
         }
     }
-    public function backupDatabase(){
+    public function backupDatabase()
+    {
         // 8️⃣ Import mysql 
-        $database = env('DB_DATABASE');        
-        $fileName = storage_path('app/public/mysql')."/{$database}.mysql";;
-        try { 
+        $database = env('DB_DATABASE');
+        $fileName = storage_path('app/public/mysql') . "/{$database}.mysql";;
+        try {
             Artisan::call('db:mysql', [
                 'action' => 'backup',
                 'name' => $fileName
-            ]); 
+            ]);
             $output = Artisan::output();
             session()->flash('message', $output);
         } catch (\Exception $e) {
             session()->flash('error', "Lỗi migrate: " . $e->getMessage());
         }
     }
-    public function restoreDatabase(){
+    public function restoreDatabase()
+    {
         // 8️⃣ Import mysql 
-        $database = env('DB_DATABASE');        
-        $fileName = storage_path('app/public/mysql')."/{$database}.mysql";;
-        try { 
+        $database = env('DB_DATABASE');
+        $fileName = storage_path('app/public/mysql') . "/{$database}.mysql";;
+        try {
             Artisan::call('db:mysql', [
                 'action' => 'restore',
                 'name' => $fileName
-            ]); 
+            ]);
             $output = Artisan::output();
             session()->flash('message', $output);
         } catch (\Exception $e) {
             session()->flash('error', "Lỗi migrate: " . $e->getMessage());
         }
     }
-    
+
+    public function getTableRelations($table)
+    {
+        $referencedBy = DB::select("
+        SELECT TABLE_NAME 
+        FROM information_schema.KEY_COLUMN_USAGE 
+        WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
+        AND REFERENCED_TABLE_NAME = ?
+    ", [$table]);
+
+        $referencesTo = DB::select("
+        SELECT REFERENCED_TABLE_NAME 
+        FROM information_schema.KEY_COLUMN_USAGE 
+        WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = ?
+        AND REFERENCED_TABLE_NAME IS NOT NULL
+    ", [$table]);
+
+        return [
+            'referenced_by' => array_map(fn($r) => $r->TABLE_NAME, $referencedBy),
+            'references_to' => array_map(fn($r) => $r->REFERENCED_TABLE_NAME, $referencesTo),
+        ];
+    }
+
 
     public function render()
     {

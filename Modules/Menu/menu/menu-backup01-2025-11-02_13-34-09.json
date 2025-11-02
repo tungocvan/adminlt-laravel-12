@@ -239,12 +239,6 @@
         "text": "Website",
         "url": "\/website",
         "icon": "fas fa-fw fa-user-shield",
-        "can": "website-list"
-    },
-    {
-        "text": "Giúp đỡ",
-        "url": "\/help",
-        "icon": "fas fa-fw fa-user-shield",
-        "can": "help-list"
+        "can": ""
     }
 ]

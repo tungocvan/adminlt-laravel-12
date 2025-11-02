@@ -1,62 +1,63 @@
 <div>
-    <h1>Chỉnh sửa file .env</h1>
-    
-    <!-- Thêm cặp key=value mới -->
-    <div class="my-3">
-        @if($errorMessage)
-            <div class="alert alert-danger">{{ $errorMessage }}</div>
-        @endif
-        <div class="d-flex flex-row bd-highlight mb-3 w-50">
-        <input type="text" wire:model="newKey" placeholder="Key" class="form-control my-1 mr-2" style="width:200px"/>
-        <input type="text" wire:model="newValue" placeholder="Value" class="form-control my-1 mr-2" style="width:400px" />        
-        <button wire:click="addItem" style="width: 150px;" class="btn btn-outline-success btn-sm">
-            <i class="fa fa-plus"></i> Thêm mới
-        </button>
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0"><i class="fas fa-cogs"></i> Cấu hình hệ thống (.env)</h3>
+            <button wire:click="backupEnv" class="btn btn-warning btn-sm">
+                <i class="fas fa-save"></i> Backup .env
+            </button>
         </div>
-        
-    </div>
-    
-    <ul class="list-group">
-        @foreach($envVariables as $line)
-            @if (strpos($line, '=') !== false)
-                @php
-                    [$key, $value] = explode('=', trim($line), 2);
-                    $value = trim($value);
-                @endphp
-                <li class="list-group-item">
-                    <div class="row">
-                        <div class="col-md-3"><strong>{{ $key }}</strong></div>
-                        <div class="col-md-3" style="overflow-wrap: break-word;">{{ $value }}</div>
-                        <div class="col-md-2">
-                            <button wire:click="openModal('{{ $key }}', '{{ $value }}')" class="btn btn-warning btn-sm">Chỉnh sửa</button>
-                            <button wire:click="deleteEnv('{{ $key }}')" class="btn btn-danger btn-sm">Xóa</button>
-                        </div>
-                    </div>                    
-                </li>
-            @endif
-        @endforeach
-    </ul>
 
-    <!-- Modal -->
-    <div class="modal fade @if($showModal) show @endif" style="@if($showModal) display: block; @endif" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Chỉnh sửa {{ $selectedKey }}</h5>
-                    <button wire:click="resetModal" type="button" class="close" aria-label="Đóng">
-                        <span aria-hidden="true">&times;</span>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-3 mb-3">
+                    <button class="btn btn-outline-primary btn-block" data-toggle="modal" data-target="#emailModal">
+                        <i class="fas fa-envelope"></i> Cấu hình Email
                     </button>
                 </div>
-                <div class="modal-body">
-                    <input type="text" wire:model="selectedValue" class="form-control" />
-                    @if($errorMessage)
-                        <div class="alert alert-danger mt-2">{{ $errorMessage }}</div>
-                    @endif
+                <div class="col-md-3 mb-3">
+                    <button class="btn btn-outline-success btn-block" data-toggle="modal" data-target="#databaseModal">
+                        <i class="fas fa-database"></i> Cấu hình Database
+                    </button>
                 </div>
-                <div class="modal-footer">
-                    <button wire:click="updateEnv" class="btn btn-primary">Cập nhật</button>
-                    <button wire:click="resetModal" class="btn btn-secondary">Đóng</button>
+                <div class="col-md-3 mb-3">
+                    <button class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#appModal">
+                        <i class="fas fa-cube"></i> Cấu hình Ứng dụng
+                    </button>
                 </div>
+                <div class="col-md-3 mb-3">
+                    <button class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#cacheModal">
+                        <i class="fas fa-sync"></i> Cấu hình Cache & Queue
+                    </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <button class="btn btn-outline-danger btn-block" data-toggle="modal" data-target="#gmailModal">
+                        <i class="fas fa-sync"></i> Cấu hình Login gmail
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+    <!-- Modal: Cấu hình Email -->
+    @include('livewire.env.partials.email-config')
+    <!-- Modal: Cấu hình Database -->
+    @include('livewire.env.partials.database-config')
+    <!-- Modal: Cấu hình App -->
+    @include('livewire.env.partials.app-config')
+    <!-- Modal cấu hình Cache & Queue -->
+    @include('livewire.env.partials.cache-queue-config')
+    <!-- Modal cấu hình Cache & Queue -->
+    @include('livewire.env.partials.login-gmail-config')
+    
+
+    <!-- Loading Modal -->
+    <div wire:loading wire:target="updateEmailConfig,updateDatabaseConfig,updateAppConfig,updateCacheConfig,backupEnv">
+        <div class="modal-backdrop fade show"></div>
+        <div class="modal d-block" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered text-center">
+                <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status"></div>
+                <p class="mt-3 text-muted">Đang xử lý, vui lòng chờ...</p>
             </div>
         </div>
     </div>

@@ -3,15 +3,15 @@
 namespace App\Livewire\Menu;
 
 use Livewire\Component;
+use Symfony\Component\Process\Process;
 
 class MenuList extends Component
 {
-    public $menuItems;
+    public $menuItems = [];
     public $menuText;
     public $menuUrl;
     public $menuIcon;
     public $menuCan;
-    public $menuId;
     public $menuHeader;
     public $showModal = false;
     public $currentMenuText;
@@ -21,395 +21,391 @@ class MenuList extends Component
     public $actionMenu = '';
     public $backupFiles = [];
     public $nameJson = 'menu-backup';
-    private $iconMenu = 'far fa-caret-square-right';
     public $filePath;
+    public $permissionError = null;
+    public $isSaving = false;
+
+    private $iconMenu = 'far fa-caret-square-right';
+
+    /*-----------------------------------
+     | Mount
+     -----------------------------------*/
     public function mount()
     {
         $this->filePath = base_path('Modules/Menu/menu.json');
-        $this->menuItems = json_decode(file_get_contents($this->filePath), true);
+
+        // If file not exists, create an empty json file (safe)
+        $dir = dirname($this->filePath);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+        if (!file_exists($this->filePath)) {
+            @file_put_contents($this->filePath, json_encode([], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+        }
+
+        // Load menu.json
+        $this->menuItems = json_decode(@file_get_contents($this->filePath), true) ?? [];
+
+        // Permission check
+        if (!is_writable($dir) || !is_writable($this->filePath)) {
+            $this->permissionError = "⚠️ Thư mục hoặc file <code>menu.json</code> chưa có quyền ghi!<br>"
+                . "Hãy chạy lệnh (trong máy dev hoặc server có quyền):<br>"
+                . "<code>sudo chown -R www-data:www-data {$dir} && sudo chmod -R 775 {$dir}</code>";
+        }
     }
 
+    /*-----------------------------------
+     | Render
+     -----------------------------------*/
     public function render()
     {
         return view('livewire.menu.menu-list');
     }
 
+    /*-----------------------------------
+     | UI helpers
+     -----------------------------------*/
     public function addItem()
     {
         $this->addMenu = true;
-        $this->showModal = true; // Hiển thị modal
+        $this->showModal = true;
     }
+
     public function addItemSubmenu()
     {
-        //dd($this->menuItems);
+        $count = count($this->menuItems) + 1;
         $subMenu = [
-            'text' => 'New Item SubMenu '. count($this->menuItems)+1,
+            'text' => "New Item SubMenu {$count}",
             'url' => '#',
-            'icon' => $this->iconMenu ,
+            'icon' => $this->iconMenu,
             'can' => 'admin-list',
             'submenu' => [
                 [
                     'text' => 'New Item menu',
                     'url' => '#',
-                    'icon' => $this->iconMenu ,
+                    'icon' => $this->iconMenu,
                     'can' => 'admin-list',
                 ]
             ]
         ];
-        $this->menuItems[]= $subMenu;
 
-        // $filePath = $this->filePath;
-        // file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT)); 
-
-        
-        // Thông báo thành công
-        // session()->flash('message', 'SubMenu updated successfully.');
-        $this->saveMenuJson('SubMenu updated successfully.');
+        $this->menuItems[] = $subMenu;
+        $this->saveMenuJson('SubMenu created');
         $this->redirectRoute('menu.index');
     }
 
-    public function addSubMenuByIndex($index,$key=null){
-        //dd($index,$key);
+    public function addSubMenuByIndex($index, $key = null)
+    {
         $submenu = [
-                'text' => 'New Item SubMenu ',
-                'url' => '#',
-                'icon' => $this->iconMenu ,
-                'can' => 'admin-list'
+            'text' => 'New Item SubMenu',
+            'url' => '#',
+            'icon' => $this->iconMenu,
+            'can' => 'admin-list'
         ];
+
+        if (!isset($this->menuItems[$index]['submenu'])) {
+            $this->menuItems[$index]['submenu'] = [];
+        }
+
         $this->menuItems[$index]['submenu'][] = $submenu;
 
-        // $filePath = $this->filePath;
-        // file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT));    
-        
-        // // Thông báo thành công
-        // session()->flash('message', 'SubMenu updated successfully.');
-        $this->saveMenuJson('SubMenu updated successfully.');
+        $this->saveMenuJson('SubMenu added');
         $this->redirectRoute('menu.index');
-        //dd($this->menuItems[$index]);
     }
 
     public function editItem($item)
     {
+        // item can be json-encoded string
+        $data = is_string($item) ? json_decode($item, true) : $item;
         $this->addMenu = false;
-        $this->addSubmenu = false;        
-        $item = json_decode($item, true);
-        //dd($item);
-        if (isset($item['header'])) {
-            $this->menuHeader = $item['header'];
-            $this->menuCan = $item['can'] ?? '';
-            // $this->menuUrl = ''; 
-            // $this->menuIcon = ''; 
-            // $this->menuCan = ''; 
+        $this->addSubmenu = false;
+
+        if (isset($data['header'])) {
+            $this->menuHeader = $data['header'];
+            $this->menuCan = $data['can'] ?? '';
         } else {
             $this->menuHeader = null;
-            $this->menuText = $item['text'] ?? '';
-            $this->menuUrl = $item['url'] ?? '';
-            $this->menuIcon = $item['icon'] ?? '';
-            $this->menuCan = $item['can'] ?? '';
+            $this->menuText = $data['text'] ?? '';
+            $this->menuUrl = $data['url'] ?? '';
+            $this->menuIcon = $data['icon'] ?? '';
+            $this->menuCan = $data['can'] ?? '';
         }
 
-        $this->currentMenuText = $item['text'] ?? $item['header'] ; // Lưu trữ tên menu hiện tại
-        $this->showModal = true; // Hiển thị modal
+        $this->currentMenuText = $data['text'] ?? $data['header'] ?? null;
+        $this->showModal = true;
     }
 
-    
     public function closeModal()
     {
-            $this->menuHeader = null; 
-            $this->menuText = null;
-            $this->menuUrl = null;
-            $this->menuIcon =null;
-            $this->menuCan = null;
-            $this->showModal = false; // Đóng modal
+        $this->reset(['menuHeader', 'menuText', 'menuUrl', 'menuIcon', 'menuCan', 'showModal', 'addMenu']);
     }
-    
-    public function updateMenu()
-        {
-           
-            if($this->addMenu){
-                $newItem = [];
-                $newItem['text'] = $this->menuText ?? 'new item';
-                $newItem['url'] = $this->menuUrl ?? null;
-                $newItem['icon'] = $this->menuIcon ?? $this->iconMenu ;
-                $newItem['can'] = $this->menuCan ?? 'admin-list';
-                if($newItem['url'] ==null){
-                    $this->menuItems[]['header'] = $newItem['text'];
-                }else{
-                    $this->menuItems[] = $newItem;
-                }                    
-                      
-            }else{
-                // Tìm vị trí của mục menu cần cập nhật        
-                foreach ($this->menuItems as &$item) {
-                    // Kiểm tra nếu mục là header
-            
-                    if (isset($item['header']) && $item['header'] === $this->currentMenuText) {
-                        // Cập nhật header nếu cần
-                        $item['header'] = $this->menuHeader ?? $item['header']; // Nếu bạn muốn cập nhật, hãy đảm bảo có giá trị
-                        $item['can'] = $this->menuCan ?? $item['can'];
-                    // return; // Thoát sau khi cập nhật
-                    }
-                    
 
-                    // Kiểm tra nếu mục có submenu
-                    if (isset($item['submenu'])) {
-                        foreach ($item['submenu'] as &$submenu) {
-                            if ($submenu['text'] === $this->currentMenuText) {
-                                $submenu['text'] = $this->menuText;
-                                $submenu['url'] = $this->menuUrl;
-                                $submenu['icon'] = $this->menuIcon;
-                                $submenu['can'] = $this->menuCan;
-                                // return; // Thoát sau khi cập nhật
-                            }
+    public function updateMenu()
+    {
+        if ($this->addMenu) {
+            $newItem = [
+                'text' => $this->menuText ?? 'New Item',
+                'url' => $this->menuUrl ?? null,
+                'icon' => $this->menuIcon ?? $this->iconMenu,
+                'can' => $this->menuCan ?? 'admin-list',
+            ];
+
+            if (!$newItem['url']) {
+                $this->menuItems[] = ['header' => $newItem['text'], 'can' => $newItem['can']];
+            } else {
+                $this->menuItems[] = $newItem;
+            }
+        } else {
+            foreach ($this->menuItems as &$item) {
+                if (isset($item['header']) && $item['header'] === $this->currentMenuText) {
+                    $item['header'] = $this->menuHeader ?? $item['header'];
+                    $item['can'] = $this->menuCan ?? $item['can'];
+                }
+
+                if (isset($item['submenu'])) {
+                    foreach ($item['submenu'] as &$submenu) {
+                        if ($submenu['text'] === $this->currentMenuText) {
+                            $submenu['text'] = $this->menuText;
+                            $submenu['url'] = $this->menuUrl;
+                            $submenu['icon'] = $this->menuIcon;
+                            $submenu['can'] = $this->menuCan;
                         }
                     }
+                }
 
-                    // Kiểm tra nếu mục là mục chính không có submenu
-                    if (isset($item['text']) && $item['text'] === $this->currentMenuText) {
-                        $item['text'] = $this->menuText;
-                        $item['url'] = $this->menuUrl;
-                        $item['icon'] = $this->menuIcon;
-                        $item['can'] = $this->menuCan;
-                    }
+                if (isset($item['text']) && $item['text'] === $this->currentMenuText) {
+                    $item['text'] = $this->menuText;
+                    $item['url'] = $this->menuUrl;
+                    $item['icon'] = $this->menuIcon;
+                    $item['can'] = $this->menuCan;
                 }
             }
-            
-            
-            
-            //dd('$this->menuItems');
-            // Cập nhật file menu.json
-            
-
-            // $filePath = $this->filePath;
-            // file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT)); 
-
-            
-            // // Thông báo thành công
-            // session()->flash('message', 'Menu updated successfully.');
-            // Đóng modal sau khi cập nhật
-            $this->saveMenuJson('menu updated successfully');
-            $this->showModal  = false;
-            $this->redirectRoute('menu.index');
-
+            unset($item);
         }
-    public function duplicateItem($itemJson, $index, $key=null)
+
+        $this->saveMenuJson('Menu updated successfully');
+        $this->showModal = false;
+        $this->redirectRoute('menu.index');
+    }
+
+    /*-----------------------------------
+     | Duplicate / Delete items
+     -----------------------------------*/
+    public function duplicateItem($itemJson, $index, $key = null)
     {
-        $newItem = [];            
-        $countSubmenu= '';
         $item = json_decode($itemJson, true);
-        // dd($index);
-        // $newItem = $item;
+        $newItem = [];
+
         if (isset($item['header'])) {
-            $newItem['header'] = $item['header']. ' (Copy)';
+            $newItem['header'] = $item['header'] . ' (Copy)';
+            $newItem['can'] = $item['can'] ?? null;
+        } else {
+            $newItem = $item;
+            // ensure uniqueness in text
+            $newItem['text'] = ($item['text'] ?? 'Copy') . ' (Copy)';
         }
-        else{
 
-            if (isset($this->menuItems[$index]['submenu'])) {
-                $countSubmenu =count($this->menuItems[$index]['submenu']) +1;
-            }
-
-
-            $newItem['text'] = $item['text'] .' ' .  $countSubmenu; // Change text for uniqueness
-            $newItem['url'] =  $item['url'] ;
-            $newItem['icon'] = $item['icon'] ;
-            $newItem['can'] =  $item['can'] ;
-
-            // if (isset($item['submenu'])) {
-            //     foreach ($item['submenu'] as $submenu) {
-            //             $newItem['submenu']['text'] = $item['submenu']['text'];
-            //             $newItem['submenu']['url'] = $item['submenu']['url'];
-            //             $newItem['submenu']['icon'] = $item['submenu']['url'];
-            //             $newItem['submenu']['can'] = $item['submenu']['can'];
-            //     }
-            // }
+        if ($key !== null && isset($this->menuItems[$index]['submenu'])) {
+            array_splice($this->menuItems[$index]['submenu'], $key + 1, 0, [$newItem]);
+        } else {
+            array_splice($this->menuItems, $index + 1, 0, [$newItem]);
         }
-        
-        
-        
-        // Add the new item to the menuItems array
-        if($key !== null){
-            array_splice($this->menuItems[$index]['submenu'],$key+1,0,[$newItem]);
-        }else{
-            array_splice($this->menuItems,$index+1,0,[$newItem]);
 
-        }
-        
-        // Cập nhật file menu.json
-       
-
-        // $filePath = $this->filePath;
-        // file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT));
-        // // Optionally, you can add a success message
-        // session()->flash('message', 'Item duplicated successfully.');
         $this->saveMenuJson('Item duplicated successfully.');
         $this->redirectRoute('menu.index');
     }
 
-    public function deleteItem($index, $key=null) {
-        
-        if($key !== null){
-            //dd($this->menuItems[$index]['submenu']);
-            array_splice($this->menuItems[$index]['submenu'],$key,1);
-        }else{
-            array_splice($this->menuItems,$index,1);
-        }
-        // Cập nhật file menu.json
-        // $filePath = $this->filePath;
-        // file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT));
-        // // Optionally, you can add a success message
-        // session()->flash('message', 'Item duplicated successfully.');
-        $this->saveMenuJson('Item duplicated successfully.');
-        $this->redirectRoute('menu.index');
-    }
-
-    public function moveUp($index, $key=null)
+    public function deleteItem($index, $key = null)
     {
-        if($key !== null){
-            //dd($key);
-            $this->swapItems($key, $key - 1,$index);
-        }else{
+        if ($key !== null && isset($this->menuItems[$index]['submenu'][$key])) {
+            array_splice($this->menuItems[$index]['submenu'], $key, 1);
+            // clean empty submenu
+            if (empty($this->menuItems[$index]['submenu'])) {
+                unset($this->menuItems[$index]['submenu']);
+            }
+        } elseif (isset($this->menuItems[$index])) {
+            array_splice($this->menuItems, $index, 1);
+        }
+
+        $this->saveMenuJson('Item removed');
+        $this->redirectRoute('menu.index');
+    }
+
+    /*-----------------------------------
+     | Move up / down
+     -----------------------------------*/
+    public function moveUp($index, $key = null)
+    {
+        // When Blade passes strings (from interpolation), cast to int to be safe
+        $index = is_numeric($index) ? (int) $index : $index;
+        $key = is_numeric($key) ? (int) $key : $key;
+
+        if ($key !== null) {
+            if ($key > 0) {
+                $this->swapItems($key, $key - 1, $index);
+            }
+        } else {
             if ($index > 0) {
-                // Di chuyển mục lên một vị trí
                 $this->swapItems($index, $index - 1);
             }
         }
-        
     }
-    
-    public function moveDown($index, $key=null)
+
+    public function moveDown($index, $key = null)
     {
-        if($key !== null){
-            $this->swapItems($key, $key+1,$index);
-        }else{
+        $index = is_numeric($index) ? (int) $index : $index;
+        $key = is_numeric($key) ? (int) $key : $key;
+
+        if ($key !== null) {
+            if (isset($this->menuItems[$index]['submenu']) && $key < count($this->menuItems[$index]['submenu']) - 1) {
+                $this->swapItems($key, $key + 1, $index);
+            }
+        } else {
             if ($index < count($this->menuItems) - 1) {
-                // Di chuyển mục xuống một vị trí
                 $this->swapItems($index, $index + 1);
             }
         }
-        
     }
-    
-    private function swapItems($indexA, $indexB,$index=null)
+
+    private function swapItems($indexA, $indexB, $index = null)
     {
-        // Hoán đổi vị trí của hai mục
-        if($index !== null){
+        if ($index !== null) {
             $temp = $this->menuItems[$index]['submenu'][$indexA];
             $this->menuItems[$index]['submenu'][$indexA] = $this->menuItems[$index]['submenu'][$indexB];
             $this->menuItems[$index]['submenu'][$indexB] = $temp;
-        }else{
+        } else {
             $temp = $this->menuItems[$indexA];
             $this->menuItems[$indexA] = $this->menuItems[$indexB];
             $this->menuItems[$indexB] = $temp;
         }
-    
-        
-            // Cập nhật file menu.json
-        // $filePath = $this->filePath;
-        // file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT));
-        //     // Thông báo thành công
-        // session()->flash('message', 'Đã thay đổi vị trí mục.');
+
         $this->saveMenuJson('Đã thay đổi vị trí mục.');
         $this->redirectRoute('menu.index');
-
     }
 
-
-    public function showMenu($action){
+    /*-----------------------------------
+     | Backup / Restore menu.json
+     -----------------------------------*/
+    public function showMenu($action)
+    {
         $this->actionMenu = $action;
         $this->showMenuModal = true;
-        if($this->actionMenu === 'restore') {
+
+        if ($action === 'restore') {
             $backupDir = base_path('Modules/Menu/menu');
-            $this->backupFiles = array_diff(scandir($backupDir), ['..', '.']);
-            if(count($this->backupFiles) == 0){
-                session()->flash('message', 'No have restore file.');
-                $this->redirectRoute('menu.index');
-                
+            if (is_dir($backupDir)) {
+                $this->backupFiles = array_values(array_diff(scandir($backupDir), ['..', '.']));
+            } else {
+                $this->backupFiles = [];
             }
-            
-            //dd(count($this->backupFiles));
-            //$this->dispatchBrowserEvent('showRestoreModal', ['files' => $backupFiles]);
-           // dd($this->backupFiles);
+
+            if (empty($this->backupFiles)) {
+                session()->flash('message', 'Không có file backup để phục hồi.');
+                $this->showMenuModal = false;
+            }
         }
     }
-    public function showCloseMenu(){
+    public function showCloseMenu()
+    {
         $this->showMenuModal = false;
     }
 
     public function updateMenuJson()
     {
-       // dd($this->actionMenu);         
         $menuFilePath = $this->filePath;
         $backupDir = base_path('Modules/Menu/menu');
-        
+
         if (!is_dir($backupDir)) {
             mkdir($backupDir, 0755, true);
         }
-        
+
         if ($this->actionMenu === 'backup') {
             $timestamp = now()->format('Y-m-d_H-i-s');
-            $backupFileName = $this->nameJson."-{$timestamp}.json";
-            $backupFilePath = $backupDir . '/' . $backupFileName;
+            $backupFileName = "{$this->nameJson}-{$timestamp}.json";
+            $backupFilePath = "{$backupDir}/{$backupFileName}";
 
             if (copy($menuFilePath, $backupFilePath)) {
-                session()->flash('message', 'Backup created successfully: ' . $backupFileName);
-                $this->showMenuModal = false;                
+                session()->flash('message', "Backup created: {$backupFileName}");
             } else {
-                session()->flash('message', 'Failed to create backup.');
+                session()->flash('error', 'Backup failed.');
             }
+
+            $this->showMenuModal = false;
         }
     }
 
     public function restoreFile($fileName)
     {
         $backupDir = base_path('Modules/Menu/menu');
-        $sourceFile = $backupDir . '/' . $fileName;
+        $sourceFile = "{$backupDir}/{$fileName}";
         $destinationFile = $this->filePath;
 
-        if (copy($sourceFile, $destinationFile)) {
-            session()->flash('message', 'Menu restored successfully from ' . $fileName);
-            $this->showMenuModal = false;
-            $this->redirectRoute('menu.index');
+        if (file_exists($sourceFile)) {
+            if (copy($sourceFile, $destinationFile)) {
+                session()->flash('message', "Menu restored from {$fileName}");
+                $this->showMenuModal = false;
+                $this->redirectRoute('menu.index');
+            } else {
+                session()->flash('error', 'Restore failed.');
+            }
         } else {
-            session()->flash('message', 'Failed to restore menu.');
+            session()->flash('error', 'File không tồn tại.');
         }
     }
 
     public function deleteFile($fileName)
     {
         $backupDir = base_path('Modules/Menu/menu');
-        $filePath = $backupDir . '/' . $fileName;
-     
-        if (unlink($filePath)) {
-            $this->backupFiles = array_diff(scandir($backupDir), ['..', '.']);
-            //session()->flash('message', 'Backup file deleted successfully: ' . $fileName);
-            //$this->showMenuModal = true;
-           
-        } 
-       
+        $filePath = "{$backupDir}/{$fileName}";
+        if (file_exists($filePath)) {
+            unlink($filePath);
+            $this->backupFiles = array_values(array_diff(scandir($backupDir), ['..', '.']));
+        }
     }
 
     public function downloadFile($fileName)
     {
         $backupDir = base_path('Modules/Menu/menu');
-        $filePath = $backupDir . '/' . $fileName;
+        $filePath = "{$backupDir}/{$fileName}";
 
         if (file_exists($filePath)) {
             return response()->download($filePath);
         } else {
-            session()->flash('message', 'File không tồn tại.');
+            session()->flash('error', 'File không tồn tại.');
         }
     }
 
-    public function saveMenuJson($title='')
+    /*-----------------------------------
+     | Save menu.json with permission handling + spinner
+     -----------------------------------*/
+    public function saveMenuJson($title = '')
     {
-        // Cập nhật file menu.json
+        $this->isSaving = true;
         $filePath = $this->filePath;
-        file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT));
-        // Optionally, you can add a success message
-        session()->flash('message', $title);
-        // $this->redirectRoute('menu.index');
+        $directory = dirname($filePath);
+
+        // If not writable, try to chown/chmod ONLY on non-production (safe guard)
+        if ((!is_writable($directory) || (file_exists($filePath) && !is_writable($filePath))) && !app()->environment('production')) {
+            try {
+                $chown = new Process(['sudo', 'chown', '-R', 'www-data:www-data', $directory]);
+                $chown->run();
+                $chmod = new Process(['sudo', 'chmod', '-R', '775', $directory]);
+                $chmod->run();
+            } catch (\Throwable $e) {
+                $this->isSaving = false;
+                session()->flash('error', "Không thể phân quyền tự động: " . $e->getMessage());
+                return;
+            }
+        }
+
+        try {
+            // write with lock
+            file_put_contents($filePath, json_encode($this->menuItems, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+            session()->flash('message', $title ?: 'Lưu menu thành công!');
+        } catch (\Throwable $e) {
+            session()->flash('error', "Lỗi khi ghi file: " . $e->getMessage());
+        }
+
+        $this->isSaving = false;
     }
-
-    
-
- }
+}
