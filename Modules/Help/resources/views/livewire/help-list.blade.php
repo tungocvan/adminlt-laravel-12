@@ -70,6 +70,9 @@
         </div>
     </div>
 
+</div>
+
+@push('styles')
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css" />
     <style>
@@ -125,7 +128,7 @@
             display: flex;
             align-items: left;
             /* margin-left: 0px; */
-            left:0px!important;
+            left: 0px !important;
             z-index: 10;
             position: relative;
         }
@@ -174,7 +177,9 @@
             color: #111827 !important;
         }
     </style>
+@endpush
 
+@push('scripts')
     <script>
         document.addEventListener('livewire:update', function() {
             const activeItem = document.querySelector('.list-group-item.active');
@@ -184,4 +189,4 @@
             });
         });
     </script>
-</div>
+@endpush

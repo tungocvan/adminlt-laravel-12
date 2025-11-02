@@ -20,12 +20,14 @@
 @endsection
 
 @section('css')
+@stack('styles')
     {{-- Add here extra stylesheets --}}
     {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
 
 @stop
 
 @section('js')
+@stack('scripts')
      {{-- https://www.daterangepicker.com/#examples  --}}
 
       <script type="text/javascript">

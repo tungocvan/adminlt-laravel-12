@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Livewire\Help;
+
+namespace Modules\Help\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Storage;
@@ -85,6 +86,6 @@ class HelpList extends Component
 
     public function render()
     {
-        return view('livewire.help.help-list');
+          return view('Help::livewire.help-list');
     }
 }
