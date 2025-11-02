@@ -19,45 +19,53 @@ class CleanTable extends Command
     {
         $table = $this->argument('table');
 
-        $this->info("🔍 Kiểm tra bảng '{$table}'...");
-
         // Kiểm tra bảng có tồn tại không
         if (!$this->tableExists($table)) {
             $this->warn("⚪ Bảng '{$table}' không tồn tại trong database.");
         } else {
-            // Hỏi xác nhận
-            // if (!$this->confirm("⚠️ Bạn có chắc chắn muốn xóa bảng '{$table}' trong database không?", false)) {
-            //     $this->info('❌ Hủy thao tác.');
-            //     return Command::SUCCESS;
-            // }
-
             try {
-                // Tạm thời tắt kiểm tra khóa ngoại
+                // Tắt kiểm tra khóa ngoại
                 DB::statement('SET FOREIGN_KEY_CHECKS=0');
                 DB::statement("DROP TABLE IF EXISTS `$table`");
                 DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
-                $this->info("🗑️ Đã xóa bảng '{$table}' thành công (đã bỏ qua khóa ngoại).");
+                $this->info("🗑️ Đã xóa bảng '{$table}' thành công (bỏ qua khóa ngoại).");
             } catch (\Exception $e) {
                 $this->error("❌ Lỗi khi xóa bảng '{$table}': " . $e->getMessage());
-                DB::statement('SET FOREIGN_KEY_CHECKS=1'); // bật lại dù lỗi
+                DB::statement('SET FOREIGN_KEY_CHECKS=1');
                 return Command::FAILURE;
             }
         }
 
-        // Xóa dòng trong bảng migrations
-        $migrationPath = database_path('migrations');
-        $files = File::files($migrationPath);
+        // Xóa migration trong database và quét file
+        $migrationPaths = [
+            database_path('migrations'),       // core migrations
+            base_path('Modules')               // quét tất cả modules
+        ];
+
         $migrationNames = [];
 
-        foreach ($files as $file) {
-            $content = File::get($file->getRealPath());
-            if (preg_match("/Schema::create\(['\"]{$table}['\"]/", $content)) {
-                $migrationName = pathinfo($file->getFilename(), PATHINFO_FILENAME);
-                $migrationNames[] = $migrationName;
+        foreach ($migrationPaths as $path) {
+            if ($path === base_path('Modules')) {
+                // Quét tất cả module
+                if (File::exists($path)) {
+                    $modules = File::directories($path);
+                    foreach ($modules as $moduleDir) {
+                        $moduleMigrationPath = $moduleDir . '/database/migrations';
+                        if (File::exists($moduleMigrationPath)) {
+                            $migrationNames = array_merge($migrationNames, $this->getMigrationsForTable($moduleMigrationPath, $table));
+                        }
+                    }
+                }
+            } else {
+                // core migration
+                if (File::exists($path)) {
+                    $migrationNames = array_merge($migrationNames, $this->getMigrationsForTable($path, $table));
+                }
             }
         }
 
+        // Xóa các dòng trong DB
         if (!empty($migrationNames)) {
             foreach ($migrationNames as $migrationName) {
                 DB::table('migrations')->where('migration', $migrationName)->delete();
@@ -74,5 +82,23 @@ class CleanTable extends Command
     protected function tableExists(string $table): bool
     {
         return DB::getSchemaBuilder()->hasTable($table);
+    }
+
+    /**
+     * Lấy danh sách migration chứa bảng
+     */
+    protected function getMigrationsForTable(string $path, string $table): array
+    {
+        $files = File::files($path);
+        $migrationNames = [];
+
+        foreach ($files as $file) {
+            $content = File::get($file->getRealPath());
+            if (preg_match("/Schema::create\(['\"]{$table}['\"]/", $content)) {
+                $migrationNames[] = pathinfo($file->getFilename(), PATHINFO_FILENAME);
+            }
+        }
+
+        return $migrationNames;
     }
 }

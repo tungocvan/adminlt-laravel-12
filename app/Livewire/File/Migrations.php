@@ -19,6 +19,8 @@ class Migrations extends Component
     public $modalVisible = false;
     public $selectedTable = null;
     public $tablesToDrop = [];
+    public $search = '';
+    public $importedTables = [];
 
     public function mount()
     {
@@ -27,6 +29,7 @@ class Migrations extends Component
 
     public function loadMigrations()
     {
+        $this->loadImportedTables(); // ✅ luôn cập nhật trạng thái import
         $this->migrations = DB::table('migrations')->orderBy('id', 'desc')->get();
         $this->groupMigrations();
 
@@ -44,34 +47,110 @@ class Migrations extends Component
         $grouped = [];
 
         foreach ($this->migrations as $migration) {
-            $tables = $this->getTablesFromMigrationFile($migration->migration);
-            foreach ($tables as $table) {
+            $tables = $this->getTablesFromMigrationFileWithStatus($migration->migration);
+
+            foreach ($tables as $tableData) {
+                $table = $tableData['table'];
+
+                // Lấy quan hệ foreign key
+                $relations = $this->getTableRelations($table);
+                $imported = in_array(strtolower($table), array_map('strtolower', $this->importedTables));
+
+
                 if (!isset($grouped[$table])) {
-                    $grouped[$table] = [];
+                    $grouped[$table] = [
+                        'migrations' => [],
+                        'exists' => $tableData['exists'],
+                        'note' => $tableData['note'],
+                        'references_to' => $relations['references_to'],
+                        'referenced_by' => $relations['referenced_by'],
+                        'imported' => $imported,
+                    ];
                 }
-                $grouped[$table][] = $migration;
+
+                $grouped[$table]['migrations'][] = $migration;
             }
         }
 
         $this->groupedMigrations = $grouped;
     }
 
-    private function getTablesFromMigrationFile($migrationName)
+
+
+    private function getTablesFromMigrationFileWithStatus($migrationName)
     {
-        $files = File::files(database_path('migrations'));
         $tables = [];
 
-        foreach ($files as $file) {
+        // Quét core migrations
+        $tables = array_merge($tables, $this->scanMigrationPath(database_path('migrations'), $migrationName));
+
+        // Quét modules
+        $modulesPath = base_path('Modules');
+        if (File::exists($modulesPath)) {
+            $moduleDirs = File::directories($modulesPath);
+            foreach ($moduleDirs as $moduleDir) {
+                $migrationPath = $moduleDir . '/database/migrations';
+                if (File::exists($migrationPath)) {
+                    $tables = array_merge($tables, $this->scanMigrationPath($migrationPath, $migrationName));
+                }
+            }
+        }
+
+        // Loại bỏ bảng trùng lặp
+        $tables = array_unique($tables);
+
+        // Kiểm tra tồn tại trong database
+        $tablesWithStatus = [];
+        foreach ($tables as $table) {
+            $exists = Schema::hasTable($table);
+            $tablesWithStatus[] = [
+                'table' => $table,
+                'exists' => $exists,
+                'note' => $exists ? 'Tồn tại' : 'Chưa tồn tại'
+            ];
+        }
+
+        return $tablesWithStatus;
+    }
+
+    private function scanMigrationPath($path, $migrationName)
+    {
+        $tables = [];
+        foreach (File::files($path) as $file) {
             if (str_contains($file->getFilename(), $migrationName)) {
                 $content = File::get($file->getPathname());
-                preg_match_all('/Schema::(?:create|table)\([\'"](.+)[\'"]/', $content, $matches);
+                preg_match_all('/Schema::(?:create|table)\([\'"](.+?)[\'"]/', $content, $matches);
                 if (!empty($matches[1])) {
                     $tables = array_merge($tables, $matches[1]);
                 }
             }
         }
-
         return $tables;
+    }
+
+    public function getFilteredMigrationsProperty()
+    {
+        if (empty($this->search)) {
+            return $this->groupedMigrations;
+        }
+
+        return collect($this->groupedMigrations)
+            ->filter(fn($data, $table) => str_contains(strtolower($table), strtolower($this->search)))
+            ->toArray();
+    }
+
+    public function loadImportedTables()
+    {
+        // Ví dụ: đọc từ file JSON
+        $file = storage_path('app/public/mysql/imported_tables.json');
+        if (File::exists($file)) {
+            $this->importedTables = json_decode(File::get($file), true);
+        } else {
+            $this->importedTables = [];
+        }
+
+        // Debug xem có đúng không
+        //dd($this->importedTables);
     }
 
     // Modal xác nhận bảng cũ
@@ -94,7 +173,7 @@ class Migrations extends Component
     {
         $table = $table ?? $this->selectedTable;
         if (!$table) return;
-
+     
         try {
             Artisan::call('clean:table', [
                 'table' => strtolower($table)
@@ -108,7 +187,7 @@ class Migrations extends Component
         } catch (\Exception $e) {
             session()->flash('error', "Lỗi migrate: " . $e->getMessage());
         }
-
+        
         $this->modalVisible = false;
         $this->selectedTable = null;
         $this->tablesToDrop = [];
@@ -133,23 +212,56 @@ class Migrations extends Component
     }
     public function importMyslq($tableName)
     {
-        // 8️⃣ Import mysql 
-
         try {
             Artisan::call('import:table', [
                 'table' => strtolower($tableName)
             ]);
             $output = Artisan::output();
             session()->flash('message', $output);
+
+            // ✅ Cập nhật trạng thái import
+            $file = storage_path('app/public/mysql/imported_tables.json');
+
+            // Load danh sách hiện tại
+            $importedTables = File::exists($file)
+                ? json_decode(File::get($file), true)
+                : [];
+
+            $tableNameLower = strtolower($tableName);
+
+            // Nếu chưa có thì thêm
+            if (!in_array($tableNameLower, array_map('strtolower', $importedTables))) {
+                $importedTables[] = $tableNameLower;
+                File::put($file, json_encode($importedTables, JSON_PRETTY_PRINT));
+            }
+
+            // Reload danh sách import
+            $this->loadImportedTables();
+            $this->groupMigrations();
         } catch (\Exception $e) {
-            session()->flash('error', "Lỗi migrate: " . $e->getMessage());
+            session()->flash('error', "Lỗi import: " . $e->getMessage());
         }
     }
+    public function getExportFileInfo($tableName)
+    {
+        $filePath = storage_path("app/public/mysql/{$tableName}.mysql");
+
+        if (File::exists($filePath)) {
+            return [
+                'path' => $filePath,
+                'size' => File::size($filePath),
+                'modified' => date('d/m/Y H:i:s', File::lastModified($filePath)),
+            ];
+        }
+
+        return null;
+    }
+
     public function backupDatabase()
     {
         // 8️⃣ Import mysql 
         $database = env('DB_DATABASE');
-        $fileName = storage_path('app/public/mysql') . "/{$database}.mysql";;
+        $fileName = storage_path('app/public/mysql') . "/{$database}.mysql";
         try {
             Artisan::call('db:mysql', [
                 'action' => 'backup',

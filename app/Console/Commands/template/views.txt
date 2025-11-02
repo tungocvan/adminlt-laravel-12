@@ -33,6 +33,7 @@
       <script type="text/javascript">
         $(document).ready(function () {
             console.log("Sử dụng Jquery"); 
+            console.log("Các JS script của component sẻ được ưu tiên tải trước"); 
         })
      </script> 
 

@@ -4,6 +4,19 @@
             <h3 class="card-title m-0">
                 <i class="fas fa-database"></i> Migration Manager
             </h3>
+            <div class="position-relative mb-3">
+                <input type="text" wire:model.live.debounce.300ms="search" class="form-control pr-5"
+                    placeholder="Tìm kiếm bảng...">
+
+                @if ($search)
+                    <button type="button" wire:click="$set('search', '')"
+                        class="btn btn-sm btn-outline-secondary position-absolute"
+                        style="top: 50%; right: 10px; transform: translateY(-50%);">
+                        &times;
+                    </button>
+                @endif
+            </div>
+
             <div class="btn-group">
                 <button wire:click="backupDatabase" class="btn btn-warning btn-sm">
                     <i class="fas fa-download"></i> Backup Database
@@ -33,12 +46,26 @@
             </div>
 
             {{-- Danh sách migration --}}
-            @forelse ($groupedMigrations as $table => $migrations)
-                <div class="card border-info mb-3">
-                    <div class="card-header bg-info d-flex justify-content-between align-items-center text-white">
+            @forelse ($this->filteredMigrations as $table => $tableData)
+                <div class="card mb-3" @if (!$tableData['exists']) style="border-color: red;" @endif>
+                    <div class="card-header d-flex justify-content-between align-items-center text-white"
+                        style="background-color: #17a2b8;">
                         <div>
                             <strong><i class="fas fa-table"></i> Bảng:</strong> {{ $table }}
+
+                            @if (!$tableData['exists'])
+                                <span class="badge badge-danger ml-2">Chưa tồn tại</span>
+                            @endif
+
+                            @if ($tableData['imported'])
+                                <span class="badge badge-success ml-2">Đã import</span>
+                            @endif
+
                         </div>
+                        @php
+                            $fileInfo = $this->getExportFileInfo($table);
+                        @endphp
+
                         <div class="btn-group">
                             <button wire:click="confirmDelete('{{ $table }}')" class="btn btn-danger btn-sm">
                                 <i class="fas fa-trash-alt"></i> Xóa & Migrate lại
@@ -51,83 +78,55 @@
                                 class="btn btn-outline-light btn-sm">
                                 <i class="fas fa-file-import"></i> Import
                             </button>
+
+                            @if ($fileInfo)
+                                <a href="{{ asset('storage/mysql/' . $table . '.mysql') }}"
+                                    class="btn btn-outline-light btn-sm" download>
+                                    <i class="fas fa-download"></i> Tải về
+                                </a>
+                                <span class="ml-2" style="color: #ffeb3b;font-weight: 600;text-shadow: 0 0 2px #000;">
+                                    ({{ $fileInfo['modified'] }})
+                                </span>
+                            @endif
                         </div>
+
                     </div>
                     <div class="card-body bg-light">
                         <ul class="mb-0">
-                            @foreach ($migrations as $migration)
-                                @php
-                                    // Lấy tên bảng từ file migration
-                                    $files = File::files(database_path('migrations'));
-                                    $tableName = null;
-                    
-                                    foreach ($files as $file) {
-                                        if (str_contains($file->getFilename(), $migration->migration)) {
-                                            $content = File::get($file->getPathname());
-                                            if (preg_match('/Schema::(?:create|table)\([\'"](.+)[\'"]/', $content, $match)) {
-                                                $tableName = $match[1];
-                                            }
-                                            break;
-                                        }
-                                    }
-                    
-                                    $relations = ['references_to' => [], 'referenced_by' => []];
-                                    if ($tableName) {
-                                        $relations = DB::select("
-                                            SELECT 
-                                                TABLE_NAME, REFERENCED_TABLE_NAME 
-                                            FROM information_schema.KEY_COLUMN_USAGE 
-                                            WHERE TABLE_SCHEMA = DATABASE()
-                                              AND (TABLE_NAME = ? OR REFERENCED_TABLE_NAME = ?)
-                                              AND REFERENCED_TABLE_NAME IS NOT NULL
-                                        ", [$tableName, $tableName]);
-                    
-                                        $refTo = [];
-                                        $refBy = [];
-                                        foreach ($relations as $r) {
-                                            if ($r->TABLE_NAME === $tableName && $r->REFERENCED_TABLE_NAME) {
-                                                $refTo[] = $r->REFERENCED_TABLE_NAME;
-                                            }
-                                            if ($r->REFERENCED_TABLE_NAME === $tableName) {
-                                                $refBy[] = $r->TABLE_NAME;
-                                            }
-                                        }
-                                    }
-                                @endphp
-                    
-                                <li class="mb-2">
+                            @foreach ($tableData['migrations'] as $migration)
+                                <li>
                                     <i class="fas fa-code-branch text-secondary"></i>
                                     {{ $migration->migration }}
                                     <small class="text-muted">(batch: {{ $migration->batch }})</small>
-                    
-                                    @if (!empty($refTo) || !empty($refBy))
-                                        <ul class="mt-1 ml-4 text-sm text-muted">
-                                            @if (!empty($refTo))
-                                                <li>
-                                                    <i class="fas fa-link text-success"></i>
-                                                    Tham chiếu đến: {{ implode(', ', $refTo) }}
-                                                </li>
-                                            @endif
-                                            @if (!empty($refBy))
-                                                <li>
-                                                    <i class="fas fa-share text-warning"></i>
-                                                    Được tham chiếu bởi: {{ implode(', ', $refBy) }}
-                                                </li>
-                                            @endif
-                                        </ul>
-                                    @endif
                                 </li>
                             @endforeach
+
+                            {{-- Hiển thị quan hệ FK --}}
+                            @if (!empty($tableData['references_to']) || !empty($tableData['referenced_by']))
+                                <ul class="text-muted ml-4 mt-2 text-sm">
+                                    @if (!empty($tableData['references_to']))
+                                        <li>
+                                            <i class="fas fa-link text-success"></i>
+                                            Tham chiếu đến: {{ implode(', ', $tableData['references_to']) }}
+                                        </li>
+                                    @endif
+                                    @if (!empty($tableData['referenced_by']))
+                                        <li>
+                                            <i class="fas fa-share text-warning"></i>
+                                            Được tham chiếu bởi: {{ implode(', ', $tableData['referenced_by']) }}
+                                        </li>
+                                    @endif
+                                </ul>
+                            @endif
                         </ul>
                     </div>
-                    
-
                 </div>
             @empty
                 <div class="alert alert-info text-center">
                     <i class="fas fa-info-circle"></i> Không có migration nào để hiển thị.
                 </div>
             @endforelse
+
         </div>
     </div>
 
