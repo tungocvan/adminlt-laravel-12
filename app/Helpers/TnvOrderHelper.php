@@ -2,7 +2,8 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\Cache;
-use App\Models\Order;
+//use App\Models\Order;
+use Modules\Order\Models\Order;
 
 class TnvOrderHelper
 {
