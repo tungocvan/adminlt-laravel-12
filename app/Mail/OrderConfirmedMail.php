@@ -5,7 +5,8 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Order;
+//use App\Models\Order;
+use Modules\Order\Models\Order;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class OrderConfirmedMail extends Mailable implements ShouldQueue
