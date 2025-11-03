@@ -149,9 +149,9 @@ class OrderController extends Controller
         $request->validate([
             'order_id' => 'required|exists:orders,id',
             'email' => 'required|email',
+            'user_id' => 'nullable|numeric|min:0', 
             'status' => 'required|string',
             'order_detail' => 'nullable|array', // <-- cho phép rỗng
-            'order_note' => 'nullable|string', // <-- cho phép rỗng
             'admin_note' => 'nullable|string', // <-- cho phép rỗng
             'total' => 'required|numeric',
         ]);
