@@ -67,8 +67,8 @@ class OrderController extends Controller
                 'user_id' => $user->id,
                 'email' => $request->email,
                 'order_detail' => $request->orderDetail,
-                'order_note' => $request->order_note,
-                'admin_note' => $request->admin_note,
+                'order_note' => $request->order_note ?? '',
+                'admin_note' => $request->admin_note ?? '',
                 'total' => $request->total,
                 'status' => 'pending',
          ]);
