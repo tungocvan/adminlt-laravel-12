@@ -5,7 +5,8 @@ namespace Modules\Order\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Helpers\TnvOrderHelper;
-use App\Models\Order;
+//use App\Models\Order;
+use Modules\Order\Models\Order;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
@@ -146,6 +147,7 @@ class OrderController extends Controller
     public function updateItem(Request $request)
     {
         // kiểm tra status có phải là pending thì mới cho thực hiện, không phải thì báo đơn hàng đã được xác thực
+       
         $request->validate([
             'order_id' => 'required|exists:orders,id',
             'email' => 'required|email',

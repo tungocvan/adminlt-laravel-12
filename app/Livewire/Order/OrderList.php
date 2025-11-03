@@ -1,10 +1,11 @@
 <?php
-
+ 
 namespace App\Livewire\Order;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Order;
+//use App\Models\Order;
+use Modules\Order\Models\Order;
 use App\Models\Medicine;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
@@ -143,9 +144,10 @@ class OrderList extends Component
      * ========================= */
     public function showForm($id = null)
     {
+        //dd($id);
         $this->resetForm();
         $this->formVisible = true;
-
+        
         if ($id) {
             $order = Order::find($id);
             if ($order) {
@@ -157,7 +159,9 @@ class OrderList extends Component
 
                 $this->selectedProducts = [];
                 foreach ($order->order_detail as $item) {
-                    $this->selectedProducts[$item['id']] = [
+                   // dd($item);
+                   $product_id = $item['product_id'];
+                    $this->selectedProducts[$product_id] = [
                         'title' => $item['title'] ?? 'Chưa có tên',
                         'dvt' => $item['dvt'] ?? '-',
                         'quy_cach' => $item['quy_cach'] ?? '-',
@@ -210,7 +214,7 @@ class OrderList extends Component
             $price = $item['don_gia'] ?? 0;
 
             $orderDetail[] = [
-                'id' => $id,
+                'product_id' => $id,
                 'title' => $item['title'] ?? 'Chưa có tên',
                 'dvt' => $item['dvt'] ?? '-',
                 'quy_cach' => $item['quy_cach'] ?? '-',
