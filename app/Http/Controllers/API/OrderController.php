@@ -54,8 +54,7 @@ class OrderController extends Controller
     public function store(Request $request)
     {
 
-        $user = User::where('email', $request->email)->first();
-        
+                
         $validated = $request->validate([
             'email' => 'required|email',            
             'order_detail' => 'required|array',
@@ -64,11 +63,10 @@ class OrderController extends Controller
         ]);
 
          $order = Order::create([
-                'user_id' => $user->id,
+                'user_id' => $request->user_id,
                 'email' => $request->email,
                 'order_detail' => $request->orderDetail,
-                'order_note' => $request->order_note ?? '',
-                'admin_note' => $request->admin_note ?? '',
+                'order_note' => $request->order_note ?? '',            
                 'total' => $request->total,
                 'status' => 'pending',
          ]);
@@ -92,6 +90,7 @@ class OrderController extends Controller
 
         $validated = $request->validate([
             'status' => 'nullable|string|max:50',
+            'admin_note' => $request->admin_note ?? '',
             'total' => 'nullable|numeric|min:0',
             'order_detail' => 'nullable|array',
         ]);
