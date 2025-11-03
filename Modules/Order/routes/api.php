@@ -3,7 +3,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use  Modules\Order\Http\Controllers\API\OrderController;
+use  Modules\Order\Http\Controllers\Api\OrderController;
 
 
 // Route::middleware(['web'])->prefix('/api/orders')->controller(OrderController::class)->group(function(){

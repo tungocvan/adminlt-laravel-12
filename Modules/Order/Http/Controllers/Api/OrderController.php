@@ -113,8 +113,8 @@ class OrderController extends Controller
 
         $validated = $request->validate([
             'status' => 'nullable|string|max:50',
-            'total' => 'nullable|numeric|min:0', 
-            'order_note' => 'nullable|string',
+            'user_id' => 'nullable|numeric|min:0', 
+            'total' => 'nullable|numeric|min:0',             
             'admin_note' => 'nullable|string',
             'order_detail' => 'nullable|array',
         ]);
