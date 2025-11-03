@@ -1,0 +1,17 @@
+diff --git a/config/menu.json b/config/menu.json
+index 68b6e76..9011b39 100644
+--- a/config/menu.json
++++ b/config/menu.json
+@@ -25,6 +25,12 @@
+         "icon": "fas fa-fw fa-user",
+         "can": "admin-create"
+     },
++    {
++        "text": "Manage Orders",
++        "url": "\/order",
++        "icon": "fas fa-fw fa-user",
++        "can": "admin-create"
++    },
+     {
+         "text": "Manage Products ",
+         "url": "\/products",

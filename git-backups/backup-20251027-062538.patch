@@ -1,0 +1,13 @@
+diff --git a/config/adminlte.php b/config/adminlte.php
+index 0e10bb7..26daf02 100644
+--- a/config/adminlte.php
++++ b/config/adminlte.php
+@@ -21,7 +21,7 @@ $menuNavbar = [
+         'type' => 'navbar-notification',
+         'id' => 'my-notification',
+         'icon' => 'fas fa-bell',
+-        'url' => 'notifications/show',
++	'url' => 'notifications/show',	
+         'topnav_right' => true,
+         'dropdown_mode' => true,
+         'dropdown_flabel' => 'All notifications',

@@ -1,0 +1,116 @@
+diff --git a/composer.lock b/composer.lock
+index 03e4a9f..f9246f1 100755
+--- a/composer.lock
++++ b/composer.lock
+@@ -1710,16 +1710,16 @@
+         },
+         {
+             "name": "google/cloud-core",
+-            "version": "v1.65.0",
++            "version": "v1.67.0",
+             "source": {
+                 "type": "git",
+                 "url": "https://github.com/googleapis/google-cloud-php-core.git",
+-                "reference": "9fb652318c24db43be8bcbc813a315a2e5731502"
++                "reference": "2405b8116dcc4ec50756cc44486c149e34b1b4e5"
+             },
+             "dist": {
+                 "type": "zip",
+-                "url": "https://api.github.com/repos/googleapis/google-cloud-php-core/zipball/9fb652318c24db43be8bcbc813a315a2e5731502",
+-                "reference": "9fb652318c24db43be8bcbc813a315a2e5731502",
++                "url": "https://api.github.com/repos/googleapis/google-cloud-php-core/zipball/2405b8116dcc4ec50756cc44486c149e34b1b4e5",
++                "reference": "2405b8116dcc4ec50756cc44486c149e34b1b4e5",
+                 "shasum": ""
+             },
+             "require": {
+@@ -1770,9 +1770,9 @@
+             ],
+             "description": "Google Cloud PHP shared dependency, providing functionality useful to all components.",
+             "support": {
+-                "source": "https://github.com/googleapis/google-cloud-php-core/tree/v1.65.0"
++                "source": "https://github.com/googleapis/google-cloud-php-core/tree/v1.67.0"
+             },
+-            "time": "2025-10-01T16:57:30+00:00"
++            "time": "2025-10-10T18:34:03+00:00"
+         },
+         {
+             "name": "google/cloud-storage",
+@@ -1994,16 +1994,16 @@
+         },
+         {
+             "name": "google/longrunning",
+-            "version": "0.5.0",
++            "version": "0.6.0",
+             "source": {
+                 "type": "git",
+                 "url": "https://github.com/googleapis/php-longrunning.git",
+-                "reference": "715519ab4aaf3c4268adb2b551ee0f34135c8c5f"
++                "reference": "226d3b5166eaa13754cc5e452b37872478e23375"
+             },
+             "dist": {
+                 "type": "zip",
+-                "url": "https://api.github.com/repos/googleapis/php-longrunning/zipball/715519ab4aaf3c4268adb2b551ee0f34135c8c5f",
+-                "reference": "715519ab4aaf3c4268adb2b551ee0f34135c8c5f",
++                "url": "https://api.github.com/repos/googleapis/php-longrunning/zipball/226d3b5166eaa13754cc5e452b37872478e23375",
++                "reference": "226d3b5166eaa13754cc5e452b37872478e23375",
+                 "shasum": ""
+             },
+             "require-dev": {
+@@ -2032,9 +2032,9 @@
+             ],
+             "description": "Google LongRunning Client for PHP",
+             "support": {
+-                "source": "https://github.com/googleapis/php-longrunning/tree/v0.5.0"
++                "source": "https://github.com/googleapis/php-longrunning/tree/v0.6.0"
+             },
+-            "time": "2025-09-20T01:29:44+00:00"
++            "time": "2025-10-07T18:41:09+00:00"
+         },
+         {
+             "name": "google/protobuf",
+@@ -3203,16 +3203,16 @@
+         },
+         {
+             "name": "laravel/framework",
+-            "version": "v12.32.5",
++            "version": "v12.33.0",
+             "source": {
+                 "type": "git",
+                 "url": "https://github.com/laravel/framework.git",
+-                "reference": "77b2740391cd2a825ba59d6fada45e9b8b9bcc5a"
++                "reference": "124efc5f09d4668a4dc13f94a1018c524a58bcb1"
+             },
+             "dist": {
+                 "type": "zip",
+-                "url": "https://api.github.com/repos/laravel/framework/zipball/77b2740391cd2a825ba59d6fada45e9b8b9bcc5a",
+-                "reference": "77b2740391cd2a825ba59d6fada45e9b8b9bcc5a",
++                "url": "https://api.github.com/repos/laravel/framework/zipball/124efc5f09d4668a4dc13f94a1018c524a58bcb1",
++                "reference": "124efc5f09d4668a4dc13f94a1018c524a58bcb1",
+                 "shasum": ""
+             },
+             "require": {
+@@ -3418,7 +3418,7 @@
+                 "issues": "https://github.com/laravel/framework/issues",
+                 "source": "https://github.com/laravel/framework"
+             },
+-            "time": "2025-09-30T17:39:22+00:00"
++            "time": "2025-10-07T14:30:39+00:00"
+         },
+         {
+             "name": "laravel/prompts",
+@@ -13909,12 +13909,12 @@
+     ],
+     "aliases": [],
+     "minimum-stability": "stable",
+-    "stability-flags": {},
++    "stability-flags": [],
+     "prefer-stable": true,
+     "prefer-lowest": false,
+     "platform": {
+         "php": "^8.3"
+     },
+-    "platform-dev": {},
+-    "plugin-api-version": "2.6.0"
++    "platform-dev": [],
++    "plugin-api-version": "2.2.0"
+ }
