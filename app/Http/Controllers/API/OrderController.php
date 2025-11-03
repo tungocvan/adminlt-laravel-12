@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Helpers\TnvOrderHelper;
 use App\Models\Order;
+use App\Models\User;
 
 class OrderController extends Controller
 {
@@ -52,14 +53,25 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+
+        $user = User::where('email', $request->email)->first();
+        
         $validated = $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|email',            
             'order_detail' => 'required|array',
             'total' => 'required|numeric|min:0',
             'status' => 'nullable|string|max:50',
         ]);
 
-        $order = Order::create($validated);
+         $order = Order::create([
+                'user_id' => $user->id,
+                'email' => $request->email,
+                'order_detail' => $request->orderDetail,
+                'order_note' => $request->order_note,
+                'admin_note' => $request->admin_note,
+                'total' => $request->total,
+                'status' => 'pending',
+         ]);
 
         return response()->json([
             'message' => 'Tạo đơn hàng thành công.',

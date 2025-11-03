@@ -1,0 +1,13 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use Modules\{Module}\Http\Controllers\Api\{Module}Controller;
+
+
+// Route::middleware('auth:sanctum')->controller({Module}Controller::class)->prefix('{module}')->group(function(){
+//         Route::get('/', 'index');              
+// });
+
+Route::prefix('{module}')->controller({Module}Controller::class)->group(function(){
+        Route::get('/', 'index');              
+});

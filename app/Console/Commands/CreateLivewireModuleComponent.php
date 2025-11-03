@@ -8,12 +8,9 @@ use Illuminate\Support\Str;
 
 class CreateLivewireModuleComponent extends Command
 {
-    protected $signature = 'create:livewire
-                            {module : Tên module (chữ hoa đầu)}
-                            {component : Tên component CamelCase}
-                            {--delete : Xóa component và view nếu tồn tại}';
+    protected $signature = 'create:livewire {module? : Tên module (ví dụ: Blog)} {component? : Tên component (ví dụ: PostList)} {--delete : Xóa component và view nếu tồn tại}';
 
-    protected $description = 'Tạo Livewire component trong module với view, và tự động đăng ký view namespace';
+    protected $description = 'Tạo Livewire component trong module với view (ModuleServiceProvider sẽ tự động đăng ký).';
 
     protected Filesystem $files;
 
@@ -25,28 +22,49 @@ class CreateLivewireModuleComponent extends Command
 
     public function handle()
     {
-        $module = ucfirst($this->argument('module')); // Module chữ hoa đầu
-        $component = Str::studly($this->argument('component')); // Component CamelCase
-        $componentSnake = Str::kebab($component); // snake-case / kebab-case cho view
+        $module = $this->argument('module');
+        $component = $this->argument('component');
 
-        // --- Thư mục & file ---
+        // --- Kiểm tra hợp lệ ---
+        if (empty($module) || empty($component)) {
+            $this->warn("⚠️ Thiếu tham số!");
+            $this->line("👉 Cú pháp đúng: php artisan create:livewire {module} {component}");
+            $this->info("   Ví dụ: php artisan create:livewire Blog PostList");
+            return Command::INVALID;
+        }
+
+        // --- Tự động chuẩn hoá ---
+        $module = Str::studly($module);       // qlhs -> Qlhs
+        $component = Str::studly($component); // qlhs-list -> QlhsList
+        $componentSnake = Str::kebab($component); // QlhsList -> qlhs-list
+
+        // --- Đường dẫn ---
         $componentDir = base_path("Modules/{$module}/Livewire");
         $componentPath = "{$componentDir}/{$component}.php";
-
         $viewDir = base_path("Modules/{$module}/resources/views/livewire");
         $viewPath = "{$viewDir}/{$componentSnake}.blade.php";
 
-        $serviceProviderPath = base_path("Modules/{$module}/Providers/{$module}ServiceProvider.php");
-
-        // --- Xóa nếu có --delete ---
+        // --- Nếu có --delete ---
         if ($this->option('delete')) {
-            if ($this->files->exists($componentPath)) $this->files->delete($componentPath);
-            if ($this->files->exists($viewPath)) $this->files->delete($viewPath);
-            $this->info("Deleted component and view if existed.");
-            return 0;
+            $deleted = false;
+            if ($this->files->exists($componentPath)) {
+                $this->files->delete($componentPath);
+                $deleted = true;
+            }
+            if ($this->files->exists($viewPath)) {
+                $this->files->delete($viewPath);
+                $deleted = true;
+            }
+
+            if ($deleted) {
+                $this->info("🗑️ Đã xóa component và view của {$module}/{$component}.");
+            } else {
+                $this->warn("⚠️ Không tìm thấy component hoặc view để xóa.");
+            }
+            return Command::SUCCESS;
         }
 
-        // --- Tạo thư mục nếu chưa có ---
+        // --- Tạo thư mục ---
         foreach ([$componentDir, $viewDir] as $dir) {
             if (! $this->files->isDirectory($dir)) {
                 $this->files->makeDirectory($dir, 0755, true);
@@ -71,62 +89,27 @@ class $component extends Component
 }
 PHP;
             $this->files->put($componentPath, $classTemplate);
-            $this->info("✅ Created component: {$componentPath}");
+            $this->info("✅ Đã tạo component: {$componentPath}");
+        } else {
+            $this->warn("⚠️ Component {$component} đã tồn tại!");
         }
 
         // --- Tạo view ---
         if (! $this->files->exists($viewPath)) {
-            $viewTemplate = "<div>\n    <!-- Livewire component $component -->\n</div>";
+            $viewTemplate = <<<BLADE
+<div>
+    <!-- Livewire component: $component -->
+</div>
+BLADE;
             $this->files->put($viewPath, $viewTemplate);
-            $this->info("✅ Created view: {$viewPath}");
-        }
-
-        // --- Tự động đăng ký view namespace trong ServiceProvider ---
-        if ($this->files->exists($serviceProviderPath)) {
-            $content = $this->files->get($serviceProviderPath);
-            $loadViewCode = "\$this->loadViewsFrom(__DIR__.'/../resources/views', '$module');";
-
-            if (! str_contains($content, $loadViewCode)) {
-                // Thêm vào method boot()
-                $content = preg_replace(
-                    '/public function boot\(\)\s*\{/',
-                    "public function boot()\n    {\n        $loadViewCode",
-                    $content,
-                    1
-                );
-                $this->files->put($serviceProviderPath, $content);
-                $this->info("✅ Registered view namespace in {$module}ServiceProvider");
-            }
+            $this->info("✅ Đã tạo view: {$viewPath}");
         } else {
-            // Nếu ServiceProvider chưa có, tạo file mẫu
-            $providerTemplate = <<<PHP
-<?php
-
-namespace Modules\\$module\\Providers;
-
-use Illuminate\Support\ServiceProvider;
-
-class {$module}ServiceProvider extends ServiceProvider
-{
-    public function boot()
-    {
-        \$this->loadViewsFrom(__DIR__.'/../resources/views', '$module');
-    }
-
-    public function register()
-    {
-        //
-    }
-}
-PHP;
-            $providerDir = dirname($serviceProviderPath);
-            if (! $this->files->isDirectory($providerDir)) {
-                $this->files->makeDirectory($providerDir, 0755, true);
-            }
-            $this->files->put($serviceProviderPath, $providerTemplate);
-            $this->info("✅ Created ServiceProvider and registered view namespace: {$serviceProviderPath}");
+            $this->warn("⚠️ View {$componentSnake}.blade.php đã tồn tại!");
         }
 
-        $this->info("🎉 Livewire component ready! Use: @livewire('" . Str::lower($module) . ".$componentSnake')");
+        // --- Thông báo cuối ---
+        $this->info("🎉 Livewire component sẵn sàng!");
+        $this->line("👉 Dùng trong blade: @livewire('" . Str::lower($module) . ".$componentSnake')");
+        return Command::SUCCESS;
     }
 }

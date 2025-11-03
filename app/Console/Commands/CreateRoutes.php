@@ -3,41 +3,63 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use File;
+use Illuminate\Support\Facades\File;
 
 class CreateRoutes extends Command
 {
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
+     * Tên và cú pháp của lệnh.
      */
-    protected $signature = 'create:routes {name} ';
+    protected $signature = 'create:routes {name : Tên module}';
 
     /**
-     * The console command description.
-     *
-     * @var string
+     * Mô tả lệnh.
      */
-    protected $description = 'Command description';
+    protected $description = 'Tạo file routes web.php và api.php cho module';
 
     /**
-     * Execute the console command.
+     * Thực thi lệnh.
      */
-    public function handle()
+    public function handle(): void
     {
-
         $name = ucfirst($this->argument('name'));
-        $pathroutes = base_path('Modules/' . $name.'/routes/web.php');
-        $template = app_path('Console/Commands/template/routes.txt');
-        if (File::exists($template)) {
-            $content = file_get_contents($template);
-            $newContent = str_replace('{Module}',$name, $content);
-            $newContent = str_replace('{module}',strtolower($name), $newContent);
-            //$webRoutes = $pathroutes . '/web.php';
-            //dd($newContent);
-            file_put_contents($pathroutes, $newContent);
-            $this->info('Create routes web Module success');
+        $modulePath = base_path("Modules/{$name}/routes");
+
+        // Kiểm tra thư mục routes
+        if (!File::exists($modulePath)) {
+            File::makeDirectory($modulePath, 0755, true);
+            $this->info("📁 Đã tạo thư mục: {$modulePath}");
         }
+
+        // Danh sách routes cần tạo
+        $routes = [
+            'web' => 'routes-web.txt',
+            'api' => 'routes-api.txt',
+        ];
+
+        foreach ($routes as $type => $templateFile) {
+            $templatePath = app_path("Console/Commands/template/{$templateFile}");
+            $targetPath = "{$modulePath}/{$type}.php";
+
+            if (!File::exists($templatePath)) {
+                $this->error("⚠️  Không tìm thấy template: {$templatePath}");
+                continue;
+            }
+
+            // Đọc và thay thế nội dung template
+            $content = str_replace(
+                ['{Module}', '{module}'],
+                [$name, strtolower($name)],
+                File::get($templatePath)
+            );
+
+            // Ghi nội dung vào file
+            File::put($targetPath, $content);
+
+            $this->info("✅ Đã tạo file routes {$type}.php cho module {$name}");
+        }
+
+        $this->newLine();
+        $this->info("🎉 Hoàn tất tạo routes cho module: {$name}");
     }
 }

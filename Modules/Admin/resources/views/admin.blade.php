@@ -19,6 +19,7 @@
         @include('components.chat-private')
         @include('components.chat-public')
     @endif --}}
+
 @stop
 
 @section('css')

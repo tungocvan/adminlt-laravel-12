@@ -5,6 +5,7 @@ namespace Modules;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use File;
+use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 
 class ModuleServiceProvider extends ServiceProvider
@@ -41,8 +42,15 @@ class ModuleServiceProvider extends ServiceProvider
         if (File::exists($modulePath . '/routes/web.php')) {
             $this->loadRoutesFrom($modulePath . '/routes/web.php');
         }
+        // if (File::exists($modulePath . '/routes/api.php')) {
+        //     $this->loadRoutesFrom($modulePath . '/routes/api.php');
+        // }
         if (File::exists($modulePath . '/routes/api.php')) {
-            $this->loadRoutesFrom($modulePath . '/routes/api.php');
+            Route::prefix('api')
+                ->middleware('api')
+                ->group(function () use ($modulePath) {
+                    require $modulePath . '/routes/api.php';
+                });
         }
 
         // --- Views ---
