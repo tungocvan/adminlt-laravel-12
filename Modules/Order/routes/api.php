@@ -17,7 +17,7 @@ use  Modules\Order\Http\Controllers\Api\OrderController;
 // Route::middleware(['web','auth'])->prefix('/api')->controller(OrderController::class)->group(function(){
 //     Route::post('order', 'index');
 // });
-Route::prefix('/api/orders')->group(function () {
+Route::prefix('/orders')->group(function () {
     Route::post('/', [OrderController::class, 'list']); // 🔹 Dùng POST để lấy danh sách
     Route::get('{id}', [OrderController::class, 'show']);
     Route::post('/update', [OrderController::class, 'store']);
