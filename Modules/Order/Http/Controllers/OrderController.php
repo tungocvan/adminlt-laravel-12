@@ -3,8 +3,8 @@
 namespace Modules\Order\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Order;
-//use Modules\Order\Models\Order;
+//use App\Models\Order;
+use Modules\Order\Models\Order;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller

@@ -5,8 +5,8 @@ namespace Modules\Order\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Helpers\TnvOrderHelper;
-use App\Models\Order;
-//use Modules\Order\Models\Order;
+//use App\Models\Order;
+use Modules\Order\Models\Order;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller

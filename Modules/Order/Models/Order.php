@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Mail\OrderCreatedMail;
 use App\Mail\OrderConfirmedMail; // tạo mail mới kèm link PDF
+use App\Models\User;
 
 class Order extends Model
 {
