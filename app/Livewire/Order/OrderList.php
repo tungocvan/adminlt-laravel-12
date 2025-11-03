@@ -4,8 +4,8 @@ namespace App\Livewire\Order;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-//use App\Models\Order;
-use Modules\Order\Models\Order;
+use App\Models\Order;
+//use Modules\Order\Models\Order;
 use App\Models\Medicine;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
