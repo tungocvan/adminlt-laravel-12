@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,16 +11,12 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeUserMail;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Traits\Filterable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles, HasApiTokens;
+    use HasFactory, Notifiable, HasRoles, HasApiTokens, Filterable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -33,47 +28,50 @@ class User extends Authenticatable
         'email_verified_at'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'birthdate' => 'date', // thêm birthdate
         ];
     }
+
     protected static function booted(): void
     {
-        // static::created(function (User $user) {
-        //     Mail::to($user->email)
-        //         ->queue(new WelcomeUserMail($user)); // Gửi vào hàng đợi
-        // });
+        static::created(function (User $user) {
+            Mail::to($user->email)
+                ->queue(new WelcomeUserMail($user));
+        });
 
         static::deleting(function ($user) {
-            // Gỡ tất cả role và permission liên kết
             $user->roles()->detach();
             $user->permissions()->detach();
         });
     }
+
     public function phone(): HasOne
     {
         return $this->hasOne(Phone::class);
     }
+
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'role_user');
+    }
+
+    // Keyword search
+    public function scopeKeyword($query, $keyword)
+    {
+        $query->where(function ($q) use ($keyword) {
+            $q->where('name', 'like', "%{$keyword}%")
+              ->orWhere('email', 'like', "%{$keyword}%")
+              ->orWhere('username', 'like', "%{$keyword}%");
+        });
     }
 }

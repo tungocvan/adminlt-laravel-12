@@ -1,0 +1,969 @@
+diff --git a/app/Livewire/Users/UserList.php b/app/Livewire/Users/UserList.php
+index 599ada8..5838c68 100644
+--- a/app/Livewire/Users/UserList.php
++++ b/app/Livewire/Users/UserList.php
+@@ -1,452 +1,135 @@
+ <?php
+ 
+-namespace App\Livewire\Users;
++namespace Modules\User\Livewire;
+ 
+ use Livewire\Component;
+ use App\Models\User;
+ use Spatie\Permission\Models\Role;
+-use Livewire\WithPagination;
+-use Livewire\WithFileUploads;
+-use Illuminate\Support\Facades\View;
+-use Illuminate\Support\Facades\Hash;
+-use App\Imports\UsersImport;
+-use App\Exports\UsersExport;
+-use Maatwebsite\Excel\Facades\Excel;
+-use Barryvdh\DomPDF\Facade\Pdf;
+-use Carbon\Carbon;
+-use App\Events\UserCreate;
+ 
+ class UserList extends Component
+ {
+-    use WithPagination, WithFileUploads;
+-
+-    // Table / filter
+-    public $perPage = 5;
+-    public $search = '';
+-    public $sortField = 'id';
+-    public $sortDirection = 'asc';
+-
+-    // File import
+-    public $file;
+-    public $isImporting = false;
+-
+-    // Selection
++    public $users = [];
+     public $selectedUsers = [];
+-    public $selectAll = false;
+-
+-    // Modal / form state
+-    public $showModal = false;        // create / edit user
+-    public $showModalRole = false;    // modal update role (single or bulk)
+-    public $isEdit = false;
+-
+-    // User fields
+-    public $name;
+-    public $username;
+-    public $email;
+-    public $password;
+-    public $birthdate;
+-    public $google_id;
++    public $selectedRoleId;
++    public $selectedUserId;
++    public $showUserModal = false;
++    public $showRoleModal = false;
++    public $name, $email, $password;
+ 
+-    // Role handling
+-    public $role = null;              // for create/edit (role name or id)
+-    public $selectedRoleId = null;    // for modal role (role id)
+-    public $selectedUserId = null;    // when updating single user by modal
+-
+-    // ui errors
+-    public $error;
+-
+-    protected $rulesCreate = [
++    protected $rules = [
+         'name' => 'required|string|max:255',
+-        'email' => 'required|string|email|max:255|unique:users,email',
+-        'username' => 'required|string|max:255|unique:users,username',
+-        'password' => 'required|string|min:8',
++        'email' => 'required|email',
++        'password' => 'nullable|min:6',
+     ];
+ 
+-    protected $rulesUpdate = [
+-        'name' => 'required|string|max:255',
+-        'email' => 'required|string|email|max:255',
+-        'password' => 'nullable|string|min:8',
+-    ];
+-
+-
+-    protected $listeners = [
+-        'refreshUsers' => '$refresh',
+-        'closeModalRole' => 'closeModalRole', // nhận emit từ JS khi modal đóng
+-        'modalRoleClosed' => 'resetRoleModal'
+-    ];
+-    
+-    public function resetRoleModal()
+-    {
+-        $this->showModalRole = false;
+-        $this->selectedUserId = null;
+-        $this->selectedRoleId = null;
+-    }
+-
+-    // ---------- Computed properties ----------
+-    public function getUsersProperty()
+-    {
+-        return User::where(function ($q) {
+-                if ($this->search) {
+-                    $q->where('name', 'like', '%' . $this->search . '%')
+-                      ->orWhere('email', 'like', '%' . $this->search . '%')
+-                      ->orWhere('username', 'like', '%' . $this->search . '%');
+-                }
+-            })
+-            ->orderBy($this->sortField, $this->sortDirection)
+-            ->paginate((int) $this->perPage);
+-    }
+-
+-    public function getRolesProperty()
++    public function mount()
+     {
+-        // trả về array [id => name] để dùng trong <select>
+-        return Role::orderBy('name')->pluck('name', 'id')->toArray();
++        $this->loadUsers();
+     }
+ 
+-    // ---------- Selection helpers ----------
+-    public function toggleSelectAll()
++    public function loadUsers()
+     {
+-        if ($this->selectAll) {
+-            $this->selectedUsers = $this->users->pluck('id')->toArray();
+-        } else {
+-            $this->selectedUsers = [];
+-        }
++        $this->users = User::with('roles')->get();
+     }
+ 
+     public function updatedSelectedUsers()
+     {
+-        // lưu tạm (nếu cần)
+-        session()->put('selectedUsers', $this->selectedUsers);
+-    }
+-
+-    public function updatedPerPage()
+-    {
+-        $this->resetPage();
+-    }
+-
+-    // ---------- Import ----------
+-    public function importFile()
+-    {
+-        $this->validate([
+-            'file' => 'required|file|max:32768|mimes:xlsx,xls,csv',
+-        ]);
+-
+-        $this->isImporting = true;
+-        try {
+-            Excel::import(new UsersImport, $this->file);
+-            $this->reset('file');
+-            session()->flash('message', 'Users imported successfully!');
+-            $this->dispatch('refreshUsers');
+-        } catch (\Exception $e) {
+-            session()->flash('error', 'Import error: ' . $e->getMessage());
+-        } finally {
+-            $this->isImporting = false;
+-        }
+-    }
+-
+-    // ---------- CRUD ----------
+-    public function openModal()
+-    {
+-        $this->resetForm();
+-        $this->showModal = true;
+-    }
+-
+-    public function closeModal()
+-    {
+-        $this->showModal = false;
+-    }
+-
+-    protected function resetForm()
+-    {
+-        $this->reset(['name', 'username', 'email', 'password', 'birthdate', 'google_id', 'userId', 'isEdit', 'role', 'userId']);
+-        $this->isEdit = false;
+-        $this->userId = null;
++        // Reset khi thay đổi danh sách người chọn
++        $this->selectedRoleId = null;
+     }
+ 
+-    public function save()
++    public function openModalUser($id = null)
+     {
+-        $validated = $this->validate($this->rulesCreate);
+-
+-        $validated['password'] = Hash::make($validated['password']);
++        $this->resetValidation();
+ 
+-        try {
+-            $user = User::create($validated);
+-
+-            // Nếu role được chọn theo id => lấy role name để assign hoặc dùng syncRoles với id.
+-            if ($this->role) {
+-                // supports id or name; dùng syncRoles với id an toàn
+-                $user->syncRoles([$this->role]);
+-            }
+-
+-            event(new UserCreate($user));
+-            $this->resetForm();
+-            $this->showModal = false;
+-            session()->flash('message', 'User created successfully!');
+-            $this->dispatch('refreshUsers');
+-        } catch (\Exception $e) {
+-            session()->flash('error', 'Save error: ' . $e->getMessage());
+-        }
+-    }
+-
+-    public function edit($userId)
+-    {
+-        $user = User::find($userId);
+-        if (! $user) {
+-            session()->flash('error', 'User not found!');
+-            return;
++        if ($id) {
++            $user = User::findOrFail($id);
++            $this->selectedUserId = $user->id;
++            $this->name = $user->name;
++            $this->email = $user->email;
++            $this->password = '';
++        } else {
++            $this->selectedUserId = null;
++            $this->name = '';
++            $this->email = '';
++            $this->password = '';
+         }
+ 
+-        $this->userId = $user->id;
+-        $this->name = $user->name;
+-        $this->email = $user->email;
+-        $this->username = $user->username;
+-        $this->birthdate = $user->birthdate;
+-        $this->google_id = $user->google_id;
+-        $this->isEdit = true;
+-        // set role to first role id if exists
+-        $firstRoleId = $user->roles->pluck('id')->first();
+-        $this->role = $firstRoleId ?: null;
+-
+-        $this->showModal = true;
++        $this->showUserModal = true;
+     }
+ 
+-    public function update()
++    public function saveUser()
+     {
+-        $this->validate(array_merge($this->rulesUpdate, [
+-            'email' => 'required|string|email|max:255|unique:users,email,' . $this->userId,
+-        ]));
++        $this->validate();
+ 
+-        try {
+-            $user = User::findOrFail($this->userId);
+-
+-            $data = [
++        if ($this->selectedUserId) {
++            $user = User::findOrFail($this->selectedUserId);
++            $user->update([
+                 'name' => $this->name,
+                 'email' => $this->email,
+-            ];
+-
+-            if (!empty($this->password)) {
+-                $data['password'] = Hash::make($this->password);
+-            }
+-
+-            // optional fields
+-            $data['username'] = $this->username;
+-            $data['birthdate'] = $this->birthdate;
+-            $data['google_id'] = $this->google_id;
+-
+-            $user->update($data);
+-
+-            if ($this->role) {
+-                // syncRoles nhận id hoặc tên; dùng id để nhất quán
+-                $user->syncRoles([$this->role]);
++            ]);
++            if ($this->password) {
++                $user->update(['password' => bcrypt($this->password)]);
+             }
+-
+-            $this->resetForm();
+-            $this->showModal = false;
+-            session()->flash('message', 'User updated successfully!');
+-            $this->dispatch('refreshUsers');
+-        } catch (\Exception $e) {
+-            session()->flash('error', 'Update error: ' . $e->getMessage());
+-        }
+-    }
+-
+-    public function delete($userId)
+-    {
+-        $user = User::find($userId);
+-        if (! $user) {
+-            session()->flash('error', 'User not found!');
+-            return;
+-        }
+-
+-        if ($user->is_admin == -1) {
+-            session()->flash('error', 'Cannot delete admin user');
+-            return;
++            session()->flash('message', 'Cập nhật người dùng thành công!');
++        } else {
++            User::create([
++                'name' => $this->name,
++                'email' => $this->email,
++                'password' => bcrypt($this->password ?: '123456'),
++            ]);
++            session()->flash('message', 'Thêm người dùng thành công!');
+         }
+ 
+-        try {
+-            $user->delete();
+-            session()->flash('message', 'User deleted successfully!');
+-            $this->dispatch('refreshUsers');
+-        } catch (\Exception $e) {
+-            session()->flash('error', 'Delete error: ' . $e->getMessage());
+-        }
++        $this->showUserModal = false;
++        $this->loadUsers();
+     }
+ 
+     public function deleteSelected()
+     {
+-        if (empty($this->selectedUsers)) {
+-            session()->flash('error', 'No users selected for deletion!');
+-            return;
+-        }
+-
+-        $users = User::whereIn('id', $this->selectedUsers)->get();
+-        $delError = [];
+-
+-        foreach ($users as $user) {
+-            if ($user->is_admin == -1) {
+-                $delError[] = $user->email;
+-                continue;
+-            }
+-            try {
+-                $user->delete();
+-            } catch (\Exception $e) {
+-                $delError[] = $user->email;
+-            }
+-        }
+-
+-        if (! empty($delError)) {
+-            session()->flash('error', 'Không thể xóa: ' . implode(', ', $delError));
+-        } else {
++        if (count($this->selectedUsers) > 0) {
++            User::whereIn('id', $this->selectedUsers)->delete();
++            session()->flash('message', 'Đã xóa người dùng được chọn!');
+             $this->selectedUsers = [];
+-            session()->flash('message', 'Selected users deleted successfully!');
+-        }
+-
+-        $this->dispatch('refreshUsers');
+-    }
+-
+-    // ---------- Role update (modal) ----------
+-    /**
+-     * Mở modal cập nhật role.
+-     * Nếu $userId được truyền => cập nhật cho 1 user.
+-     * Nếu không truyền => modal dùng cho bulk update (dựa vào selectedUsers).
+-     */
+-    public function openModalRole($userId = null)
+-    {
+-        $this->selectedUserId = $userId;
+-        $this->selectedRoleId = null;
+-    
+-        if ($userId) {
+-            $user = User::with('roles')->find($userId);
+-            $this->selectedRoleId = $user->roles->pluck('id')->first() ?: null;
++            $this->loadUsers();
+         } else {
+-            if (count($this->selectedUsers) === 1) {
+-                $u = User::with('roles')->find($this->selectedUsers[0]);
+-                $this->selectedRoleId = $u->roles->pluck('id')->first() ?: null;
+-            }
++            session()->flash('error', 'Vui lòng chọn ít nhất một người dùng!');
+         }
+-    
+-        $this->showModalRole = true;
+-    
+-        // dispatch browser event để JS mở modal (không render 'show' từ server)
+-        $this->dispatch('user-form-role:open');
+     }
+ 
+-    public function closeModalRole()
+-    {
+-        $this->showModalRole = false;
+-        $this->selectedUserId = null;
+-        $this->selectedRoleId = null;
+-        $this->dispatch('user-form-role:close');
+-    }
+-
+-    public function updateRole()
+-{
+-    $this->validate([
+-        'selectedRoleId' => 'required|exists:roles,id',
+-    ]);
+-
+-    $roleId = $this->selectedRoleId;
+-
+-    try {
+-        if ($this->selectedUserId) {
+-            $user = User::findOrFail($this->selectedUserId);
+-            $user->syncRoles([$roleId]);
+-        } else {
+-            if (empty($this->selectedUsers)) {
+-                session()->flash('error', 'Vui lòng chọn ít nhất một người dùng để cập nhật role.');
+-                return;
+-            }
+-            $users = User::whereIn('id', $this->selectedUsers)->get();
+-            foreach ($users as $u) {
+-                $u->syncRoles([$roleId]);
+-            }
+-        }
+-
+-        $this->showModalRole = false;
+-        $this->selectedUserId = null;
+-        $this->selectedRoleId = null;
+-        session()->flash('message', 'User Role updated successfully!');
+-        $this->dispatch('user-form-role:close');
+-        $this->dispatch('refreshUsers');
+-        $this->resetRoleModal();
+-        $this->loadData();
+-    } catch (\Exception $e) {
+-        session()->flash('error', 'Update role error: ' . $e->getMessage());
+-    }
+-}
+-
+-    // ---------- Export / Print ----------
+-    public function exportSelected()
++    public function openModalRole()
+     {
+         if (empty($this->selectedUsers)) {
+-            $this->error = 'Vui lòng chọn ít nhất một người dùng để xuất Excel.';
++            session()->flash('error', 'Vui lòng chọn ít nhất một người dùng để cập nhật role.');
+             return;
+         }
+-        $this->error = '';
+-        $timestamp = Carbon::now()->format('Y-m-d-H-i');
+-        $fileName = "users-list-{$timestamp}.xlsx";
+ 
+-        return Excel::download(new UsersExport($this->selectedUsers), $fileName);
++        $this->selectedRoleId = null;
++        $this->showRoleModal = true;
+     }
+ 
+-    public function exportToPDF()
++    public function updateRole()
+     {
+-        if (empty($this->selectedUsers)) {
+-            $this->error = 'Vui lòng chọn ít nhất một người dùng để xuất PDF.';
+-            return;
+-        }
+-        $this->error = '';
+-        $users = User::whereIn('id', $this->selectedUsers)->get();
+-        $pdf = Pdf::loadView('exports.users-pdf', compact('users'));
+-        $timestamp = Carbon::now()->format('Y-m-d-H-i');
+-        $fileName = "users-list-{$timestamp}.pdf";
+-
+-        return response()->streamDownload(
+-            fn () => print($pdf->output()),
+-            $fileName
+-        );
+-    }
++        $this->validate([
++            'selectedRoleId' => 'required|exists:roles,id',
++        ]);
+ 
+-    public function printUsers()
+-    {
++        $role = Role::find($this->selectedRoleId);
+         $users = User::whereIn('id', $this->selectedUsers)->get();
+ 
+-        if ($users->count() == 0) {
+-            $this->error = 'Vui lòng chọn ít nhất một người dùng để in.';
+-            return;
+-        }
+-
+-        $this->error = '';
+-        $html = View::make('exports.print-users', compact('users'))->render();
+-        $encodedHtml = base64_encode(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+-        $this->dispatch('open-print-window', ['url' => 'data:text/html;base64,' . $encodedHtml]);
+-    }
+-
+-    // ---------- Utilities ----------
+-    public function sortBy($field)
+-    {
+-        if ($this->sortField === $field) {
+-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+-        } else {
+-            $this->sortField = $field;
+-            $this->sortDirection = 'asc';
++        foreach ($users as $user) {
++            $user->syncRoles([$role->name]);
+         }
+-        $this->resetPage();
+-    }
+ 
+-    public function approve($id)
+-    {
+-        $user = User::findOrFail($id);
+-        if (is_null($user->email_verified_at)) {
+-            $user->update(['email_verified_at' => now()]);
+-            session()->flash('message', 'Người dùng đã được duyệt thành công!');
+-            $this->dispatch('refreshUsers');
+-        }
++        session()->flash('message', 'Đã cập nhật vai trò cho người dùng!');
++        $this->showRoleModal = false;
++        $this->loadUsers();
+     }
+ 
+     public function render()
+     {
+-        return view('livewire.users.user-list', [
+-            'users' => $this->users,          // collection paginated
+-            'roles' => $this->roles,          // roles array id => name
++        return view('user::livewire.user-list', [
++            'roles' => Role::all(),
+         ]);
+     }
+ }
+diff --git a/resources/views/livewire/users/user-form-role.php b/resources/views/livewire/users/user-form-role.php
+index 88be0ea..f02ac2a 100644
+--- a/resources/views/livewire/users/user-form-role.php
++++ b/resources/views/livewire/users/user-form-role.php
+@@ -1,65 +1,44 @@
+-{{-- resources/views/livewire/users/user-form-role.blade.php --}}
+-<div wire:ignore.self class="modal fade" id="roleModal" tabindex="-1" role="dialog" aria-labelledby="roleModalLabel" aria-hidden="true">
+-    <div class="modal-dialog modal-dialog-centered" role="document">
+-        <div class="modal-content border-0 shadow-lg">
+-            <div class="modal-header bg-primary text-white">
+-                <h5 class="modal-title" id="roleModalLabel">
+-                    <i class="fas fa-user-shield mr-2"></i> Cập nhật vai trò người dùng
+-                </h5>
+-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+-                    <span aria-hidden="true">&times;</span>
+-                </button>
+-            </div>
++<div 
++    x-data="{ show: @entangle('showModalRole') }"
++    x-cloak
++    x-show="show"
++    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
++    style="display: none;"
++>
++    <div 
++        @click.away="show = false" 
++        class="bg-white rounded-lg shadow-lg w-96 p-4 border"
++    >
++        <h5 class="text-lg font-semibold mb-3 text-primary">
++            <i class="fas fa-user-shield mr-2"></i> Cập nhật Role
++        </h5>
+ 
+-            <div class="modal-body">
+-                @if($selectedUserId || count($selectedUsers) > 0)
+-                    <div class="form-group">
+-                        <label for="roleSelect">Chọn vai trò:</label>
+-                        <select wire:model="selectedRoleId" id="roleSelect" class="form-control">
+-                            <option value="">-- Chọn role --</option>
+-                            @foreach($roles as $id => $name)
+-                                <option value="{{ $id }}">{{ $name }}</option>
+-                            @endforeach
+-                        </select>
+-                        @error('selectedRoleId')
+-                            <span class="text-danger small">{{ $message }}</span>
+-                        @enderror
+-                    </div>
+-                @else
+-                    <div class="alert alert-warning mb-0">
+-                        <i class="fas fa-exclamation-triangle mr-2"></i>
+-                        Vui lòng chọn ít nhất một người dùng trước khi cập nhật role.
+-                    </div>
+-                @endif
++        {{-- Nội dung --}}
++        @if(count($selectedUsers) > 0)
++            <div class="form-group">
++                <label for="selectedRoleId">Chọn vai trò:</label>
++                <select wire:model="selectedRoleId" id="selectedRoleId" class="form-control">
++                    <option value="">-- Chọn role --</option>
++                    @foreach($roles as $role)
++                        <option value="{{ $role->id }}">{{ $role->name }}</option>
++                    @endforeach
++                </select>
++                @error('selectedRoleId')
++                    <small class="text-danger">{{ $message }}</small>
++                @enderror
+             </div>
+-
+-            <div class="modal-footer">
+-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+-                    <i class="fas fa-times mr-1"></i> Đóng
+-                </button>
+-                <button type="button" class="btn btn-primary" wire:click="updateRole">
+-                    <i class="fas fa-save mr-1"></i> Lưu thay đổi
+-                </button>
++        @else
++            <div class="alert alert-warning">
++                <i class="fa fa-exclamation-triangle"></i> 
++                Vui lòng chọn ít nhất một người dùng để cập nhật role.
+             </div>
++        @endif
++
++        <div class="d-flex justify-content-end mt-3">
++            <button class="btn btn-secondary btn-sm mr-2" @click="show = false">Đóng</button>
++            <button wire:click="updateRole" class="btn btn-primary btn-sm">
++                <i class="fa fa-save mr-1"></i> Lưu thay đổi
++            </button>
+         </div>
+     </div>
+ </div>
+-
+-
+-<script>
+-    // Khi Livewire gọi event mở modal
+-    window.addEventListener('user-form-role:open', () => {
+-        $('#roleModal').modal('show');
+-    });
+-
+-    // Khi Livewire gọi event đóng modal
+-    window.addEventListener('user-form-role:close', () => {
+-        $('#roleModal').modal('hide');
+-    });
+-
+-    // Khi modal đóng (bằng X hoặc click ra ngoài)
+-    $('#roleModal').on('hidden.bs.modal', function () {
+-        Livewire.dispatch('modalRoleClosed'); // gửi sự kiện về server nếu cần
+-    });
+-</script>
+-
+diff --git a/resources/views/livewire/users/user-form.blade.php b/resources/views/livewire/users/user-form.blade.php
+index f7e1c50..ee89acd 100644
+--- a/resources/views/livewire/users/user-form.blade.php
++++ b/resources/views/livewire/users/user-form.blade.php
+@@ -1,74 +1,69 @@
+-{{-- Modal Add / Edit --}}
+-<div class="modal fade @if($showModal) show @endif" style="display:@if($showModal)block @else none @endif;" tabindex="-1" role="dialog">
+-  <div class="modal-dialog modal-lg" role="document">
+-      <div class="modal-content">
+-          <div class="modal-header bg-primary text-white">
+-              <h5 class="modal-title">
+-                  <i class="fas fa-user-edit mr-2"></i>
+-                  {{ $isEdit ? 'Cập nhật người dùng' : 'Thêm người dùng mới' }}
+-              </h5>
+-              <button type="button" class="close text-white" wire:click="closeModal">
+-                  <span>&times;</span>
+-              </button>
+-          </div>
++{{-- Modal Add / Edit (Alpine + entangle with showModal) --}}
++<div x-data="{ open: @entangle('showModal') }" x-cloak>
++    <div x-show="open" x-transition.opacity style="display:none"
++         class="modal-backdrop fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center">
++        <div x-show="open" x-transition class="bg-white rounded shadow-lg w-full max-w-2xl mx-3" @click.away="open = false">
++            <div class="modal-header p-3 bg-primary text-white d-flex justify-content-between align-items-center">
++                <h5 class="modal-title mb-0">{{ $isEdit ? 'Edit User' : 'Add User' }}</h5>
++                <button type="button" class="close text-white" @click="open = false">&times;</button>
++            </div>
+ 
+-          <div class="modal-body">
+-              <form wire:submit.prevent="{{ $isEdit ? 'update' : 'save' }}">
+-                  <div class="form-row">
+-                      <div class="form-group col-md-6">
+-                          <label>Tên</label>
+-                          <input type="text" wire:model.defer="name" class="form-control" placeholder="Nhập tên...">
+-                          @error('name') <small class="text-danger">{{ $message }}</small> @enderror
+-                      </div>
++            <div class="modal-body p-3">
++                <form wire:submit.prevent="{{ $isEdit ? 'update' : 'save' }}">
++                    <div class="form-row">
++                        <div class="form-group col-md-6">
++                            <label>Name</label>
++                            <input type="text" wire:model.defer="name" class="form-control">
++                            @error('name') <small class="text-danger">{{ $message }}</small> @enderror
++                        </div>
++                        <div class="form-group col-md-6">
++                            <label>Email</label>
++                            <input type="email" wire:model.defer="email" class="form-control">
++                            @error('email') <small class="text-danger">{{ $message }}</small> @enderror
++                        </div>
++                    </div>
+ 
+-                      <div class="form-group col-md-6">
+-                          <label>Email</label>
+-                          <input type="email" wire:model.defer="email" class="form-control" placeholder="Email...">
+-                          @error('email') <small class="text-danger">{{ $message }}</small> @enderror
+-                      </div>
+-                  </div>
++                    <div class="form-row">
++                        <div class="form-group col-md-6">
++                            <label>Username</label>
++                            <input type="text" wire:model.defer="username" class="form-control" {{ $isEdit ? 'disabled' : '' }}>
++                            @error('username') <small class="text-danger">{{ $message }}</small> @enderror
++                        </div>
++                        <div class="form-group col-md-6">
++                            <label>Password</label>
++                            <input type="password" wire:model.defer="password" class="form-control" placeholder="{{ $isEdit ? 'Leave blank to keep current' : '' }}">
++                            @error('password') <small class="text-danger">{{ $message }}</small> @enderror
++                        </div>
++                    </div>
+ 
+-                  <div class="form-row">
+-                      <div class="form-group col-md-6">
+-                          <label>Tên đăng nhập</label>
+-                          <input type="text" {{ $isEdit ? 'disabled' : '' }} wire:model.defer="username" class="form-control" placeholder="Username...">
+-                          @error('username') <small class="text-danger">{{ $message }}</small> @enderror
+-                      </div>
++                    <div class="form-row">
++                        <div class="form-group col-md-6">
++                            <label>Role</label>
++                            <select wire:model="role" class="form-control">
++                                <option value="">-- Chọn role --</option>
++                                @foreach($this->roles as $id => $name)
++                                    <option value="{{ $id }}">{{ $name }}</option>
++                                @endforeach
++                            </select>
++                        </div>
+ 
+-                      <div class="form-group col-md-6">
+-                          <label>Mật khẩu</label>
+-                          <input type="password" wire:model.defer="password" class="form-control" placeholder="{{ $isEdit ? 'Để trống nếu không đổi' : 'Nhập mật khẩu...' }}">
+-                          @error('password') <small class="text-danger">{{ $message }}</small> @enderror
+-                      </div>
+-                  </div>
++                        <div class="form-group col-md-6">
++                            <label>Birthdate</label>
++                            <input type="date" wire:model.defer="birthdate" class="form-control">
++                        </div>
++                    </div>
+ 
+-                  <div class="form-row">
+-                      <div class="form-group col-md-6">
+-                          <label>Vai trò (Role)</label>
+-                          <select wire:model="role" class="form-control">
+-                              @foreach($this->roles as $value => $label)
+-                                  <option value="{{ $value }}">{{ $label }}</option>
+-                              @endforeach
+-                          </select>
+-                      </div>
++                    <div class="form-group">
++                        <label>Google ID</label>
++                        <input type="text" wire:model.defer="google_id" class="form-control">
++                    </div>
+ 
+-                      <div class="form-group col-md-6">
+-                          <label>Ngày sinh</label>
+-                          <input type="date" wire:model.defer="birthdate" class="form-control">
+-                      </div>
+-                  </div>
+-
+-                  <div class="form-group">
+-                      <label>Google ID (nếu có)</label>
+-                      <input type="text" wire:model.defer="google_id" class="form-control" placeholder="Nhập Google ID...">
+-                  </div>
+-
+-                  <div class="form-group text-right">
+-                      <button type="button" class="btn btn-secondary" wire:click="closeModal">Hủy</button>
+-                      <button type="submit" class="btn btn-primary">{{ $isEdit ? 'Cập nhật' : 'Lưu' }}</button>
+-                  </div>
+-              </form>
+-          </div>
+-      </div>
+-  </div>
++                    <div class="text-right">
++                        <button type="button" class="btn btn-secondary btn-sm mr-2" @click="open = false">Cancel</button>
++                        <button type="submit" class="btn btn-primary btn-sm">{{ $isEdit ? 'Update' : 'Save' }}</button>
++                    </div>
++                </form>
++            </div>
++        </div>
++    </div>
+ </div>
+diff --git a/resources/views/livewire/users/user-list.blade.php b/resources/views/livewire/users/user-list.blade.php
+index ba15c91..af15764 100644
+--- a/resources/views/livewire/users/user-list.blade.php
++++ b/resources/views/livewire/users/user-list.blade.php
+@@ -1,139 +1,55 @@
+-<div>
+-    <div class="card shadow-sm border-0">
+-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+-            <h5 class="mb-0"><i class="fas fa-users mr-2"></i>Quản lý người dùng</h5>
+-            <div>
+-                <button wire:click="openModal" class="btn btn-light btn-sm">
+-                    <i class="fa fa-plus mr-1"></i> Thêm mới
+-                </button>
+-                <button wire:click="openModalRole" class="btn btn-light btn-sm">
+-                    <i class="fa fa-user-shield mr-1"></i> Cập nhật Role
+-                </button>
+-                <button wire:click="deleteSelected" 
+-                        onclick="return confirm('Bạn có chắc muốn xóa các user đã chọn?')" 
+-                        class="btn btn-danger btn-sm">
+-                    <i class="fa fa-trash mr-1"></i> Xóa chọn
+-                </button>
+-            </div>
+-        </div>
++<div class="p-6">
++    {{-- Alert --}}
++    @if (session('message'))
++        <div class="bg-green-100 text-green-700 p-2 rounded mb-3">{{ session('message') }}</div>
++    @endif
++    @if (session('error'))
++        <div class="bg-red-100 text-red-700 p-2 rounded mb-3">{{ session('error') }}</div>
++    @endif
+ 
+-        <div class="card-body">
+-            {{-- Search & Filter --}}
+-            <div class="row mb-3">
+-                <div class="col-md-4">
+-                    <div class="input-group input-group-sm">
+-                        <input type="text" wire:model.live.debounce.300ms="search" class="form-control" placeholder="Tìm kiếm...">
+-                        <div class="input-group-append">
+-                            <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
+-                        </div>
+-                    </div>
+-                </div>
+-                <div class="col-md-3">
+-                    <select wire:model.change="perPage" class="form-control form-control-sm">
+-                        <option value="5">Hiển thị 5</option>
+-                        <option value="10">Hiển thị 10</option>
+-                        <option value="50">Hiển thị 50</option>
+-                    </select>
+-                </div>
+-                <div class="col-md-5 text-right">
+-                    <button wire:click="printUsers" class="btn btn-outline-secondary btn-sm" title="In danh sách"><i class="fas fa-print"></i></button>
+-                    <button wire:click="exportSelected" class="btn btn-outline-success btn-sm" title="Xuất Excel"><i class="fas fa-file-excel"></i></button>
+-                    <button wire:click="exportToPDF" class="btn btn-outline-danger btn-sm" title="Xuất PDF"><i class="fas fa-file-pdf"></i></button>
+-                </div>
+-            </div>
+-
+-            {{-- Alert --}}
+-            @if (session('message'))
+-                <div class="alert alert-success alert-dismissible fade show">
+-                    <i class="fas fa-check-circle mr-2"></i>{{ session('message') }}
+-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+-                </div>
+-            @endif
+-            @if (session('error'))
+-                <div class="alert alert-danger alert-dismissible fade show">
+-                    <i class="fas fa-exclamation-triangle mr-2"></i>{{ session('error') }}
+-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+-                </div>
+-            @endif
+-
+-            {{-- Table --}}
+-            <div class="table-responsive">
+-                <table class="table table-hover table-bordered mb-0">
+-                    <thead class="thead-light">
+-                        <tr>
+-                            <th width="40"><input type="checkbox" wire:model="selectAll" wire:click="toggleSelectAll"></th>
+-                            <th>ID</th>
+-                            <th wire:click="sortBy('name')" style="cursor:pointer;">Tên <i class="fas fa-sort text-muted"></i></th>
+-                            <th wire:click="sortBy('email')" style="cursor:pointer;">Email <i class="fas fa-sort text-muted"></i></th>
+-                            <th>Role</th>
+-                            <th>Xác thực</th>
+-                            <th class="text-center">Thao tác</th>
+-                        </tr>
+-                    </thead>
+-                    <tbody>
+-                        @forelse($this->users as $user)
+-                            <tr>
+-                                <td><input type="checkbox" wire:model="selectedUsers" value="{{ $user->id }}"></td>
+-                                <td>{{ $user->id }}</td>
+-                                <td>{{ $user->name }}</td>
+-                                <td>{{ $user->email }}</td>
+-                                <td>
+-                                    @foreach($user->getRoleNames() as $role)
+-                                        <span class="badge badge-info">{{ $role }}</span>
+-                                    @endforeach
+-                                </td>
+-                                <td>
+-                                    @if($user->email_verified_at)
+-                                        <span class="badge badge-success">Đã duyệt</span>
+-                                    @else
+-                                        <button wire:click="approve({{ $user->id }})" class="btn btn-outline-success btn-sm">
+-                                            <i class="fa fa-check"></i> Duyệt
+-                                        </button>
+-                                    @endif
+-                                </td>
+-                                <td class="text-center">
+-                                    <div class="btn-group">
+-                                        <button wire:click="edit({{ $user->id }})" class="btn btn-outline-primary btn-sm"><i class="fa fa-edit"></i></button>
+-                                        <button wire:click="delete({{ $user->id }})" class="btn btn-outline-danger btn-sm"><i class="fa fa-trash"></i></button>
+-                                    </div>
+-                                </td>
+-                            </tr>
+-                        @empty
+-                            <tr>
+-                                <td colspan="7" class="text-center text-muted">Không có người dùng nào.</td>
+-                            </tr>
+-                        @endforelse
+-                    </tbody>
+-                </table>
+-            </div>
+-
+-            {{-- Pagination --}}
+-            <div class="mt-3">
+-                {{ $this->users->links(data: ['scrollTo' => false]) }}
+-            </div>
+-        </div>
++    {{-- Buttons --}}
++    <div class="flex items-center gap-2 mb-4">
++        <button wire:click="openModalUser" class="px-3 py-1 bg-blue-600 text-white rounded">+ Thêm User</button>
++        <button wire:click="openModalRole" class="px-3 py-1 bg-indigo-500 text-white rounded">Cập nhật Role</button>
++        <button wire:click="deleteSelected" class="px-3 py-1 bg-red-500 text-white rounded">Xóa chọn</button>
+     </div>
+ 
+-    {{-- Include Form Modal --}}
+-    @include('livewire.users.user-form')
+-    {{-- @include('livewire.users.user-form-role') --}}
++    {{-- Table --}}
++    <table class="min-w-full bg-white border">
++        <thead>
++            <tr class="bg-gray-100 border-b">
++                <th class="px-3 py-2"><input type="checkbox" wire:model="selectAll"></th>
++                <th class="px-3 py-2">Tên</th>
++                <th class="px-3 py-2">Email</th>
++                <th class="px-3 py-2">Role</th>
++                <th class="px-3 py-2">Hành động</th>
++            </tr>
++        </thead>
++        <tbody>
++            @foreach ($users as $user)
++                <tr class="border-b hover:bg-gray-50">
++                    <td class="px-3 py-2">
++                        <input type="checkbox" wire:model="selectedUsers" value="{{ $user->id }}">
++                    </td>
++                    <td class="px-3 py-2">{{ $user->name }}</td>
++                    <td class="px-3 py-2">{{ $user->email }}</td>
++                    <td class="px-3 py-2">
++                        @foreach ($user->roles as $role)
++                            <span class="bg-gray-200 px-2 py-1 rounded text-xs">{{ $role->name }}</span>
++                        @endforeach
++                    </td>
++                    <td class="px-3 py-2">
++                        <button wire:click="openModalUser({{ $user->id }})"
++                            class="px-2 py-1 bg-yellow-400 text-white rounded">Sửa</button>
++                    </td>
++                </tr>
++            @endforeach
++        </tbody>
++    </table>
+ 
+-</div>
++    {{-- Modal user --}}
++    @include('user::livewire.partials.modal-user')
+ 
+-@push('js')
+-<script>
+-    document.addEventListener('open-print-window', event => {
+-        let newWindow = window.open('', '_blank');
+-        if (newWindow) {
+-            let decodedHtml = atob(event.detail[0].url.split(',')[1]);
+-            newWindow.document.open();
+-            newWindow.document.write(decodedHtml);
+-            newWindow.document.close();
+-            newWindow.print();
+-            setTimeout(() => newWindow.close(), 1000);
+-        } else {
+-            alert('Trình duyệt chặn popup! Hãy bật cho phép popup.');
+-        }
+-    });
+-</script>
+-@endpush
++    {{-- Modal role --}}
++    @include('user::livewire.partials.modal-role')
++</div>

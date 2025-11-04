@@ -15,6 +15,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use App\Events\UserCreate;
+use App\Helpers\TnvUserHelper;
 
 class UserList extends Component
 {
@@ -35,22 +36,23 @@ class UserList extends Component
     public $selectAll = false;
 
     // Modal / form state
-    public $showModal = false;        // create / edit user
-    public $showModalRole = false;    // modal update role (single or bulk)
+    public $showModal = false;        // create / edit user (Alpine entangle)
+    public $showModalRole = false;    // role modal (Alpine entangle)
     public $isEdit = false;
 
-    // User fields
+    // User fields (create/edit)
+    public $userId = null;
     public $name;
     public $username;
     public $email;
     public $password;
     public $birthdate;
     public $google_id;
+    public $is_admin = 0;
 
     // Role handling
-    public $role = null;              // for create/edit (role name or id)
-    public $selectedRoleId = null;    // for modal role (role id)
-    public $selectedUserId = null;    // when updating single user by modal
+    public $role = null;              // role id for create/edit
+    public $selectedRoleId = null;    // role id for role modal
 
     // ui errors
     public $error;
@@ -68,32 +70,25 @@ class UserList extends Component
         'password' => 'nullable|string|min:8',
     ];
 
-
     protected $listeners = [
         'refreshUsers' => '$refresh',
-        'closeModalRole' => 'closeModalRole', // nhận emit từ JS khi modal đóng
-        'modalRoleClosed' => 'resetRoleModal'
     ];
-    
-    public function resetRoleModal()
-    {
-        $this->showModalRole = false;
-        $this->selectedUserId = null;
-        $this->selectedRoleId = null;
-    }
-
+    protected $updatesQueryString = ['search', 'sortField', 'sortDirection', 'perPage'];
     // ---------- Computed properties ----------
     public function getUsersProperty()
     {
-        return User::where(function ($q) {
-                if ($this->search) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('email', 'like', '%' . $this->search . '%')
-                      ->orWhere('username', 'like', '%' . $this->search . '%');
-                }
-            })
-            ->orderBy($this->sortField, $this->sortDirection)
-            ->paginate((int) $this->perPage);
+        $query = User::query();
+
+        // 🔹 Tìm kiếm keyword nếu có
+        if ($this->search) {
+            $query->keyword($this->search); // gọi scopeKeyword trong model
+        }
+
+        // 🔹 Sắp xếp
+        $query->orderBy($this->sortField, $this->sortDirection);
+
+        // 🔹 Phân trang
+        return $query->paginate((int) $this->perPage);
     }
 
     public function getRolesProperty()
@@ -114,7 +109,6 @@ class UserList extends Component
 
     public function updatedSelectedUsers()
     {
-        // lưu tạm (nếu cần)
         session()->put('selectedUsers', $this->selectedUsers);
     }
 
@@ -157,7 +151,7 @@ class UserList extends Component
 
     protected function resetForm()
     {
-        $this->reset(['name', 'username', 'email', 'password', 'birthdate', 'google_id', 'userId', 'isEdit', 'role', 'userId']);
+        $this->reset(['name', 'username', 'email', 'password', 'birthdate', 'google_id', 'userId', 'isEdit', 'role', 'is_admin']);
         $this->isEdit = false;
         $this->userId = null;
     }
@@ -166,22 +160,31 @@ class UserList extends Component
     {
         $validated = $this->validate($this->rulesCreate);
 
-        $validated['password'] = Hash::make($validated['password']);
+        // Chuẩn bị dữ liệu gửi cho helper
+        $data = [
+            'email'      => $validated['email'],
+            'password'   => $validated['password'],  // chưa hash, helper sẽ tự xử lý
+            'name'       => $validated['name'] ?? null,
+            'username'   => $validated['username'] ?? null,
+            'is_admin'   => $this->is_admin ?? 0,
+            'birthdate'  => $this->birthdate ?? null,
+            'google_id'  => $this->google_id ?? null,
+            'role_name'  => $this->role ?? 'User',
+        ];
 
         try {
-            $user = User::create($validated);
+            $result = TnvUserHelper::register($data);
 
-            // Nếu role được chọn theo id => lấy role name để assign hoặc dùng syncRoles với id.
-            if ($this->role) {
-                // supports id or name; dùng syncRoles với id an toàn
-                $user->syncRoles([$this->role]);
+            if ($result['status'] === 'success') {
+                $user = $result['data'];
+
+                $this->resetForm();
+                $this->showModal = false;
+                session()->flash('message', '✅ User created successfully!');
+                $this->dispatch('refreshUsers');
+            } else {
+                session()->flash('error', '❌ ' . $result['message']);
             }
-
-            event(new UserCreate($user));
-            $this->resetForm();
-            $this->showModal = false;
-            session()->flash('message', 'User created successfully!');
-            $this->dispatch('refreshUsers');
         } catch (\Exception $e) {
             session()->flash('error', 'Save error: ' . $e->getMessage());
         }
@@ -202,7 +205,6 @@ class UserList extends Component
         $this->birthdate = $user->birthdate;
         $this->google_id = $user->google_id;
         $this->isEdit = true;
-        // set role to first role id if exists
         $firstRoleId = $user->roles->pluck('id')->first();
         $this->role = $firstRoleId ?: null;
 
@@ -216,34 +218,50 @@ class UserList extends Component
         ]));
 
         try {
-            $user = User::findOrFail($this->userId);
-
+            // --- Chuẩn bị dữ liệu cập nhật ---
             $data = [
                 'name' => $this->name,
                 'email' => $this->email,
+                'username' => $this->username,
+                'birthdate' => $this->birthdate,
+                'google_id' => $this->google_id,
             ];
 
+            // ✅ Nếu có nhập mật khẩu mới thì thêm vào (để helper tự xử lý hash)
             if (!empty($this->password)) {
-                $data['password'] = Hash::make($this->password);
+                $data['password'] = $this->password;
             }
 
-            // optional fields
-            $data['username'] = $this->username;
-            $data['birthdate'] = $this->birthdate;
-            $data['google_id'] = $this->google_id;
+            // --- Gọi helper cập nhật ---
+            $result = TnvUserHelper::updateUser($this->userId, $data);
 
-            $user->update($data);
-
-            if ($this->role) {
-                // syncRoles nhận id hoặc tên; dùng id để nhất quán
-                $user->syncRoles([$this->role]);
+            if ($result['status'] !== 'success') {
+                $errorMsg = $result['message'] ?? 'Update failed';
+                if (!empty($result['errors'])) {
+                    foreach ($result['errors']->toArray() as $field => $messages) {
+                        $errorMsg .= ' | ' . $field . ': ' . implode(', ', $messages);
+                    }
+                }
+                session()->flash('error', $errorMsg);
+                return;
             }
 
+            // --- Cập nhật vai trò (nếu có chọn) ---
+            if (!empty($this->role)) {
+                $user = User::find($this->userId);
+                if ($user) {
+                    $user->syncRoles([$this->role]);
+                }
+            }
+
+            // --- Reset form và đóng modal ---
             $this->resetForm();
             $this->showModal = false;
+
             session()->flash('message', 'User updated successfully!');
             $this->dispatch('refreshUsers');
-        } catch (\Exception $e) {
+
+        } catch (\Throwable $e) {
             session()->flash('error', 'Update error: ' . $e->getMessage());
         }
     }
@@ -303,75 +321,47 @@ class UserList extends Component
     }
 
     // ---------- Role update (modal) ----------
-    /**
-     * Mở modal cập nhật role.
-     * Nếu $userId được truyền => cập nhật cho 1 user.
-     * Nếu không truyền => modal dùng cho bulk update (dựa vào selectedUsers).
-     */
-    public function openModalRole($userId = null)
+    public function openModalRole()
     {
-        $this->selectedUserId = $userId;
-        $this->selectedRoleId = null;
-    
-        if ($userId) {
-            $user = User::with('roles')->find($userId);
-            $this->selectedRoleId = $user->roles->pluck('id')->first() ?: null;
-        } else {
-            if (count($this->selectedUsers) === 1) {
-                $u = User::with('roles')->find($this->selectedUsers[0]);
-                $this->selectedRoleId = $u->roles->pluck('id')->first() ?: null;
-            }
+        if (empty($this->selectedUsers)) {
+            session()->flash('error', 'Vui lòng chọn ít nhất một người dùng để cập nhật vai trò.');
+            return;
         }
-    
-        $this->showModalRole = true;
-    
-        // dispatch browser event để JS mở modal (không render 'show' từ server)
-        $this->dispatch('user-form-role:open');
+
+        // Nếu chỉ chọn 1 user → load role hiện tại
+        if (count($this->selectedUsers) === 1) {
+            $u = User::with('roles')->find($this->selectedUsers[0]);
+            $this->selectedRoleId = $u?->roles->pluck('id')->first() ?? null;
+        } else {
+            $this->selectedRoleId = null;
+        }
+
+        $this->showModalRole = true; // Alpine @entangle sẽ mở modal
     }
 
     public function closeModalRole()
     {
         $this->showModalRole = false;
-        $this->selectedUserId = null;
         $this->selectedRoleId = null;
-        $this->dispatch('user-form-role:close');
     }
 
-    public function updateRole()
-{
-    $this->validate([
-        'selectedRoleId' => 'required|exists:roles,id',
-    ]);
+    public function updateUserRole()
+    {
+        $this->validate([
+            'selectedRoleId' => 'required|exists:roles,id',
+        ]);
 
-    $roleId = $this->selectedRoleId;
-
-    try {
-        if ($this->selectedUserId) {
-            $user = User::findOrFail($this->selectedUserId);
-            $user->syncRoles([$roleId]);
-        } else {
-            if (empty($this->selectedUsers)) {
-                session()->flash('error', 'Vui lòng chọn ít nhất một người dùng để cập nhật role.');
-                return;
-            }
-            $users = User::whereIn('id', $this->selectedUsers)->get();
-            foreach ($users as $u) {
-                $u->syncRoles([$roleId]);
-            }
+        $users = User::whereIn('id', $this->selectedUsers)->get();
+        foreach ($users as $user) {
+            $user->syncRoles([$this->selectedRoleId]);
         }
 
         $this->showModalRole = false;
-        $this->selectedUserId = null;
+        $this->selectedUsers = [];
         $this->selectedRoleId = null;
-        session()->flash('message', 'User Role updated successfully!');
-        $this->dispatch('user-form-role:close');
+        session()->flash('message', 'Cập nhật vai trò thành công!');
         $this->dispatch('refreshUsers');
-        $this->resetRoleModal();
-        $this->loadData();
-    } catch (\Exception $e) {
-        session()->flash('error', 'Update role error: ' . $e->getMessage());
     }
-}
 
     // ---------- Export / Print ----------
     public function exportSelected()
@@ -445,8 +435,8 @@ class UserList extends Component
     public function render()
     {
         return view('livewire.users.user-list', [
-            'users' => $this->users,          // collection paginated
-            'roles' => $this->roles,          // roles array id => name
+            'users' => $this->users,
+            'roles' => $this->roles,
         ]);
     }
 }

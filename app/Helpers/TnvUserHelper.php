@@ -21,105 +21,312 @@ use Illuminate\Support\Facades\Auth;
 class TnvUserHelper
 {
     
+    /**
+     * Hàm lấy danh sách user có thể tái sử dụng ở bất kỳ đâu
+     *
+     * Hỗ trợ:
+     *  - Lọc theo id, is_admin, referral_code, email
+     *  - Tìm kiếm theo keyword (name, email, username)
+     *  - Sort, paginate, get, first, count
+     *  - Load quan hệ, chọn cột cụ thể
+     */
     public static function getUsers(array $params = [])
     {
         $query = User::query();
 
-        // Lọc theo ID
-        if (!empty($params['id'])) {
-            if (is_array($params['id'])) {
-                $query->whereIn('id', $params['id']);
-            } else {
-                $query->where('id', $params['id']);
+        // 🔹 Làm sạch params: bỏ null hoặc rỗng
+        $params = array_filter($params, fn($v) => $v !== null && $v !== '');
+
+        /**
+         * =====================
+         * Hàm parse date chuẩn hóa
+         * =====================
+         */
+        $parseDate = function($date) {
+            // dd/mm/yyyy -> yyyy-mm-dd
+            if (preg_match('#^(\d{2})/(\d{2})/(\d{4})$#', $date, $m)) {
+                return "{$m[3]}-{$m[2]}-{$m[1]}";
             }
+            // yyyy-mm-dd
+            if (preg_match('#^\d{4}-\d{2}-\d{2}$#', $date)) {
+                return $date;
+            }
+            return null;
+        };
+
+        /**
+         * =====================
+         * FILTER THÔNG THƯỜNG
+         * =====================
+         */
+        if (!empty($params['id'])) {
+            is_array($params['id'])
+                ? $query->whereIn('id', $params['id'])
+                : $query->where('id', $params['id']);
         }
 
-        // Lọc theo is_admin
+        if (!empty($params['email'])) {
+            is_array($params['email'])
+                ? $query->whereIn('email', $params['email'])
+                : $query->where('email', $params['email']);
+        }
+
         if (isset($params['is_admin'])) {
             $query->where('is_admin', $params['is_admin']);
         }
 
-        // Tìm kiếm theo từ khóa
-        if (!empty($params['keyword'])) {
-            $keyword = $params['keyword'];
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('email', 'like', "%{$keyword}%")
-                  ->orWhere('username', 'like', "%{$keyword}%");
+        if (isset($params['referral_code'])) {
+            $query->where('referral_code', $params['referral_code']);
+        }
+
+        if (isset($params['status'])) {
+            $query->where('status', $params['status']);
+        }
+
+        /**
+         * =====================
+         * FILTER KEYWORD SEARCH
+         * =====================
+         */
+        if (!empty($params['search'])) {
+            $query->where(function($q) use ($params) {
+                $q->where('name', 'like', '%' . $params['search'] . '%')
+                ->orWhere('email', 'like', '%' . $params['search'] . '%');
             });
         }
 
-        // Sắp xếp
-        $sortBy = $params['sort_by'] ?? 'id';
-        $sortOrder = $params['sort_order'] ?? 'desc';
-        $query->orderBy($sortBy, $sortOrder);
+        /**
+         * =====================
+         * FILTER DATE FIELD (DATE/DATETIME)
+         * =====================
+         */
+        $dateFields = ['birthdate', 'created_at', 'updated_at'];
 
-        // Phân trang mặc định
-        $perPage = $params['per_page'] ?? 20;
+        foreach ($dateFields as $field) {
+            // exact match
+            if (!empty($params[$field])) {
+                $date = $parseDate($params[$field]);
+                if ($date) {
+                    $query->whereDate($field, $date);
+                }
+            }
 
-        return $query->paginate($perPage);
+            // from
+            if (!empty($params[$field . '_from'])) {
+                $date = $parseDate($params[$field . '_from']);
+                if ($date) {
+                    $query->whereDate($field, '>=', $date);
+                }
+            }
+
+            // to
+            if (!empty($params[$field . '_to'])) {
+                $date = $parseDate($params[$field . '_to']);
+                if ($date) {
+                    $query->whereDate($field, '<=', $date);
+                }
+            }
+        }
+
+        /**
+         * =====================
+         * GỌI QUERY CHUNG
+         * =====================
+         */
+        return TnvHelper::BaseQueryService($query, $params);
     }
 
-    public static function updateUser(int $id, array $data)
+    
+
+
+
+    public static function updateUser(int $userId, array $data)
     {
-        //return $id;
-       
-        $user = User::find($id);
-        
-        if (!$user) {
+        try {
+            // --- TÌM USER ---
+            $user = User::find($userId);
+            if (!$user) {
+                return [
+                    'status'  => 'error',
+                    'message' => 'Không tìm thấy người dùng.',
+                ];
+            }
+
+            // --- VALIDATION ---
+            $validator = Validator::make($data, [
+                'email'         => 'nullable|email|unique:users,email,' . $user->id,
+                'password'      => 'nullable|string|min:6',
+                'c_password'    => 'nullable|string|same:password',
+                'name'          => 'nullable|string|max:100',
+                'username'      => 'nullable|string|max:100|unique:users,username,' . $user->id,
+                'birthdate'     => 'nullable|date',
+                'role_name'     => 'nullable|string',
+                'verified'      => 'nullable|boolean',
+                'is_admin'      => 'nullable|integer',
+                'referral_code' => 'nullable|string|max:50',
+            ], [
+                'email.unique'    => 'Email đã được sử dụng.',
+                'username.unique' => 'Username đã tồn tại.',
+                'c_password.same' => 'Mật khẩu nhập lại không khớp.',
+            ]);
+
+            if ($validator->fails()) {
+                return [
+                    'status'  => 'error',
+                    'message' => $validator->errors()->first(),
+                    'errors'  => $validator->errors(),
+                ];
+            }
+
+            DB::beginTransaction();
+
+            // --- UPDATE FIELDS (có kiểm tra array_key_exists) ---
+            if (array_key_exists('name', $data)) {
+                $user->name = $data['name'];
+            }
+
+            if (array_key_exists('email', $data)) {
+                $user->email = $data['email'];
+            }
+
+            if (array_key_exists('username', $data)) {
+                $user->username = $data['username'];
+            }
+
+            if (array_key_exists('birthdate', $data)) {
+                $user->birthdate = $data['birthdate'];
+            }
+
+            if (array_key_exists('referral_code', $data)) {
+                $user->referral_code = $data['referral_code'];
+            }
+
+            if (array_key_exists('is_admin', $data)) {
+                $user->is_admin = (int) $data['is_admin'];
+            }
+
+            // --- PASSWORD ---
+            if (!empty($data['password'])) {
+                $user->password = Hash::make($data['password']);
+            }
+
+            // --- VERIFIED FLAG ---
+            if (array_key_exists('verified', $data)) {
+                $user->email_verified_at = $data['verified'] ? now() : null;
+            }
+
+            // --- ROLE HANDLING ---
+            if (array_key_exists('role_name', $data) && !empty($data['role_name'])) {
+                $roleName = $data['role_name'];
+                $role = Role::where('name', $roleName)->first();
+
+                if (!$role) {
+                    $role = Role::firstOrCreate(['name' => $roleName]);
+                }
+
+                $user->syncRoles([$role]);
+            }
+
+            // --- LƯU ---
+            $user->save();
+
+            DB::commit();
+
+            // --- RESPONSE ---
             return [
-                'status' => false,
-                'message' => 'User not found'
+                'status'  => 'success',
+                'message' => 'Cập nhật người dùng thành công!',
+                'data'    => [
+                    'id'            => $user->id,
+                    'name'          => $user->name,
+                    'email'         => $user->email,
+                    'username'      => $user->username,
+                    'birthdate'     => $user->birthdate,
+                    'referral_code' => $user->referral_code,
+                    'is_admin'      => $user->is_admin,
+                    'verified'      => !empty($user->email_verified_at),
+                    'roles'         => $user->getRoleNames(),
+                    'updated_at'    => $user->updated_at,
+                ],
+            ];
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return [
+                'status'  => 'error',
+                'message' => 'Cập nhật thất bại: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    public static function updateAllUser(array $userIds, array $data): array
+    {
+        if (empty($userIds)) {
+            return [
+                'status' => 'error',
+                'message' => 'Không có user nào được chọn.',
             ];
         }
 
-        // Xác định các trường có thể cập nhật
-        $allowedFields = [
-            'name',
-            'email',
-            'username',
-            'is_admin',
-            'birthdate',
-            'password'
-        ];
-        
-        $data = array_intersect_key($data, array_flip($allowedFields));
-        
-        // Tạo validator để kiểm tra trùng email/username
-        $validator = Validator::make($data, [
-            'email' => [
-                'sometimes', 'email',
-                Rule::unique('users', 'email')->ignore($id)
-            ],
-            'username' => [
-                'sometimes', 'string',
-                Rule::unique('users', 'username')->ignore($id)
-            ],
-            'password' => ['sometimes', 'string', 'min:6'],
-        ]);
+        try {
+            DB::beginTransaction();
 
-        
-        if ($validator->fails()) {
+            // 🔧 Chuẩn hóa dữ liệu
+            if (isset($data['birthdate']) && !empty($data['birthdate'])) {
+                try {
+                    $data['birthdate'] = Carbon::parse($data['birthdate'])->format('Y-m-d');
+                } catch (\Throwable $e) {
+                    return [
+                        'status' => 'error',
+                        'message' => "Ngày sinh '{$data['birthdate']}' không hợp lệ.",
+                    ];
+                }
+            }
+
+            if (isset($data['password']) && !empty($data['password'])) {
+                if (!Hash::needsRehash($data['password'])) {
+                    $data['password'] = bcrypt($data['password']);
+                }
+            }
+
+            if (isset($data['verified'])) {
+                $data['verified'] = (bool) $data['verified'];
+            }
+
+            if (isset($data['is_admin'])) {
+                $data['is_admin'] = (int) $data['is_admin'];
+            }
+
+            // Tách role_name ra xử lý riêng
+            $roleName = $data['role_name'] ?? null;
+            unset($data['role_name']);
+
+            // 🔁 Thực hiện cập nhật
+            $updated = User::whereIn('id', $userIds)->update($data);
+
+            // Nếu có role_name, sync roles cho từng user
+            if ($roleName) {
+                $users = User::whereIn('id', $userIds)->get();
+                foreach ($users as $user) {
+                    $user->syncRoles([$roleName]);
+                }
+            }
+
+            DB::commit();
+
             return [
-                'status' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'status' => 'success',
+                'message' => "Đã cập nhật {$updated} người dùng thành công.",
+                'count' => $updated,
+                'data' => array_merge($data, ['role_name' => $roleName]),
+            ];
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return [
+                'status' => 'error',
+                'message' => 'Lỗi khi cập nhật hàng loạt: ' . $e->getMessage(),
             ];
         }
-        
-        // Mã hóa password nếu có
-        if (!empty($data['password'])) {
-            $data['password'] = bcrypt($data['password']);
-        }
-
-        
-        $user->update($data);
-
-        return [
-            'status' => true,
-            'message' => 'User updated successfully',
-            'data' => $user
-        ];
     }
 
     public static function deleteUsers(array|string|int $params = [])
@@ -201,116 +408,120 @@ class TnvUserHelper
         try {
             // --- VALIDATION ---
             $validator = Validator::make($user, [
-                'name'                  => 'required|string|max:100',
-                'email'                 => 'required|email|unique:users,email',
-                'password'              => 'required|string|min:6',
-                'c_password' => 'nullable|string|min:6|same:password',
-                'is_admin'              => 'nullable|integer',
-                'verified'              => 'nullable|string',
-                'role_name'              => 'nullable|string',
+                'email'         => 'required|email|unique:users,email',
+                'password'      => 'required|string|min:6',
+                'c_password'    => 'nullable|string|min:6|same:password',
+                'name'          => 'nullable|string|max:100',
+                'username'      => 'nullable|string|max:100',
+                'birthdate'     => 'nullable|date',
+                'role_name'     => 'nullable|string',
+                'verified'      => 'nullable|boolean',
+                'is_admin'      => 'nullable|integer',
+                'referral_code' => 'nullable|string|max:50',
             ], [
-                'email.unique' => 'Email đã được sử dụng.',
-                'c_password.same' => 'Mật khẩu nhập lại không khớp.',
-                'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+                'email.unique'   => 'Email đã được sử dụng.',
+                'c_password.same'=> 'Mật khẩu nhập lại không khớp.',
+                'password.min'   => 'Mật khẩu phải có ít nhất 6 ký tự.',
             ]);
-            
-
+    
             if ($validator->fails()) {
                 return [
-                    'status' => 'error',
+                    'status'  => 'error',
                     'message' => $validator->errors()->first(),
-                    'errors' => $validator->errors(),
+                    'errors'  => $validator->errors(),
                 ];
             }
-
+    
             DB::beginTransaction();
-
-            // --- Xử lý username ---
+    
+            // --- AUTO-GENERATE USERNAME ---
             if (empty($user['username'])) {
                 $baseUsername = Str::before($user['email'], '@');
                 $username = $baseUsername;
                 $count = 0;
+    
                 while (User::where('username', $username)->exists()) {
                     $count++;
                     $username = $baseUsername . rand(100, 999);
-                    if ($count > 5) break; // tránh vòng lặp vô hạn
+                    if ($count > 5) break;
                 }
+    
                 $user['username'] = $username;
             }
-
-            
-            // --- Xử lý is_admin ---
-            if (empty($user['is_admin']) && empty($user['role_name'])) {
-                $roleName = 'User';
-                $user['is_admin'] = 0;
-            }else{
-                if (!empty($user['role_name'])) {
-                    // nếu có is_admin -> kiểm tra Role theo id
-                    $role = \Spatie\Permission\Models\Role::where('name', $user['role_name'])->first();
-                    if ($role) {
-                        $roleName = $role->name; // nếu tìm thấy thì gán theo name
-                        $user['is_admin'] = $role->id;
-                    } else {
-                        $roleName = 'User'; // fallback
-                        $user['is_admin'] = 0;
-                    }
-                }else{
-                    $roleName = 'User';
-                    $user['is_admin'] = 0;
-                }
-
+    
+            // --- DEFAULT NAME = USERNAME (nếu chưa có hoặc rỗng) ---
+            if (empty($user['name'])) {
+                $user['name'] = $user['username'];
             }
-
-            
-            // --- Xử lý email_verified_at ---
-            $emailVerifiedAt = !empty($user['verified']) ? now():null;
-
-            // --- Tạo Role (nếu chưa có) ---
-            $role = Role::firstOrCreate(['name' => $roleName]);
-
-            // --- Tạo User ---
+    
+            // --- ROLE HANDLING ---
+            $roleName = $user['role_name'] ?? 'User';
+            $role = Role::where('name', $roleName)->first();
+    
+            // Nếu role_name không tồn tại -> fallback "User"
+            if (!$role) {
+                $roleName = 'User';
+                $role = Role::where('name', $roleName)->first();
+            }
+    
+            // Nếu vẫn chưa có role "User", tự tạo
+            if (!$role) {
+                $role = Role::firstOrCreate(['name' => 'User']);
+            }
+    
+            // --- IS_ADMIN DEFAULT ---
+            $user['is_admin'] = $user['is_admin'] ?? 0;
+    
+            // --- VERIFIED FLAG ---
+            $emailVerifiedAt = !empty($user['verified']) ? now() : null;
+    
+            // --- CREATE USER ---
             $newUser = User::create([
-                'name' => $user['name'],
-                'email' => $user['email'],
-                'username' => $user['username'],
-                'password' => Hash::make($user['password']),
+                'name'              => $user['name'],
+                'email'             => $user['email'],
+                'username'          => $user['username'],
+                'password'          => Hash::make($user['password']),
                 'email_verified_at' => $emailVerifiedAt,
-                'is_admin' => $user['is_admin'],
+                'is_admin'          => $user['is_admin'],
+                'birthdate'         => $user['birthdate'] ?? null,
+                'referral_code'     => $user['referral_code'] ?? null,
             ]);
-
-            // --- Gán Role ---
+    
+            // --- ASSIGN ROLE ---
             $newUser->assignRole($role);
-
-            // --- Tạo Token (nếu có Sanctum hoặc Passport) ---
+    
+            // --- CREATE API TOKEN (Sanctum/Passport optional) ---
             $token = method_exists($newUser, 'createToken')
                 ? $newUser->createToken('api_token')->plainTextToken
                 : null;
-
+    
             DB::commit();
-
-            // --- Trả về kết quả ---
+    
+            // --- RESPONSE ---
             return [
-                'status' => 'success',
+                'status'  => 'success',
                 'message' => 'Đăng ký thành công!',
-                'token' => $token,
-                'data' => [
-                    'id' => $newUser->id,
-                    'name' => $newUser->name,
-                    'email' => $newUser->email,
-                    'username' => $newUser->username,
-                    'is_admin' => $newUser->is_admin,
-                    'roles' => $newUser->getRoleNames(),
+                'token'   => $token,
+                'data'    => [
+                    'id'        => $newUser->id,
+                    'name'      => $newUser->name,
+                    'email'     => $newUser->email,
+                    'username'  => $newUser->username,
+                    'is_admin'  => $newUser->is_admin,
+                    'roles'     => $newUser->getRoleNames(),
                 ],
             ];
+    
         } catch (\Throwable $e) {
             DB::rollBack();
-
+    
             return [
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Đăng ký thất bại: ' . $e->getMessage(),
             ];
         }
     }
+    
 
     public static function login(array $user)
     {

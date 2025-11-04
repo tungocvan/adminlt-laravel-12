@@ -1,0 +1,7 @@
+POST https://adminlt.laravel.tk/api/users
+Accept: application/json
+Content-Type: application/json
+
+{
+  "birthday": "25/09/1978",  
+}

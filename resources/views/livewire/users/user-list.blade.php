@@ -9,8 +9,8 @@
                 <button wire:click="openModalRole" class="btn btn-light btn-sm">
                     <i class="fa fa-user-shield mr-1"></i> Cập nhật Role
                 </button>
-                <button wire:click="deleteSelected" 
-                        onclick="return confirm('Bạn có chắc muốn xóa các user đã chọn?')" 
+                <button wire:click="deleteSelected"
+                        onclick="return confirm('Bạn có chắc muốn xóa các user đã chọn?')"
                         class="btn btn-danger btn-sm">
                     <i class="fa fa-trash mr-1"></i> Xóa chọn
                 </button>
@@ -62,7 +62,7 @@
                     <thead class="thead-light">
                         <tr>
                             <th width="40"><input type="checkbox" wire:model="selectAll" wire:click="toggleSelectAll"></th>
-                            <th>ID</th>
+                            <th wire:click="sortBy('id')" style="cursor:pointer;">ID <i class="fas fa-sort text-muted"></i></th>
                             <th wire:click="sortBy('name')" style="cursor:pointer;">Tên <i class="fas fa-sort text-muted"></i></th>
                             <th wire:click="sortBy('email')" style="cursor:pointer;">Email <i class="fas fa-sort text-muted"></i></th>
                             <th>Role</th>
@@ -116,24 +116,8 @@
 
     {{-- Include Form Modal --}}
     @include('livewire.users.user-form')
-    {{-- @include('livewire.users.user-form-role') --}}
+
+    {{-- Include Role Modal (Alpine-based) --}}
+    @include('livewire.users.user-form-role')
 
 </div>
-
-@push('js')
-<script>
-    document.addEventListener('open-print-window', event => {
-        let newWindow = window.open('', '_blank');
-        if (newWindow) {
-            let decodedHtml = atob(event.detail[0].url.split(',')[1]);
-            newWindow.document.open();
-            newWindow.document.write(decodedHtml);
-            newWindow.document.close();
-            newWindow.print();
-            setTimeout(() => newWindow.close(), 1000);
-        } else {
-            alert('Trình duyệt chặn popup! Hãy bật cho phép popup.');
-        }
-    });
-</script>
-@endpush

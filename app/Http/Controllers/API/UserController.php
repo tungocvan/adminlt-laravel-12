@@ -11,23 +11,48 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = TnvUserHelper::getUsers($request->all());
-        return response()->json($users);
+        $params = $request->all();
+        $perPage = $request->input('per_page', 20);
+    
+        $result = User::filter($params, $perPage);
+    
+        return response()->json([
+            'success' => true,
+            'data' => $result['data'],
+            'meta' => $result['meta'],
+        ]);
     }
+    
+
+
+
      
-     public function show($id)
-     {
-      
-        $user = User::find($id);
- 
-         if (!$user) {
-             return response()->json([
-                 'message' => 'User not found'
-             ], 404);
-         }
- 
-         return response()->json($user);
-     }
+    public function show(Request $request, $identifier)
+    {
+        $params = [];
+
+        // Nếu là số => coi là ID
+        if (is_numeric($identifier)) {
+            $params['id'] = (int) $identifier;
+        } else {
+            // Ngược lại coi là email
+            $params['email'] = $identifier;
+        }
+
+        $user = TnvUserHelper::getUsers($params);
+
+        if ($user->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $user->first(),
+        ]);
+    }
  
         
     

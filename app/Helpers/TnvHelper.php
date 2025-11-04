@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Database\Eloquent\Builder;
 
 class TnvHelper
 {
@@ -225,5 +226,50 @@ class TnvHelper
             ]);
             return back()->with('error', '⚠️ Xảy ra lỗi khi tải file.');
         }
+    }
+
+     /**
+     * BaseQueryService: chuẩn hóa query có thể dùng cho mọi model.
+     *
+     * @param Builder $query
+     * @param array $params
+     * @return mixed
+     */
+    public static function BaseQueryService(Builder $query, array $params = [])
+    {
+        // 🔹 Làm sạch params: bỏ null, rỗng
+        $params = array_filter($params, fn($v) => $v !== null && $v !== '');
+
+        // 🔹 Select cột cụ thể
+        if (!empty($params['select'])) {
+            $query->select($params['select']);
+        }
+
+        // 🔹 Eager load quan hệ
+        if (!empty($params['with'])) {
+            $query->with($params['with']);
+        }
+
+        // 🔹 Keyword search (nếu model có scopeKeyword)
+        if (!empty($params['keyword']) && method_exists($query->getModel(), 'scopeKeyword')) {
+            $query->keyword($params['keyword']);
+        }
+
+        // 🔹 Sort
+        $sortBy = $params['sort_by'] ?? 'id';
+        $sortOrder = $params['sort_order'] ?? 'desc';
+        $query->orderBy($sortBy, $sortOrder);
+
+        // 🔹 Loại kết quả
+        $type = $params['type'] ?? 'paginate';
+        $perPage = $params['per_page'] ?? 20;
+
+        return match ($type) {
+            'first'   => $query->first(),
+            'count'   => $query->count(),
+            'get'     => $query->get(),
+            'paginate'=> $query->paginate($perPage),
+            default   => $query->paginate($perPage),
+        };
     }
 }

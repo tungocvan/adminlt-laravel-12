@@ -1,74 +1,69 @@
-{{-- Modal Add / Edit --}}
-<div class="modal fade @if($showModal) show @endif" style="display:@if($showModal)block @else none @endif;" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
-              <h5 class="modal-title">
-                  <i class="fas fa-user-edit mr-2"></i>
-                  {{ $isEdit ? 'Cập nhật người dùng' : 'Thêm người dùng mới' }}
-              </h5>
-              <button type="button" class="close text-white" wire:click="closeModal">
-                  <span>&times;</span>
-              </button>
-          </div>
+{{-- Modal Add / Edit (Alpine + entangle with showModal) --}}
+<div x-data="{ open: @entangle('showModal') }" x-cloak>
+    <div x-show="open" x-transition.opacity style="display:none"
+         class="modal-backdrop fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center">
+        <div x-show="open" x-transition class="bg-white rounded shadow-lg w-full max-w-2xl mx-3" @click.away="open = false">
+            <div class="modal-header p-3 bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="modal-title mb-0">{{ $isEdit ? 'Edit User' : 'Add User' }}</h5>
+                <button type="button" class="close text-white" @click="open = false">&times;</button>
+            </div>
 
-          <div class="modal-body">
-              <form wire:submit.prevent="{{ $isEdit ? 'update' : 'save' }}">
-                  <div class="form-row">
-                      <div class="form-group col-md-6">
-                          <label>Tên</label>
-                          <input type="text" wire:model.defer="name" class="form-control" placeholder="Nhập tên...">
-                          @error('name') <small class="text-danger">{{ $message }}</small> @enderror
-                      </div>
+            <div class="modal-body p-3">
+                <form wire:submit.prevent="{{ $isEdit ? 'update' : 'save' }}">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Name</label>
+                            <input type="text" wire:model.defer="name" class="form-control">
+                            @error('name') <small class="text-danger">{{ $message }}</small> @enderror
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Email</label>
+                            <input type="email" wire:model.defer="email" class="form-control">
+                            @error('email') <small class="text-danger">{{ $message }}</small> @enderror
+                        </div>
+                    </div>
 
-                      <div class="form-group col-md-6">
-                          <label>Email</label>
-                          <input type="email" wire:model.defer="email" class="form-control" placeholder="Email...">
-                          @error('email') <small class="text-danger">{{ $message }}</small> @enderror
-                      </div>
-                  </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Username</label>
+                            <input type="text" wire:model.defer="username" class="form-control" {{ $isEdit ? 'disabled' : '' }}>
+                            @error('username') <small class="text-danger">{{ $message }}</small> @enderror
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Password</label>
+                            <input type="password" wire:model.defer="password" class="form-control" placeholder="{{ $isEdit ? 'Leave blank to keep current' : '' }}">
+                            @error('password') <small class="text-danger">{{ $message }}</small> @enderror
+                        </div>
+                    </div>
 
-                  <div class="form-row">
-                      <div class="form-group col-md-6">
-                          <label>Tên đăng nhập</label>
-                          <input type="text" {{ $isEdit ? 'disabled' : '' }} wire:model.defer="username" class="form-control" placeholder="Username...">
-                          @error('username') <small class="text-danger">{{ $message }}</small> @enderror
-                      </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Role</label>
+                            <select wire:model="role" class="form-control">
+                                <option value="">-- Chọn role --</option>
+                                @foreach($this->roles as $id => $name)
+                                    <option value="{{ $id }}">{{ $name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                      <div class="form-group col-md-6">
-                          <label>Mật khẩu</label>
-                          <input type="password" wire:model.defer="password" class="form-control" placeholder="{{ $isEdit ? 'Để trống nếu không đổi' : 'Nhập mật khẩu...' }}">
-                          @error('password') <small class="text-danger">{{ $message }}</small> @enderror
-                      </div>
-                  </div>
+                        <div class="form-group col-md-6">
+                            <label>Birthdate</label>
+                            <input type="date" wire:model.defer="birthdate" class="form-control">
+                        </div>
+                    </div>
 
-                  <div class="form-row">
-                      <div class="form-group col-md-6">
-                          <label>Vai trò (Role)</label>
-                          <select wire:model="role" class="form-control">
-                              @foreach($this->roles as $value => $label)
-                                  <option value="{{ $value }}">{{ $label }}</option>
-                              @endforeach
-                          </select>
-                      </div>
+                    <div class="form-group">
+                        <label>Google ID</label>
+                        <input type="text" wire:model.defer="google_id" class="form-control">
+                    </div>
 
-                      <div class="form-group col-md-6">
-                          <label>Ngày sinh</label>
-                          <input type="date" wire:model.defer="birthdate" class="form-control">
-                      </div>
-                  </div>
-
-                  <div class="form-group">
-                      <label>Google ID (nếu có)</label>
-                      <input type="text" wire:model.defer="google_id" class="form-control" placeholder="Nhập Google ID...">
-                  </div>
-
-                  <div class="form-group text-right">
-                      <button type="button" class="btn btn-secondary" wire:click="closeModal">Hủy</button>
-                      <button type="submit" class="btn btn-primary">{{ $isEdit ? 'Cập nhật' : 'Lưu' }}</button>
-                  </div>
-              </form>
-          </div>
-      </div>
-  </div>
+                    <div class="text-right">
+                        <button type="button" class="btn btn-secondary btn-sm mr-2" @click="open = false">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm">{{ $isEdit ? 'Update' : 'Save' }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>

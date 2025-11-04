@@ -12,21 +12,26 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('username')->unique();
-            $table->string('password');
-            $table->tinyInteger('is_admin')->default(0);
-            $table->enum('role',['admin','agent','user'])->default('user');
-            $table->date('birthdate')->nullable();
-            $table->string('google_id')->nullable();
-            $table->string('device_token')->nullable();
-            $table->string('referral_code')->nullable();
-            $table->rememberToken();
+            $table->id()->comment('Khóa chính');
+        
+            $table->string('name')->nullable()->comment('Tên hiển thị của người dùng');
+            $table->string('email')->unique()->comment('Địa chỉ email duy nhất');
+            $table->timestamp('email_verified_at')->nullable()->comment('Thời điểm xác minh email');
+        
+            $table->string('username')->unique()->nullable()->comment('Tên đăng nhập (tự động sinh từ email nếu bỏ trống)');
+            $table->string('password')->comment('Mật khẩu được mã hóa');
+        
+            $table->tinyInteger('is_admin')->default(0)->comment('0 = user thường, 1 = admin');
+            $table->date('birthdate')->nullable()->comment('Ngày sinh của người dùng');
+        
+            $table->string('google_id')->nullable()->comment('ID tài khoản Google (nếu đăng nhập bằng Google)');
+            $table->string('device_token')->nullable()->comment('Token của thiết bị để gửi thông báo đẩy');
+            $table->string('referral_code')->nullable()->unique()->comment('Mã giới thiệu duy nhất cho người dùng');
+        
+            $table->rememberToken()->comment('Token ghi nhớ đăng nhập');
             $table->timestamps();
         });
+        
     }
 
     /**
