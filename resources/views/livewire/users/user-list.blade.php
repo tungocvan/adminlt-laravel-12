@@ -1,237 +1,139 @@
-<div class="card">
-    <div class="card-header">
-        <div class="row">
-            <div class="col-sm-12 col-md-10" style="display:inline-flex">
-                <button wire:click="openModal" style="width: 100px;" class="btn btn-outline-success btn-sm"><i class="fa fa-plus"></i> Add</button> 
-                <button wire:click="deleteSelected" onclick="return confirm('Are you sure you want to delete selected users?')" style="width: 100px;" class="btn btn-outline-danger btn-sm mx-2"><i class="fa fa-trash"></i> Delete All</button>             
-                 <button wire:click="openModalRole" style="width: 150px;" class="btn btn-outline-success btn-sm mr-2"><i class="fa fa-save"></i> Update All Roles</button>
-                 @livewire('export.excel', ['model' => App\Models\User::class])
-                
-
-                <form wire:submit.prevent="importFile" x-data="{ uploading: false }">
-                    <div>
-                        <div class="btn btn-outline-success btn-sm btn-file">
-                            <!-- Hiển thị trạng thái chờ -->
-                            <i class="fas fa-paperclip"></i> Import Excel
-                            <input type="file" wire:model="file" @change="uploading = true" wire:disabled="isImporting">
-                            <span class="help-block">Max 100 rows</span> 
-                            @error('file') <span class="error">{{ $message }}</span> @enderror                                        
-                        </div>
-                          
-                        <!-- Nút Upload hiển thị khi uploading = true -->
-                        <button x-show="uploading" type="submit" style="width: 100px;" class="btn btn-outline-success btn-sm">
-                            Upload File
-                        </button>
-                
-                        <!-- Hiển thị trạng thái tải lên của Livewire -->
-                        <div wire:loading wire:target="file">Uploading...</div>   
-                    </div>
-                </form>
-                
-                
-            </div>            
+<div>
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-users mr-2"></i>Quản lý người dùng</h5>
+            <div>
+                <button wire:click="openModal" class="btn btn-light btn-sm">
+                    <i class="fa fa-plus mr-1"></i> Thêm mới
+                </button>
+                <button wire:click="openModalRole" class="btn btn-light btn-sm">
+                    <i class="fa fa-user-shield mr-1"></i> Cập nhật Role
+                </button>
+                <button wire:click="deleteSelected" 
+                        onclick="return confirm('Bạn có chắc muốn xóa các user đã chọn?')" 
+                        class="btn btn-danger btn-sm">
+                    <i class="fa fa-trash mr-1"></i> Xóa chọn
+                </button>
+            </div>
         </div>
-        <div class="row mt-2">
-            <div class="col-sm-12 col-md-10 d-flex">               
-                <div class="form-group mr-2" style="width:150px">                    
-                    <select wire:model.change="perPage"  class="form-control custom-select">                      
-                      <option value="5">Show 05 rows</option>
-                      <option value="10">Show 10 rows</option>
-                      <option value="50">Show 50 rows</option>
-                      <option value="100">Show 100 rows</option>                      
+
+        <div class="card-body">
+            {{-- Search & Filter --}}
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="input-group input-group-sm">
+                        <input type="text" wire:model.live.debounce.300ms="search" class="form-control" placeholder="Tìm kiếm...">
+                        <div class="input-group-append">
+                            <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select wire:model.change="perPage" class="form-control form-control-sm">
+                        <option value="5">Hiển thị 5</option>
+                        <option value="10">Hiển thị 10</option>
+                        <option value="50">Hiển thị 50</option>
                     </select>
                 </div>
-                <div>
-                    <button x-on:click="$wire.printUsers()" class="btn buttons-print btn-default"  title="Print"><span><i class="fas fa-fw fa-lg fa-print"></i></span></button>         
-                    <button wire:click="exportSelected" class="btn buttons-excel buttons-html5 btn-default"  title="Export to Excel"><span><i class="fas fa-fw fa-lg fa-file-excel text-success"></i></span></button> 
-                    <button wire:click="exportToPDF" class="btn buttons-pdf buttons-html5 btn-default"  title="Export to PDF"><span><i class="fas fa-fw fa-lg fa-file-pdf text-danger"></i></span></button> 
-                    @if ($error)
-                         <span class="error mx-2" style="color:red">{{ $error }}</span>
-                    @endif
-                </div>               
-            </div>
-            <div class="col-sm-12 col-md-2">
-                <div class="input-group input-group-sm float-right">
-                    <input type="text" wire:model.live.debounce.250ms="search" class="form-control" placeholder="Search">
-                    <div class="input-group-append">
-                      <button type="submit" class="btn btn-default">
-                        <i class="fas fa-search"></i>
-                      </button>
-                    </div>
-                  </div>
-            </div>
-        </div>
-        
-    </div>
-    <!-- /.card-header -->
-    <div class="card-body table-responsive p-0">
-        <div x-data>  
-            @if (session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
+                <div class="col-md-5 text-right">
+                    <button wire:click="printUsers" class="btn btn-outline-secondary btn-sm" title="In danh sách"><i class="fas fa-print"></i></button>
+                    <button wire:click="exportSelected" class="btn btn-outline-success btn-sm" title="Xuất Excel"><i class="fas fa-file-excel"></i></button>
+                    <button wire:click="exportToPDF" class="btn btn-outline-danger btn-sm" title="Xuất PDF"><i class="fas fa-file-pdf"></i></button>
                 </div>
-            @endif
+            </div>
+
+            {{-- Alert --}}
             @if (session('message'))
-                <div class="alert alert-success">
-                    {{ session('message') }}
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fas fa-check-circle mr-2"></i>{{ session('message') }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
                 </div>
             @endif
-      <table class="table table-hover text-nowrap">
-        <thead>
-          <tr>
-            <th>
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input form-check-label" wire:model="selectAll" wire:click="toggleSelectAll">
-                    <label class="form-check-label" for="exampleCheck1"></label>
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>{{ session('error') }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
                 </div>
-            </th>            
-            <th>ID</th>
-            <th><a href="#" wire:click.prevent="sortBy('name')">Name</a></th>
-            <th><a href="#" wire:click.prevent="sortBy('email')">Email</a></th>
-            <th>Roles</th>
-            <th>Verified</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-            @foreach($this->users as $user)
-                <tr>
-                    <td> 
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" wire:model="selectedUsers" value="{{ $user->id }}">                
-                        </div>
-                    </td>
-                    <td>{{ $user->id }}</td>
-                    <td>{{ $user->name }}</td>
-                    <td>{{ $user->email }}</td>
-                    <td>
-                        @if(!empty($user->getRoleNames()))
-                          @foreach($user->getRoleNames() as $v)
-                             <label class="badge bg-success">{{ $v }}</label>
-                          @endforeach
-                        @endif
-                    </td>
-                    <td>
-                        @if($user->email_verified_at)
-                            <span class="badge bg-success">Đã duyệt</span>
-                        @else
-                        <button wire:click="approve({{ $user->id }})" class="btn btn-outline-success btn-sm">
-                            <i class="fa fa-check"></i> Duyệt
-                        </button>
-                        
-                        @endif
-                    </td>
-                    
-                    <td>
-                        <div class="btn-group flex-wrap d-flex" style="width:150px">
-                            <button wire:click="edit({{ $user->id }})" class="btn btn-outline-primary btn-sm mr-1"><i class="fa fa-edit"></i> Edit</button>
-                            <button wire:click="delete({{ $user->id }})" class="btn btn-outline-danger btn-sm"><i class="fa fa-trash"></i> Delete</button>
-                        </div>
-                    </td>
-                </tr>
-            @endforeach    
-       
-        </tbody>
-      </table>
-        </div>
-    </div>
-    <!-- /.card-body -->
-    <div class="card-footer clearfix">
-        <div class="row">            
-            <div class="col-sm-12 col-md-12">
-                {{ $this->users->links(data: ['scrollTo' => false]) }}
+            @endif
+
+            {{-- Table --}}
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th width="40"><input type="checkbox" wire:model="selectAll" wire:click="toggleSelectAll"></th>
+                            <th>ID</th>
+                            <th wire:click="sortBy('name')" style="cursor:pointer;">Tên <i class="fas fa-sort text-muted"></i></th>
+                            <th wire:click="sortBy('email')" style="cursor:pointer;">Email <i class="fas fa-sort text-muted"></i></th>
+                            <th>Role</th>
+                            <th>Xác thực</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($this->users as $user)
+                            <tr>
+                                <td><input type="checkbox" wire:model="selectedUsers" value="{{ $user->id }}"></td>
+                                <td>{{ $user->id }}</td>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->email }}</td>
+                                <td>
+                                    @foreach($user->getRoleNames() as $role)
+                                        <span class="badge badge-info">{{ $role }}</span>
+                                    @endforeach
+                                </td>
+                                <td>
+                                    @if($user->email_verified_at)
+                                        <span class="badge badge-success">Đã duyệt</span>
+                                    @else
+                                        <button wire:click="approve({{ $user->id }})" class="btn btn-outline-success btn-sm">
+                                            <i class="fa fa-check"></i> Duyệt
+                                        </button>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                        <button wire:click="edit({{ $user->id }})" class="btn btn-outline-primary btn-sm"><i class="fa fa-edit"></i></button>
+                                        <button wire:click="delete({{ $user->id }})" class="btn btn-outline-danger btn-sm"><i class="fa fa-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">Không có người dùng nào.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-    </div>
-     <!-- Modal Add - Edit -->
-     <div class="modal fade @if($showModal) show @endif" style="display: @if($showModal) block @else none @endif;" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ $isEdit ? 'Edit User' : 'Add User' }}</h5>
-                    <button type="button" class="close" wire:click="closeModal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form wire:submit.prevent="{{ $isEdit ? 'update' : 'save' }}">
-                        <div class="form-group">
-                            <input type="text" wire:model="name" class="form-control" placeholder="Name">
-                            @error('name') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="form-group">
-                            <input type="email" wire:model="email" class="form-control" placeholder="Email">
-                            @error('email') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="form-group">
-                            <select class="form-control" wire:model="role">
-                                @foreach ($this->roles as $value => $label)
-                                    <option value="{{ $value }}">
-                                        {{ $label }}
-                                    </option>
-                                 @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" {{ $isEdit ? 'disabled' : '' }} wire:model="username" class="form-control" placeholder="User Name">
-                            @error('username') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="form-group">
-                            <input type="password" wire:model="password" class="form-control" placeholder="Password">
-                            @error('password') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-                        <button type="submit" class="btn btn-primary">{{ $isEdit ? 'Update' : 'Save' }}</button>
-                    </form>
-                </div>
+
+            {{-- Pagination --}}
+            <div class="mt-3">
+                {{ $this->users->links(data: ['scrollTo' => false]) }}
             </div>
         </div>
     </div>
 
-     <!-- Modal Role -->
-     <div class="modal fade @if($showModalRole) show @endif" style="display: @if($showModalRole) block @else none @endif;" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">UPDATE ROLES</h5>
-                    <button type="button" class="close" wire:click="closeModalRole" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form wire:submit.prevent="updateRole">                        
-                        <div class="form-group">
-                            <select class="form-control" wire:model="role">
-                                @foreach ($this->roles as $value => $label)
-                                    <option value="{{ $value }}">
-                                        {{ $label }}
-                                    </option>
-                                 @endforeach
-                            </select>
-                        </div>                 
-                        <button type="submit" class="btn btn-primary">Update All</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="notification">
-                     
-    </div>
+    {{-- Include Form Modal --}}
+    @include('livewire.users.user-form')
+    {{-- @include('livewire.users.user-form-role') --}}
+
 </div>
+
+@push('js')
 <script>
-    window.addEventListener('open-print-window', event => {
+    document.addEventListener('open-print-window', event => {
         let newWindow = window.open('', '_blank');
         if (newWindow) {
-            let decodedHtml = atob(event.detail[0].url.split(',')[1]); // Giải mã base64
+            let decodedHtml = atob(event.detail[0].url.split(',')[1]);
             newWindow.document.open();
             newWindow.document.write(decodedHtml);
             newWindow.document.close();
             newWindow.print();
-            setTimeout(() => newWindow.close(), 1000); // Đóng sau khi in
+            setTimeout(() => newWindow.close(), 1000);
         } else {
-            alert('Trình duyệt chặn popup! Hãy kiểm tra cài đặt.');
+            alert('Trình duyệt chặn popup! Hãy bật cho phép popup.');
         }
     });
-
 </script>
-
-</div>
+@endpush
