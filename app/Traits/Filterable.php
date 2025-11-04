@@ -15,7 +15,7 @@ trait Filterable
      * @param int $perPage
      * @return array ['data'=>[], 'meta'=>[]]
      */
-    public function scopeFilter(Builder $query, array $params, int $perPage = 20): array
+    public function scopeFilter(Builder $query, array $params, int $perPage = 20, string $sortField = 'id', string $sortDirection = 'desc'): array
     {
         $params = array_filter($params, fn($v) => $v !== null && $v !== '');
 
@@ -80,7 +80,12 @@ trait Filterable
         }
 
         // 4️⃣ Sắp xếp mặc định
-        $query->orderBy('id','desc');
+        if ($sortField && $sortDirection) {
+            $query->orderBy($sortField, $sortDirection);
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+        
 
         // 5️⃣ Phân trang + meta
         $paginated = $query->paginate($perPage);
