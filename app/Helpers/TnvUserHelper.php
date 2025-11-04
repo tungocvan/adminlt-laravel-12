@@ -17,6 +17,8 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\TnvHelper;
+use Illuminate\Support\Carbon;
 
 class TnvUserHelper
 {
@@ -137,9 +139,6 @@ class TnvUserHelper
     }
 
     
-
-
-
     public static function updateUser(int $userId, array $data)
     {
         try {
@@ -151,19 +150,29 @@ class TnvUserHelper
                     'message' => 'Không tìm thấy người dùng.',
                 ];
             }
-
+            if (!empty($data['birthdate'])) {
+                $parsed = TnvHelper::parseDate($data['birthdate']);
+                if (!$parsed) {
+                    return [
+                        'status'  => 'error',
+                        'message' => "Ngày sinh '{$data['birthdate']}' không hợp lệ. Dùng dd/mm/yyyy hoặc yyyy-mm-dd",
+                    ];
+                }
+                $data['birthdate'] = $parsed; // sẵn sàng save vào DB
+            }
+           
             // --- VALIDATION ---
             $validator = Validator::make($data, [
                 'email'         => 'nullable|email|unique:users,email,' . $user->id,
+                'username'      => 'nullable|string|max:100|unique:users,username,' . $user->id,
                 'password'      => 'nullable|string|min:6',
                 'c_password'    => 'nullable|string|same:password',
                 'name'          => 'nullable|string|max:100',
-                'username'      => 'nullable|string|max:100|unique:users,username,' . $user->id,
-                'birthdate'     => 'nullable|date',
                 'role_name'     => 'nullable|string',
                 'verified'      => 'nullable|boolean',
                 'is_admin'      => 'nullable|integer',
                 'referral_code' => 'nullable|string|max:50',
+                'birthdate'     => 'nullable|date',
             ], [
                 'email.unique'    => 'Email đã được sử dụng.',
                 'username.unique' => 'Username đã tồn tại.',
@@ -180,29 +189,17 @@ class TnvUserHelper
 
             DB::beginTransaction();
 
-            // --- UPDATE FIELDS (có kiểm tra array_key_exists) ---
-            if (array_key_exists('name', $data)) {
-                $user->name = $data['name'];
-            }
+            // --- UPDATE FIELDS ---
+            // Chỉ cần lặp qua những field có trong $data
+            $updatableFields = [
+                'name', 'email', 'username', 'birthdate',
+                'referral_code', 'is_admin',
+            ];
 
-            if (array_key_exists('email', $data)) {
-                $user->email = $data['email'];
-            }
-
-            if (array_key_exists('username', $data)) {
-                $user->username = $data['username'];
-            }
-
-            if (array_key_exists('birthdate', $data)) {
-                $user->birthdate = $data['birthdate'];
-            }
-
-            if (array_key_exists('referral_code', $data)) {
-                $user->referral_code = $data['referral_code'];
-            }
-
-            if (array_key_exists('is_admin', $data)) {
-                $user->is_admin = (int) $data['is_admin'];
+            foreach ($updatableFields as $field) {
+                if (array_key_exists($field, $data)) {
+                    $user->$field = $data[$field]; // trait AutoParseDates tự parse Y-m-d
+                }
             }
 
             // --- PASSWORD ---
@@ -216,23 +213,16 @@ class TnvUserHelper
             }
 
             // --- ROLE HANDLING ---
-            if (array_key_exists('role_name', $data) && !empty($data['role_name'])) {
+            if (!empty($data['role_name'])) {
                 $roleName = $data['role_name'];
-                $role = Role::where('name', $roleName)->first();
-
-                if (!$role) {
-                    $role = Role::firstOrCreate(['name' => $roleName]);
-                }
-
+                $role = Role::firstOrCreate(['name' => $roleName]);
                 $user->syncRoles([$role]);
             }
 
             // --- LƯU ---
             $user->save();
-
             DB::commit();
 
-            // --- RESPONSE ---
             return [
                 'status'  => 'success',
                 'message' => 'Cập nhật người dùng thành công!',
@@ -251,13 +241,15 @@ class TnvUserHelper
             ];
         } catch (\Throwable $e) {
             DB::rollBack();
-
             return [
                 'status'  => 'error',
                 'message' => 'Cập nhật thất bại: ' . $e->getMessage(),
             ];
         }
     }
+
+
+    
 
     public static function updateAllUser(array $userIds, array $data): array
     {

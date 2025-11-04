@@ -32,14 +32,14 @@ Route::controller(AuthController::class)->group(function(){
 // });
 
 
-Route::controller(UserController::class)->group(function(){      
-    Route::post('users','index');           
-    Route::get('users/{id}','show');           
-    Route::delete('users/{id}','destroy');    
-    Route::delete('users','destroyMultiple');
-    Route::put('users/{id}','update');
+// Route::controller(UserController::class)->group(function(){      
+//     Route::post('users','index');           
+//     Route::get('users/{id}','show');           
+//     Route::delete('users/{id}','destroy');    
+//     Route::delete('users','destroyMultiple');
+//     Route::put('users/{id}','update');
 
-});
+// });
 
 
 

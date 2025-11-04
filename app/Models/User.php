@@ -12,6 +12,7 @@ use App\Mail\WelcomeUserMail;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Traits\Filterable;
+use App\Models\Traits\AutoParseDates;
 
 class User extends Authenticatable
 {
@@ -38,7 +39,6 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'birthdate' => 'date', // thêm birthdate
         ];
     }
 

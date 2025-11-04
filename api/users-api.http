@@ -1,7 +1,15 @@
-POST https://adminlt.laravel.tk/api/users
+# POST https://adminlt.laravel.tk/api/users
+# Accept: application/json
+# Content-Type: application/json
+
+# {
+#   "id":1
+# }
+
+PUT https://adminlt.laravel.tk/api/users/1
 Accept: application/json
 Content-Type: application/json
 
 {
-  "birthday": "25/09/1978",  
+  "birthdate": "25/09/1978"
 }

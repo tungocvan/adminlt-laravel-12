@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Database\Eloquent\Builder;
-
+use DateTime;
+use DateTimeZone;
 class TnvHelper
 {
     /**
@@ -272,4 +273,32 @@ class TnvHelper
             default   => $query->paginate($perPage),
         };
     }
+
+    public static function parseDate(?string $value, string $timezone = 'Asia/Ho_Chi_Minh'): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        $value = trim($value, "\"' \t\n\r\0\x0B");
+
+        $tz = new DateTimeZone($timezone);
+
+        // --- dd/mm/yyyy ---
+        $date = DateTime::createFromFormat('d/m/Y', $value, $tz);
+        if ($date && $date->format('d/m/Y') === $value) {
+            return $date->format('Y-m-d');
+        }
+
+        // --- yyyy-mm-dd ---
+        $date = DateTime::createFromFormat('Y-m-d', $value, $tz);
+        if ($date && $date->format('Y-m-d') === $value) {
+            return $date->format('Y-m-d');
+        }
+
+        // Không hợp lệ
+        return null;
+    }
+
+
 }

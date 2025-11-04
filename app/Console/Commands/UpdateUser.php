@@ -27,7 +27,7 @@ class UpdateUser extends Command
         {--password= : Mật khẩu mới}
         {--c_password= : Xác nhận mật khẩu mới}
         {--old_password= : Mật khẩu cũ (dùng để xác nhận nếu muốn thay mật khẩu)}
-        {--birthdate= : Ngày sinh (hỗ trợ định dạng dd/mm/yyyy hoặc yyyy-mm-dd)}
+        {--birthdate= : Ngày sinh (dd/mm/yyyy hoặc yyyy-mm-dd)}
         {--role= : Tên vai trò (role_name)}
         {--verified= : Xác minh email (1 hoặc 0)}
         {--is_admin= : Cờ admin (1 hoặc 0)}
@@ -47,32 +47,23 @@ class UpdateUser extends Command
             return 1;
         }
 
-        $user = User::find($userId);
         $data = [];
 
-        foreach ([
+        // --- Thu thập dữ liệu từ options ---
+        $fields = [
             'name', 'email', 'username', 'password', 'c_password',
             'role', 'referral_code', 'birthdate'
-        ] as $opt) {
+        ];
+
+        foreach ($fields as $opt) {
             $value = $this->option($opt);
             if (!is_null($value)) {
                 $key = $opt === 'role' ? 'role_name' : $opt;
-
-                // ⚙️ Xử lý birthdate
-                if ($key === 'birthdate') {
-                    $parsedDate = $this->parseBirthdate($value);
-                    if (!$parsedDate) {
-                        $this->error("❌ Ngày sinh '{$value}' không hợp lệ. Dùng định dạng: dd/mm/yyyy hoặc yyyy-mm-dd");
-                        return 1;
-                    }
-                    $value = $parsedDate;
-                }
-
                 $data[$key] = $value;
             }
         }
 
-        // ✅ Kiểm tra xác minh mật khẩu cũ (nếu có yêu cầu)
+        // --- Xử lý password ---
         $newPassword = $this->option('password');
         $confirmPassword = $this->option('c_password');
         $oldPassword = $this->option('old_password');
@@ -83,8 +74,8 @@ class UpdateUser extends Command
                 return 1;
             }
 
-            // Nếu có truyền old_password thì kiểm tra
             if (!is_null($oldPassword)) {
+                $user = User::find($userId);
                 if (!Hash::check($oldPassword, $user->password)) {
                     $this->error("❌ Mật khẩu cũ không chính xác. Không thể đổi mật khẩu!");
                     return 1;
@@ -94,7 +85,7 @@ class UpdateUser extends Command
             $data['password'] = $newPassword;
         }
 
-        // Ép kiểu boolean/int cho flags
+        // --- Ép kiểu boolean/int cho flags ---
         if (!is_null($this->option('verified'))) {
             $data['verified'] = (bool) $this->option('verified');
         }
@@ -105,6 +96,7 @@ class UpdateUser extends Command
 
         $this->info("🔄 Đang cập nhật user ID #{$userId}...");
 
+        // --- Gọi helper updateUser() ---
         $result = TnvUserHelper::updateUser($userId, $data);
 
         if ($result['status'] === 'success') {
@@ -137,26 +129,5 @@ class UpdateUser extends Command
         }
 
         return User::where('username', $input)->value('id');
-    }
-
-    protected function parseBirthdate(string $value): ?string
-    {
-        try {
-            $value = trim($value, "\"' \t\n\r\0\x0B");
-
-            if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $value)) {
-                $date = \DateTime::createFromFormat('d/m/Y', $value);
-                return $date?->format('Y-m-d');
-            }
-
-            if (preg_match('/^\d{4}-\d{1,2}-\d{1,2}$/', $value)) {
-                $date = \DateTime::createFromFormat('Y-m-d', $value);
-                return $date?->format('Y-m-d');
-            }
-
-            return null;
-        } catch (\Throwable) {
-            return null;
-        }
     }
 }
