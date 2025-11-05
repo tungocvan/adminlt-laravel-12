@@ -1,17 +1,12 @@
 <div>
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-primary d-flex justify-content-between align-items-center text-white">
-            <h5 class="mb-0"><i class="fas fa-users mr-2"></i>Quản lý người dùng</h5>
-            <div>
+            <div class="col-md-10">
+                <h5 class="mb-0"><i class="fas fa-users mr-2"></i>Quản lý người dùng</h5>
+            </div>
+            <div class="col-md-2 d-flex justify-content-end">
                 <button wire:click="openModal" class="btn btn-light btn-sm">
                     <i class="fa fa-plus mr-1"></i> Thêm mới
-                </button>
-                <button wire:click="openModalRole" class="btn btn-light btn-sm">
-                    <i class="fa fa-user-shield mr-1"></i> Cập nhật Role
-                </button>
-                <button onclick="if(confirm('Bạn có chắc muốn xóa các user đã chọn?')) { @this.deleteSelectedUsers() }"
-                    class="btn btn-danger btn-sm">
-                    <i class="fa fa-trash mr-1"></i> Xóa chọn
                 </button>
             </div>
         </div>
@@ -21,13 +16,17 @@
             <div class="row mb-3">
                 <div class="col-md-4">
                     <div class="input-group input-group-sm">
+                        <div class="mr-2" style="width:100px">
+                            <select wire:key="per-page-select" wire:model.live="perPage"
+                                class="form-control form-control-sm" wire:ignore.self>
+                                <option value="5">Hiển thị 5</option>
+                                <option value="10">Hiển thị 10</option>
+                                <option value="50">Hiển thị 50</option>
+                            </select>
+                        </div>
                         <input type="text" wire:model.live.debounce.300ms="search" class="form-control"
                             placeholder="Tìm kiếm...">
-                        {{-- <div class="input-group-append">                                    
-                                <button class="btn btn-sm btn-link text-muted" type="button" wire:click="$set('search', '')"> 
-                                    <span class="input-group-text bg-light"><i class="fas fa-times"></i></span>
-                                </button>
-                            </div> --}}
+
                         @if (!$search)
                             <div class="input-group-append">
                                 <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
@@ -41,25 +40,28 @@
                     </div>
                 </div>
 
-                <div class="col-md-3">
-                    <select wire:key="per-page-select" wire:model.live="perPage" class="form-control form-control-sm"
-                        wire:ignore.self>
-                        <option value="5">Hiển thị 5</option>
-                        <option value="10">Hiển thị 10</option>
-                        <option value="50">Hiển thị 50</option>
-                    </select>
-                </div>
-
-                <div class="col-md-5 text-right">
-                    <button wire:click="printUsers" class="btn btn-outline-secondary btn-sm" title="In danh sách">
-                        <i class="fas fa-print"></i>
-                    </button>
-                    <button wire:click="exportSelected" class="btn btn-outline-success btn-sm" title="Xuất Excel">
-                        <i class="fas fa-file-excel"></i>
-                    </button>
-                    <button wire:click="exportToPDF" class="btn btn-outline-danger btn-sm" title="Xuất PDF">
-                        <i class="fas fa-file-pdf"></i>
-                    </button>
+                <div class="col-md-8 d-flex justify-content-end">
+                    <div class="mr-2 text-right">
+                        <button wire:click="openModalRole" class="btn btn-light btn-sm">
+                            <i class="fa fa-user-shield mr-1"></i> Cập nhật Role
+                        </button>
+                        <button
+                            onclick="if(confirm('Bạn có chắc muốn xóa các user đã chọn?')) { @this.deleteSelectedUsers() }"
+                            class="btn btn-danger btn-sm">
+                            <i class="fa fa-trash mr-1"></i> Xóa chọn
+                        </button>
+                    </div>
+                    <div class="text-right">
+                        <button wire:click="printUsers" class="btn btn-outline-secondary btn-sm" title="In danh sách">
+                            <i class="fas fa-print"></i>
+                        </button>
+                        <button wire:click="exportSelected" class="btn btn-outline-success btn-sm" title="Xuất Excel">
+                            <i class="fas fa-file-excel"></i>
+                        </button>
+                        <button wire:click="exportToPDF" class="btn btn-outline-danger btn-sm" title="Xuất PDF">
+                            <i class="fas fa-file-pdf"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -112,9 +114,11 @@
                                 </td>
                                 <td>
                                     @if ($user->email_verified_at)
-                                        <span class="badge badge-success">Đã duyệt</span>
+                                        <button wire:click="approveUser({{ $user->id }})" class="btn btn-sm">
+                                            <span class="badge badge-success">Đã duyệt</span>
+                                        </button>
                                     @else
-                                        <button wire:click="approve({{ $user->id }})"
+                                        <button wire:click="approveUser({{ $user->id }})"
                                             class="btn btn-outline-success btn-sm">
                                             <i class="fa fa-check"></i> Duyệt
                                         </button>
@@ -139,7 +143,7 @@
             </div>
 
             {{-- Pagination --}}
-            <div class="mt-3">
+            <div class="d-flex justify-content-end mt-3">
                 {{ $users->links('pagination::bootstrap-4') }}
             </div>
         </div>
@@ -156,28 +160,45 @@
     <script>
         document.addEventListener('livewire:init', () => {
             // Show / hide modal
-            window.addEventListener('show-modal-user', () => {
+            document.addEventListener('show-modal-user', () => {
                 $('#modalUser').modal({
                     backdrop: 'static',
-                    keyboard: false
+                    keyboard: false,
                 }).modal('show');
             });
-            window.addEventListener('refreshUsers', () => {
+            document.addEventListener('refreshUsers', () => {
                 $('#modalUser').modal('hide');
             });
-            window.addEventListener('show-modal-role', () => {
+            document.addEventListener('show-modal-role', () => {
                 $('#modalRole').modal({
                     backdrop: 'static',
                     keyboard: false
                 }).modal('show');
             });
-            window.addEventListener('modalRole', () => {
+            document.addEventListener('modalRole', () => {
                 $('#modalRole').modal('hide');
             });
 
             $('[data-dismiss="modal"]').on('click', function() {
                 $(this).closest('.modal').modal('hide');
             });
+
+            document.addEventListener('open-print-window', event => {
+                let newWindow = window.open('', '_blank');
+                if (newWindow) {
+                    let decodedHtml = atob(event.detail[0].url.split(',')[1]); // Giải mã base64
+                    newWindow.document.open();
+                    newWindow.document.write(decodedHtml);
+                    newWindow.document.close();
+                    newWindow.print();
+                    setTimeout(() => newWindow.close(), 1000); // Đóng sau khi in
+                } else {
+                    alert('Trình duyệt chặn popup! Hãy kiểm tra cài đặt.');
+                }
+            });
+
+            
+
         });
     </script>
 @endpush

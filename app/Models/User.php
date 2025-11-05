@@ -18,9 +18,9 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles, HasApiTokens, Filterable;
 
-    protected $fillable = ['name', 'email', 'username', 'password', 'is_admin', 'birthdate', 'google_id', 'email_verified_at'];
+    protected $fillable = ['name', 'email', 'username', 'password', 'is_admin', 'birthdate', 'google_id','referral_code', 'email_verified_at'];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token','device_token']; 
 
     protected function casts(): array
     {

@@ -8,7 +8,8 @@ use Livewire\Attributes\Modelable;
 class DatePicker extends Component
 {
     #[Modelable]
-    public $selected; 
+    public $selected;
+
     public $placeholder = 'Chọn ngày';
     public $name = 'date';
     public $format = 'DD/MM/YYYY';
@@ -18,15 +19,7 @@ class DatePicker extends Component
         $this->selected = $selected;
         $this->name = $name;
         $this->format = $format;
-        if ($placeholder) {
-            $this->placeholder = $placeholder;
-        }
-    }
-
-    public function updatedSelected()
-    {
-        // Bạn có thể xử lý hoặc emit event
-        // $this->dispatch('date-changed', $this->selected);
+        if ($placeholder) $this->placeholder = $placeholder;
     }
 
     public function render()

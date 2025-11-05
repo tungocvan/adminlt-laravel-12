@@ -36,11 +36,16 @@
         </div>
 
         <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="birthdate">Ngày sinh</label>
-                <input type="text" id="birthdate" name="birthdate" class="form-control" placeholder="dd/mm/yyyy"
-                    wire:model="birthdate">
+            <div class="form-group col-md-6">       
+                <livewire:date-picker 
+                placeholder="Ngày sinh" 
+                name="start_date" 
+                format="DD/MM/YYYY" 
+                wire:model.live="birthdate"
+            />
             </div>
+            
+            
             <div class="form-group col-md-6">
                 <label for="role">Role</label>
                 <select id="role" name="role" class="form-control" wire:model="role">
@@ -59,6 +64,11 @@
                     wire:model="google_id">
             </div>
             <div class="form-group col-md-6 d-flex align-items-center">
+                <div class="form-group col-md-8">
+                    <label for="google_id">Mã giới thiệu</label>
+                    <input type="text" id="referral_code" name="referral_code" class="form-control" placeholder="Mã giới thiệu"
+                        wire:model="referral_code">
+                </div>
                 <div class="custom-control custom-switch mt-4">
                     <input type="checkbox" class="custom-control-input" id="is_admin" wire:model="is_admin">
                     <label class="custom-control-label" for="is_admin">Admin</label>

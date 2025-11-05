@@ -13,6 +13,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\View;
+
 
 class UserList extends Component
 {
@@ -32,13 +34,14 @@ class UserList extends Component
     public $isEdit = false;
 
     // User fields
-    public $userId = null;
+    public $userId = null; 
     public $name;
     public $username;
     public $email;
     public $password;
     public $birthdate;
     public $google_id;
+    public $referral_code;
     public $is_admin = 0;
     public ?string $message = null;
 
@@ -103,7 +106,13 @@ class UserList extends Component
     // -------- Table & selection --------
     public function toggleSelectAll()
     {
+        
         $this->selectedUsers = $this->selectAll ? $this->users->pluck('id')->toArray() : [];
+    }
+    
+    
+    public function updatedSelectedUsers(){
+        $this->message !== null && $this->message = null;
     }
     public function updateUserRole()
     {
@@ -174,7 +183,7 @@ class UserList extends Component
 
     protected function resetForm()
     {
-        $this->reset(['userId', 'name', 'username', 'email', 'password', 'birthdate', 'google_id', 'is_admin', 'isEdit', 'role']);
+        $this->reset(['userId', 'name', 'username', 'email', 'password', 'birthdate', 'google_id','referral_code', 'is_admin', 'isEdit', 'role']);
     }
 
     // -------- CRUD operations --------
@@ -190,6 +199,7 @@ class UserList extends Component
             'username' => $this->username ?? null,
             'is_admin' => $this->is_admin ?? 0,
             'birthdate' => $this->birthdate ?? null,
+            'referral_code' => $this->referral_code ?? null,
             'google_id' => $this->google_id ?? null,
             'role_name' => $this->role ?? 'User',
         ];
@@ -220,6 +230,7 @@ class UserList extends Component
         $this->email = $user->email;
         $this->birthdate = $user->birthdate;
         $this->google_id = $user->google_id;
+        $this->referral_code = $user->referral_code;
         $this->isEdit = true;
         $this->role = $user->roles->pluck('id')->first() ?? null;
 
@@ -241,6 +252,7 @@ class UserList extends Component
             'username' => $this->username,
             'birthdate' => $this->birthdate,
             'google_id' => $this->google_id,
+            'referral_code' => $this->referral_code,
         ];
 
         if (!empty($this->password)) {
@@ -334,11 +346,14 @@ class UserList extends Component
     {
         $user = User::findOrFail($id);
         if (is_null($user->email_verified_at)) {
-            $user->update(['email_verified_at' => now()]);
-            session()->flash('message', '✅ Người dùng đã được duyệt!');
-            $this->dispatch('refreshUsers');
+            $user->update(['email_verified_at' => now()]);            
+            $this->dispatch('refreshUsers',message:'✅ Người dùng đã được duyệt!');
+        }else{
+            $user->update(['email_verified_at' => null]);            
+            $this->dispatch('refreshUsers',message:'✅ Đã duyệt bỏ xác thực!');
         }
     }
+
 
     // -------- Export --------
     public function exportSelected()
@@ -368,6 +383,21 @@ class UserList extends Component
 
         return response()->streamDownload(fn() => print $pdf->output(), $fileName);
     }
+
+     public function printUsers()
+    {
+        $users = User::whereIn('id', $this->selectedUsers)->get();
+  
+        if(count($users) == 0) {
+            $this->error =  'Vui lòng chọn ít nhất một người dùng để in.';            
+        }else{
+             // Tạo nội dung HTML từ template
+            $this->error ='';
+            $html = View::make('exports.print-users', compact('users'))->render();
+            $encodedHtml = base64_encode(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+            $this->dispatch('open-print-window', ['url' => 'data:text/html;base64,' . $encodedHtml]);        
+        }
+        }
 
     // -------- Sorting --------
     public function sortBy($field)

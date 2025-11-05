@@ -15,7 +15,7 @@
     <h1>FORM</h1>
 @stop
 
-@section('content')
+@section('content') 
    
     @livewire('form.form-list')
  

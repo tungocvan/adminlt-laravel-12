@@ -1,45 +1,64 @@
 <div wire:ignore>
     <label>{{ $placeholder }}</label>
-    <div class="input-group date" id="reservationdate-{{ $name }}" data-target-input="nearest">
+    <div class="input-group" id="datepicker-container-{{ $name }}">
         <input type="text" 
-               class="form-control datetimepicker-input" 
-               data-target="#reservationdate-{{ $name }}" 
-               wire:model.live="selected"
+               class="form-control" 
+               id="datepicker-{{ $name }}"
+               wire:model.defer="selected"
                name="{{ $name }}"
+               placeholder="{{ $placeholder }}"
                autocomplete="off">
-        <div class="input-group-append" data-target="#reservationdate-{{ $name }}" data-toggle="datetimepicker">
-            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+        <div class="input-group-append">
+            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
         </div>
     </div>
-
-
-   
-<script>
-    document.addEventListener("livewire:navigated", () => {
-        let el = $('#reservationdate-{{ $name }}');
-        
-        el.daterangepicker({
-            singleDatePicker: true,
-            showDropdowns: true,
-            autoUpdateInput: false,
-            locale: { format: '{{ $format }}' }
-        }).on('apply.daterangepicker', function (ev, picker) {
-            let value = picker.startDate.format('{{ $format }}');
-            
-            // set vào input
-            $(this).find('input').val(value);
-
-            // báo cho Livewire biết
-            @this.set('selected', value);
-        });
-
-        // set giá trị ban đầu nếu có
-        @if($selected)
-            el.find('input').val("{{ $selected }}");
-        @endif
-    });
-</script>
-
-
-  
 </div>
+
+@push('js')
+<script>
+document.addEventListener('livewire:load', function () {
+    const inputEl = document.getElementById('datepicker-{{ $name }}');
+
+    const picker = new tempusDominus.TempusDominus(inputEl, {
+        display: {
+            components: {
+                decades: false,
+                year: true,
+                month: true,
+                date: true,
+                hours: false,
+                minutes: false,
+                seconds: false
+            },
+            buttons: {
+                today: true,
+                clear: true,
+                close: true
+            },
+            keepOpen: false
+        },
+        useCurrent: false,
+        allowInputToggle: true,
+        clickInput: true // <-- quan trọng: click input xổ calendar
+    });
+
+    // Khi chọn ngày → cập nhật Livewire
+    picker.dates.subscribe(function(selectedDate){
+        if(selectedDate){
+            const value = moment(selectedDate).format('{{ $format }}');
+            @this.set('selected', value);
+        }
+    });
+
+    // Đồng bộ giá trị Livewire khi component re-render
+    Livewire.hook('message.processed', () => {
+        const value = @this.get('selected');
+        if(value){
+            picker.dates.setValue(moment(value, '{{ $format }}'));
+        } else {
+            picker.dates.setValue(null);
+        }
+    });
+});
+</script>
+@endpush

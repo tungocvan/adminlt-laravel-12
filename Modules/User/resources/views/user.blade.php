@@ -1,7 +1,6 @@
 @extends('adminlte::page')
-
 @section('title', 'Users')
-
+@section('plugins.TempusDominusBs4', true)
 @section('content_header')
     {{-- <h1>Manager User</h1> --}}
 @stop
