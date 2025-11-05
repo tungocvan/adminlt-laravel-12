@@ -9,7 +9,7 @@
     
             <form wire:submit="register">
             <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Full name" wire:model="name"> 
+                <input type="text" class="form-control" placeholder="Full name" wire:model.live="name"> 
                 <div class="input-group-append">
                 <div class="input-group-text">
                     <span class="fas fa-user"></span>
@@ -18,7 +18,7 @@
                 @error('name') <span class="error w-100" style="color:red;font-size:12px"> {{ $message }}</span> @enderror
             </div>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Email" wire:model="email">
+                <input type="text" class="form-control" placeholder="Email" wire:model.live="email">
                 <div class="input-group-append">
                 <div class="input-group-text">
                     <span class="fas fa-envelope"></span>
@@ -27,7 +27,7 @@
                 @error('email') <span class="error w-100" style="color:red;font-size:12px"> {{ $message }}</span> @enderror
             </div>
             <div class="input-group mb-3">
-                <input type="password" class="form-control" placeholder="Password" wire:model="password">
+                <input type="password" class="form-control" placeholder="Password" wire:model.live="password">
                 <div class="input-group-append">
                 <div class="input-group-text">
                     <span class="fas fa-lock"></span>
@@ -36,7 +36,7 @@
                 @error('password') <span class="error w-100" style="color:red;font-size:12px"> {{ $message }}</span> @enderror
             </div>
             <div class="input-group mb-3">
-                <input type="password" class="form-control" placeholder="Retype password" wire:model="confirmPassword">
+                <input type="password" class="form-control" placeholder="Retype password" wire:model.live="confirmPassword">
                 <div class="input-group-append">
                 <div class="input-group-text">
                     <span class="fas fa-lock"></span>

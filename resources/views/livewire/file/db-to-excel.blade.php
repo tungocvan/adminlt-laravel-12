@@ -27,7 +27,7 @@
                     <thead class="thead-light">
                         <tr>
                             <th style="width:40px;">
-                                <input type="checkbox" wire:model="selectAll">
+                                <input type="checkbox" wire:model.live="selectAll">
                             </th>
                             <th style="width:60px;">#</th>
                             <th>Tên bảng</th>
@@ -40,7 +40,7 @@
                             <tr>
                                 <td class="text-center">
                                     @if($table['exists'])
-                                        <input type="checkbox" wire:model="selectedTables" value="{{ $table['name'] }}">
+                                        <input type="checkbox" wire:model.live="selectedTables" value="{{ $table['name'] }}">
                                     @endif
                                 </td>
                                 <td>{{ $index + 1 }}</td>

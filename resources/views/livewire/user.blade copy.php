@@ -178,13 +178,13 @@ new class extends Component {
     <button wire:click="openModal" class="btn btn-primary mb-3">Add New</button>
     <button wire:click="deleteSelected" onclick="return confirm('Are you sure you want to delete selected users?')" class="btn btn-danger mb-3">Delete Selected</button>
 
-    <form wire:submit.prevent="uploadUser" class="mb-3">
-        <input type="file" wire:model="file" class="form-control mb-2">
+    <form wire:submit="uploadUser" class="mb-3">
+        <input type="file" wire:model.live="file" class="form-control mb-2">
         @error('file') <span class="text-danger">{{ $message }}</span> @enderror
         <button type="submit" class="btn btn-success">Upload Users</button>
     </form>
 
-    <select wire:model="perPage" class="form-control mb-3">
+    <select wire:model.live="perPage" class="form-control mb-3">
         <option value="5">5</option>
         <option value="10">10</option>
         <option value="25">25</option>
@@ -203,7 +203,7 @@ new class extends Component {
                 </th>
                 <th>Actions</th>
                 <th>
-                    <input type="checkbox" wire:model="selectAll" wire:click="toggleSelectAll" />
+                    <input type="checkbox" wire:model.live="selectAll" wire:click="toggleSelectAll" />
                 </th>
             </tr>
         </thead>
@@ -218,7 +218,7 @@ new class extends Component {
                         <button wire:click="delete({{ $user->id }})" class="btn btn-danger btn-sm">Delete</button>
                     </td>
                     <td>
-                        <input type="checkbox" wire:model="selectedUsers" value="{{ $user->id }}">
+                        <input type="checkbox" wire:model.live="selectedUsers" value="{{ $user->id }}">
                     </td>
                 </tr>
             @endforeach
@@ -242,17 +242,17 @@ new class extends Component {
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form wire:submit.prevent="{{ $isEdit ? 'update' : 'save' }}">
+                    <form wire:submit="{{ $isEdit ? 'update' : 'save' }}">
                         <div class="form-group">
-                            <input type="text" wire:model="name" class="form-control" placeholder="Name">
+                            <input type="text" wire:model.live="name" class="form-control" placeholder="Name">
                             @error('name') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-group">
-                            <input type="email" wire:model="email" class="form-control" placeholder="Email">
+                            <input type="email" wire:model.live="email" class="form-control" placeholder="Email">
                             @error('email') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-group">
-                            <input type="password" wire:model="password" class="form-control" placeholder="Password">
+                            <input type="password" wire:model.live="password" class="form-control" placeholder="Password">
                             @error('password') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
                         <button type="submit" class="btn btn-primary">{{ $isEdit ? 'Update' : 'Save' }}</button>

@@ -1,5 +1,5 @@
 <tr wire:sortable.item="{{ $cat->id }}">
-    <td><input type="checkbox" wire:model="selected" value="{{ $cat->id }}"></td>
+    <td><input type="checkbox" wire:model.live="selected" value="{{ $cat->id }}"></td>
     <td>::</td>
     <td>{{ $prefix }} {{ $cat->term->name }}</td>
     <td>{{ $cat->term->slug }}</td>

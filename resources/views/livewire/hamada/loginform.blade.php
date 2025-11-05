@@ -67,7 +67,7 @@ new class extends Component
         <div class="modal fade show d-block" style="background: rgba(0,0,0,.5);" tabindex="-1">
             <div class="modal-dialog {{ $width }} modal-dialog-scrollable">
                 <div class="modal-content">
-                    <form wire:submit.prevent="submit">
+                    <form wire:submit="submit">
                         <div class="modal-header">
                             <h5 class="modal-title">{{ $modalTile }}</h5>
                             <button type="button" class="close" wire:click="closeModal"> <span aria-hidden="true">&times;</span></button>
@@ -78,18 +78,18 @@ new class extends Component
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
-                                <input type="email" wire:model="email" class="form-control">
+                                <input type="email" wire:model.live="email" class="form-control">
                                 @error('email') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Mật khẩu</label>
-                                <input type="password" wire:model="password" class="form-control">
+                                <input type="password" wire:model.live="password" class="form-control">
                                 @error('password') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-check mb-3">
-                                <input type="checkbox" wire:model="remember" class="form-check-input" id="remember">
+                                <input type="checkbox" wire:model.live="remember" class="form-check-input" id="remember">
                                 <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
                             </div>
                         </div>

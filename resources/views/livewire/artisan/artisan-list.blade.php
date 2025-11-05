@@ -16,7 +16,7 @@
         @if($errorMessage)
             <div class="alert alert-danger">{{ $errorMessage }}</div>
         @endif
-        <input type="text" wire:model="artisanCommand" placeholder="Nhập câu lệnh php artisan" class="form-control my-1" />
+        <input type="text" wire:model.live="artisanCommand" placeholder="Nhập câu lệnh php artisan" class="form-control my-1" />
         <button wire:click="executeArtisanCommand" style="width: 150px;" class="btn btn-outline-primary btn-sm my-2">
             Thực hiện
         </button>

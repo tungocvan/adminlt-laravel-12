@@ -11,13 +11,13 @@
                 <div class="row w-100">
                     <div class="col-4">
                         @if(isset($item['header']))
-                        <input  type="text" wire:model="menu.{{ $index }}.header" placeholder="Header" class="form-control mb-2" />
+                        <input  type="text" wire:model.live="menu.{{ $index }}.header" placeholder="Header" class="form-control mb-2" />
                         @else
                             <div class="mb-2 flex-grow-1">
-                                <input  type="text" wire:model="menu.{{ $index }}.text" placeholder="Text" class="form-control" />
-                                <input  type="text" wire:model="menu.{{ $index }}.url" placeholder="URL" class="form-control" />
-                                <input  type="text" wire:model="menu.{{ $index }}.icon" placeholder="Icon" class="form-control" />
-                                <input  type="text" wire:model="menu.{{ $index }}.can" placeholder="Permission" class="form-control" />
+                                <input  type="text" wire:model.live="menu.{{ $index }}.text" placeholder="Text" class="form-control" />
+                                <input  type="text" wire:model.live="menu.{{ $index }}.url" placeholder="URL" class="form-control" />
+                                <input  type="text" wire:model.live="menu.{{ $index }}.icon" placeholder="Icon" class="form-control" />
+                                <input  type="text" wire:model.live="menu.{{ $index }}.can" placeholder="Permission" class="form-control" />
                             </div>
                         @endif
                     </div>
@@ -37,7 +37,7 @@
                                 
                                 @foreach($item['submenu'] as $subIndex => $subItem)
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <input style="width:500px" type="text" wire:model="menu.{{ $index }}.submenu.{{ $subIndex }}.text" placeholder="Sub Item Text" class="form-control mb-2" />
+                                        <input style="width:500px" type="text" wire:model.live="menu.{{ $index }}.submenu.{{ $subIndex }}.text" placeholder="Sub Item Text" class="form-control mb-2" />
                                         <div>
                                             <button wire:click="moveSubItemUp({{ $index }}, {{ $subIndex }})" class="btn btn-secondary btn-sm" @if($subIndex == 0) disabled @endif>↑</button>
                                             <button wire:click="moveSubItemDown({{ $index }}, {{ $subIndex }})" class="btn btn-secondary btn-sm" @if($subIndex == count($item['submenu']) - 1) disabled @endif>↓</button>
@@ -73,10 +73,10 @@
                     <button type="button" class="btn-close" wire:click="$set('showModal', false)" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="text" wire:model="newItem.text" placeholder="Text" class="form-control mb-2" />
-                    <input type="text" wire:model="newItem.url" placeholder="URL" class="form-control mb-2" />
-                    <input type="text" wire:model="newItem.icon" placeholder="Icon" class="form-control mb-2" />
-                    <input type="text" wire:model="newItem.can" placeholder="Permission" class="form-control mb-2" />
+                    <input type="text" wire:model.live="newItem.text" placeholder="Text" class="form-control mb-2" />
+                    <input type="text" wire:model.live="newItem.url" placeholder="URL" class="form-control mb-2" />
+                    <input type="text" wire:model.live="newItem.icon" placeholder="Icon" class="form-control mb-2" />
+                    <input type="text" wire:model.live="newItem.can" placeholder="Permission" class="form-control mb-2" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" wire:click="$set('showModal', false)">Close</button>

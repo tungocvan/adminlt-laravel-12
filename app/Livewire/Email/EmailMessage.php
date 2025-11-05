@@ -44,7 +44,7 @@ class EmailMessage extends Component
         //dd($this->uploadedFiles); // "uploads/cccd-matsau.jpg"
 
         // Gửi sự kiện về client báo upload thành công
-        // $this->dispatchBrowserEvent('upload-success', ['files' => $this->uploadedFiles]);
+        // $this->dispatch('upload-success', ['files' => $this->uploadedFiles]);
     }
     public function uploadImage($index)
     {
@@ -82,7 +82,7 @@ class EmailMessage extends Component
     });
 
     if (empty($to)) {
-        $this->dispatchBrowserEvent('alert', ['message' => 'Email gửi đi không hợp lệ']);
+        $this->dispatch('alert', ['message' => 'Email gửi đi không hợp lệ']);
         return;
     }
 

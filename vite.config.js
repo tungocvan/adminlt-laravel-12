@@ -8,6 +8,7 @@ export default defineConfig({
                 'resources/sass/hamada.scss',             
                 'resources/css/tailwind.css',             
                 'resources/js/app.js',
+                'resources/js/bootstrap.js',
                 'resources/js/hamada.js',
             ],
             refresh: true,

@@ -29,12 +29,12 @@
                 <div class="card-body">
                     <div class="form-group">
                         <label>Tiêu đề báo cáo</label>
-                        <input type="text" class="form-control" wire:model="title">
+                        <input type="text" class="form-control" wire:model.live="title">
                     </div>
             
                     <div class="form-group">
                         <label>Footer (Người lập bảng)</label>
-                        <input type="text" class="form-control" wire:model="footer">
+                        <input type="text" class="form-control" wire:model.live="footer">
                     </div>
             
                     <hr>
@@ -61,7 +61,7 @@
                                         <td>{{ $field['name'] }}</td>
                                         <td>
                                             <input type="text" class="form-control form-control-sm"
-                                                wire:model.lazy="fields.{{ $index }}.label">
+                                                wire:model.blur="fields.{{ $index }}.label">
                                         </td>
                                     </tr>
                                 @endforeach

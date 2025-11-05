@@ -7,10 +7,10 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <form wire:submit.prevent="import" enctype="multipart/form-data">
+    <form wire:submit="import" enctype="multipart/form-data">
         <div class="d-flex justify-content-between mb-3">
             <div class="form-group mx-2">
-                <input type="file" wire:model="file" class="form-control" style="height: calc(2.25rem + 6px)">
+                <input type="file" wire:model.live="file" class="form-control" style="height: calc(2.25rem + 6px)">
 
                 @error('file') <span class="text-danger">{{ $message }}</span> @enderror
             </div>

@@ -22,20 +22,20 @@ class OrderProductRow extends Component
     public function toggleSelected()
     {
         $this->selected = !$this->selected;
-        $this->emit('productSelectionUpdated', $this->product->id, $this->selected, $this->quantity);
+        $this->dispatch('productSelectionUpdated', $this->product->id, $this->selected, $this->quantity);
     }
 
     public function increment()
     {
         $this->quantity++;
-        if($this->selected) $this->emit('productQuantityUpdated', $this->product->id, $this->quantity);
+        if($this->selected) $this->dispatch('productQuantityUpdated', $this->product->id, $this->quantity);
     }
 
     public function decrement()
     {
         if($this->quantity > 1) {
             $this->quantity--;
-            if($this->selected) $this->emit('productQuantityUpdated', $this->product->id, $this->quantity);
+            if($this->selected) $this->dispatch('productQuantityUpdated', $this->product->id, $this->quantity);
         }
     }
 

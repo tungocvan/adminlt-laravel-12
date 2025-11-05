@@ -52,7 +52,7 @@
         </div>
         <div class="d-flex mb-2">
             @if (count($selectedProducts) > 0)
-                <livewire:category-dropdown :categories="$categories" wire:model="selectedCategories"
+                <livewire:category-dropdown :categories="$categories" wire:model.live="selectedCategories"
                     applyMethod="applySelectedCategory" />
             @endif
         </div>

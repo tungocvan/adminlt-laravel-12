@@ -18,21 +18,9 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles, HasApiTokens, Filterable;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'username',
-        'password',
-        'is_admin',
-        'birthdate',
-        'google_id',
-        'email_verified_at'
-    ];
+    protected $fillable = ['name', 'email', 'username', 'password', 'is_admin', 'birthdate', 'google_id', 'email_verified_at'];
 
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
     protected function casts(): array
     {
@@ -45,8 +33,9 @@ class User extends Authenticatable
     protected static function booted(): void
     {
         static::created(function (User $user) {
-            Mail::to($user->email)
-                ->queue(new WelcomeUserMail($user));
+            if (!empty($user->referral_code)) {
+                Mail::to($user->email)->queue(new WelcomeUserMail($user));
+            }
         });
 
         static::deleting(function ($user) {
@@ -70,8 +59,8 @@ class User extends Authenticatable
     {
         $query->where(function ($q) use ($keyword) {
             $q->where('name', 'like', "%{$keyword}%")
-              ->orWhere('email', 'like', "%{$keyword}%")
-              ->orWhere('username', 'like', "%{$keyword}%");
+                ->orWhere('email', 'like', "%{$keyword}%")
+                ->orWhere('username', 'like', "%{$keyword}%");
         });
     }
 }

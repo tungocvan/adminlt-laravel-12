@@ -5,7 +5,7 @@
         <div class="d-flex">
             <input wire:model.live.debounce.500ms="search" type="text" class="form-control mr-2" placeholder="Tìm kiếm danh mục...">
 
-            <select wire:model="bulkAction" class="form-control mr-2">
+            <select wire:model.live="bulkAction" class="form-control mr-2">
                 <option value="">Hành động hàng loạt</option>
                 <option value="delete">Xóa</option>
             </select>
@@ -20,22 +20,22 @@
                 <div class="alert alert-success">{{ session('message') }}</div>
             @endif
 
-            <form wire:submit.prevent="save">
+            <form wire:submit="save">
                 <div class="form-group">
                     <label>Tên danh mục</label>
-                    <input wire:model.defer="name" type="text" class="form-control" placeholder="Category name">
+                    <input wire:model="name" type="text" class="form-control" placeholder="Category name">
                     @error('name') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="form-group">
                     <label>Slug</label>
-                    <input wire:model.defer="slug" type="text" class="form-control" placeholder="Slug">
+                    <input wire:model="slug" type="text" class="form-control" placeholder="Slug">
                     @error('slug') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="form-group">
                     <label>Danh mục cha</label>
-                    <select wire:model.defer="parent_id" class="form-control">
+                    <select wire:model="parent_id" class="form-control">
                         <option value="">Không có</option>
                         @foreach ($allCategories as $cat)
                             <option value="{{ $cat->id }}">{{ $cat->term->name }}</option>
@@ -46,7 +46,7 @@
 
                 <div class="form-group">
                     <label>Mô tả</label>
-                    <textarea wire:model.defer="description" class="form-control" rows="3"></textarea>
+                    <textarea wire:model="description" class="form-control" rows="3"></textarea>
                 </div>
 
                 
@@ -76,7 +76,7 @@
                 <tbody>
                 @forelse ($categories as $cat)
                 <tr>
-                    <td><input type="checkbox" value="{{ $cat->id }}" wire:model="selected"></td>
+                    <td><input type="checkbox" value="{{ $cat->id }}" wire:model.live="selected"></td>
                     <td>{{ $loop->iteration + ($categories->currentPage() - 1) * $categories->perPage() }}</td>
                     <td>{{ $cat->term->name }}</td>
                     <td>{{ $cat->term->slug }}</td>

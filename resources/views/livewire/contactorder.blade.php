@@ -39,24 +39,24 @@ new class extends Component
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <form wire:submit.prevent="submit">
+    <form wire:submit="submit">
         <div class="form-group">
-            <input type="text" wire:model="full_name" class="form-control" placeholder="Họ Và Tên*" required>
+            <input type="text" wire:model.live="full_name" class="form-control" placeholder="Họ Và Tên*" required>
             @error('full_name') <small class="text-danger">{{ $message }}</small> @enderror
         </div>
 
         <div class="form-group">
-            <input type="email" wire:model="email" class="form-control" placeholder="Email*" required>
+            <input type="email" wire:model.live="email" class="form-control" placeholder="Email*" required>
             @error('email') <small class="text-danger">{{ $message }}</small> @enderror
         </div>
 
         <div class="form-group">
-            <input type="tel" wire:model="phone" class="form-control" placeholder="Số Điện Thoại*" required>
+            <input type="tel" wire:model.live="phone" class="form-control" placeholder="Số Điện Thoại*" required>
             @error('phone') <small class="text-danger">{{ $message }}</small> @enderror
         </div>
 
         <div class="form-group">
-            <select wire:model="user_type" class="form-control" required>
+            <select wire:model.live="user_type" class="form-control" required>
                 <option value="" disabled selected>-- Bạn Là... --</option>
                 <option value="Công ty Dược">Công ty Dược</option>
                 <option value="Dược Sĩ">Dược Sĩ</option>
@@ -71,7 +71,7 @@ new class extends Component
         
 
         <div class="form-group">
-            <textarea wire:model="message" class="form-control" rows="2" placeholder="Bạn Đang Tìm Sản Phẩm Gì?"></textarea>
+            <textarea wire:model.live="message" class="form-control" rows="2" placeholder="Bạn Đang Tìm Sản Phẩm Gì?"></textarea>
             @error('message') <small class="text-danger">{{ $message }}</small> @enderror
         </div>
 

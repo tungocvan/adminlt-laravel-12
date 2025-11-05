@@ -22,7 +22,7 @@
     <input type="file" 
            class="form-control mb-1"
            style="height: calc(2.25rem + 6px)"
-           wire:model="{{ $model ?? 'imageUpload' }}"
+           wire:model.live="{{ $model ?? 'imageUpload' }}"
            accept="image/*"
            @change="previewImage($event)">
 

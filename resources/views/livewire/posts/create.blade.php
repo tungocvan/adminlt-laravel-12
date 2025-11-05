@@ -4,7 +4,7 @@
 
         <label for="exampleFormControlInput1">Title:</label>
 
-        <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Enter Title" wire:model="title">
+        <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Enter Title" wire:model.live="title">
 
         @error('title') <span class="text-danger">{{ $message }}</span>@enderror
 
@@ -14,7 +14,7 @@
 
         <label for="exampleFormControlInput2">Body:</label>
 
-        <textarea type="email" class="form-control" id="exampleFormControlInput2" wire:model="body" placeholder="Enter Body"></textarea>
+        <textarea type="email" class="form-control" id="exampleFormControlInput2" wire:model.live="body" placeholder="Enter Body"></textarea>
 
         @error('body') <span class="text-danger">{{ $message }}</span>@enderror
 

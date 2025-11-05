@@ -9,11 +9,10 @@
                 <button wire:click="openModalRole" class="btn btn-light btn-sm">
                     <i class="fa fa-user-shield mr-1"></i> Cập nhật Role
                 </button>
-                <button onclick="if(confirm('Bạn có chắc muốn xóa các user đã chọn?')) { @this.deleteSelected() }"
+                <button onclick="if(confirm('Bạn có chắc muốn xóa các user đã chọn?')) { @this.deleteSelectedUsers() }"
                     class="btn btn-danger btn-sm">
                     <i class="fa fa-trash mr-1"></i> Xóa chọn
                 </button>
-
             </div>
         </div>
 
@@ -24,34 +23,54 @@
                     <div class="input-group input-group-sm">
                         <input type="text" wire:model.live.debounce.300ms="search" class="form-control"
                             placeholder="Tìm kiếm...">
-                        <div class="input-group-append">
-                            <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
-                        </div>
+                        {{-- <div class="input-group-append">                                    
+                                <button class="btn btn-sm btn-link text-muted" type="button" wire:click="$set('search', '')"> 
+                                    <span class="input-group-text bg-light"><i class="fas fa-times"></i></span>
+                                </button>
+                            </div> --}}
+                        @if (!$search)
+                            <div class="input-group-append">
+                                <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
+                            </div>
+                        @else
+                            <div class="input-group-append">
+                                <button class="input-group-text bg-light" type="button"
+                                    wire:click="$set('search', '')"><span><i class="fas fa-times"></i></span></button>
+                            </div>
+                        @endif
                     </div>
                 </div>
+
                 <div class="col-md-3">
-                    <select wire:model.change="perPage" class="form-control form-control-sm">
+                    <select wire:key="per-page-select" wire:model.live="perPage" class="form-control form-control-sm"
+                        wire:ignore.self>
                         <option value="5">Hiển thị 5</option>
                         <option value="10">Hiển thị 10</option>
                         <option value="50">Hiển thị 50</option>
                     </select>
                 </div>
+
                 <div class="col-md-5 text-right">
-                    <button wire:click="printUsers" class="btn btn-outline-secondary btn-sm" title="In danh sách"><i
-                            class="fas fa-print"></i></button>
-                    <button wire:click="exportSelected" class="btn btn-outline-success btn-sm" title="Xuất Excel"><i
-                            class="fas fa-file-excel"></i></button>
-                    <button wire:click="exportToPDF" class="btn btn-outline-danger btn-sm" title="Xuất PDF"><i
-                            class="fas fa-file-pdf"></i></button>
+                    <button wire:click="printUsers" class="btn btn-outline-secondary btn-sm" title="In danh sách">
+                        <i class="fas fa-print"></i>
+                    </button>
+                    <button wire:click="exportSelected" class="btn btn-outline-success btn-sm" title="Xuất Excel">
+                        <i class="fas fa-file-excel"></i>
+                    </button>
+                    <button wire:click="exportToPDF" class="btn btn-outline-danger btn-sm" title="Xuất PDF">
+                        <i class="fas fa-file-pdf"></i>
+                    </button>
                 </div>
             </div>
 
-            {{-- Alert --}}
-            @if (session('message'))
-                <div class="alert alert-success alert-dismissible fade show">
-                    <i class="fas fa-check-circle mr-2"></i>{{ session('message') }}
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {{-- Alerts --}}
+            @if ($message)
+                <div class="alert alert-success mb-2">
+                    {{ $message }}
                 </div>
+            @endif
+            @if (session('message'))
+                <div class="alert alert-info">{{ session('message') }}</div>
             @endif
             @if (session('error'))
                 <div class="alert alert-danger alert-dismissible fade show">
@@ -65,7 +84,7 @@
                 <table class="table-hover table-bordered mb-0 table">
                     <thead class="thead-light">
                         <tr>
-                            <th width="40"><input type="checkbox" wire:model="selectAll"
+                            <th width="40"><input type="checkbox" wire:model.live="selectAll"
                                     wire:click="toggleSelectAll"></th>
                             <th wire:click="sortBy('id')" style="cursor:pointer;">ID <i
                                     class="fas fa-sort text-muted"></i></th>
@@ -81,7 +100,8 @@
                     <tbody>
                         @forelse($users as $user)
                             <tr>
-                                <td><input type="checkbox" wire:model="selectedUsers" value="{{ $user->id }}"></td>
+                                <td><input type="checkbox" wire:model.live="selectedUsers" value="{{ $user->id }}">
+                                </td>
                                 <td>{{ $user->id }}</td>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
@@ -102,9 +122,9 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <button wire:click="edit({{ $user->id }})"
+                                        <button wire:click="editUser({{ $user->id }})"
                                             class="btn btn-outline-primary btn-sm"><i class="fa fa-edit"></i></button>
-                                        <button wire:click="delete({{ $user->id }})"
+                                        <button wire:click="deleteUser({{ $user->id }})"
                                             class="btn btn-outline-danger btn-sm"><i class="fa fa-trash"></i></button>
                                     </div>
                                 </td>
@@ -120,50 +140,44 @@
 
             {{-- Pagination --}}
             <div class="mt-3">
-                {{ $this->users->links('pagination::bootstrap-4') }}
-
+                {{ $users->links('pagination::bootstrap-4') }}
             </div>
         </div>
     </div>
 
-    {{-- User Form Modal --}}
-    {{-- Include Form Modal --}}
+    {{-- Modals --}}
     @include('livewire.users.user-form')
-
-    {{-- Role Modal --}}
     @include('livewire.users.user-form-role')
 
-    {{-- Script để show modal Livewire --}}
-    <script>
-        document.addEventListener('show-modal-user', () => {
-            $('#modalUser').modal({
-                backdrop: 'static', // click ngoài không đóng
-                keyboard: false     // ESC không đóng
-            }).modal('show');
-
-        });
-        document.addEventListener('refreshUsers', () => {
-            $('#modalUser').modal('hide');
-        });
-        document.addEventListener('show-modal-role', () => {     
-            $('#modalRole').modal({
-                backdrop: 'static', // click ngoài không đóng
-                keyboard: false     // ESC không đóng
-            }).modal('show');
-            
-        });
-        document.addEventListener('modalRole', () => {
-            $('#modalRole').modal('hide');
-        });
-
-        document.addEventListener("DOMContentLoaded", () => {
-            $('[data-dismiss="modal"]').on('click', function() {
-                // Lấy id modal cha
-                var modal = $(this).closest('.modal');
-                if (modal.length) {
-                    $(modal).modal('hide');
-                }
-            });
-        })
-    </script>
 </div>
+
+@push('js')
+    {{-- JS để show/hide modal + fix perPage select --}}
+    <script>
+        document.addEventListener('livewire:init', () => {
+            // Show / hide modal
+            window.addEventListener('show-modal-user', () => {
+                $('#modalUser').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                }).modal('show');
+            });
+            window.addEventListener('refreshUsers', () => {
+                $('#modalUser').modal('hide');
+            });
+            window.addEventListener('show-modal-role', () => {
+                $('#modalRole').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                }).modal('show');
+            });
+            window.addEventListener('modalRole', () => {
+                $('#modalRole').modal('hide');
+            });
+
+            $('[data-dismiss="modal"]').on('click', function() {
+                $(this).closest('.modal').modal('hide');
+            });
+        });
+    </script>
+@endpush

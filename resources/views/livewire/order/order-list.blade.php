@@ -11,7 +11,7 @@
                     <div class="col-md-6">
                         <div class="form-group mb-2">
                             <label>Email</label>
-                            <input type="text" class="form-control" wire:model.defer="email"
+                            <input type="text" class="form-control" wire:model="email"
                                 placeholder="Nhập email khách hàng">
                             @error('email')
                                 <span class="text-danger">{{ $message }}</span>
@@ -20,7 +20,7 @@
 
                         <div class="form-group mb-2">
                             <label>Status</label>
-                            <select class="form-control" wire:model.defer="status">
+                            <select class="form-control" wire:model="status">
                                 <option value="pending">Pending</option>
                                 <option value="confirmed">Confirmed</option>
                                 <option value="cancelled">Cancelled</option>
@@ -30,12 +30,12 @@
 
                         <div class="form-group mb-2">
                             <label>Ghi chú khách hàng</label>
-                            <textarea class="form-control" wire:model.defer="order_note"></textarea>
+                            <textarea class="form-control" wire:model="order_note"></textarea>
                         </div>
 
                         <div class="form-group mb-2">
                             <label>Ghi chú admin</label>
-                            <textarea class="form-control" wire:model.defer="admin_note"></textarea>
+                            <textarea class="form-control" wire:model="admin_note"></textarea>
                         </div>
                     </div>
 
@@ -87,7 +87,7 @@
                                                                 wire:click="decrementQuantity({{ $product->id }})">-</button>
                                                         </div>
                                                         <input type="text" class="form-control text-center"
-                                                            wire:model.defer="selectedProducts.{{ $product->id }}.quantity"
+                                                            wire:model="selectedProducts.{{ $product->id }}.quantity"
                                                             readonly>
                                                         <div class="input-group-append">
                                                             <button type="button" class="btn btn-outline-secondary"

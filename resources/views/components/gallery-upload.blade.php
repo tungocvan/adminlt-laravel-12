@@ -1,7 +1,7 @@
 <div class="form-group"
      x-data="{
         galleryPreview: [],
-        existingGallery: @entangle($attributes->wire('model')).defer,
+        existingGallery: @entangle($attributes->wire('model')),
         previewFiles(event) {
             this.galleryPreview = [];
             Array.from(event.target.files).forEach(file => {
@@ -22,7 +22,7 @@
     <input type="file" 
            class="form-control"
            style="height: calc(2.25rem + 6px)"
-           wire:model="{{ $uploadModel ?? 'galleryUpload' }}"
+           wire:model.live="{{ $uploadModel ?? 'galleryUpload' }}"
            multiple 
            accept="image/*"
            @change="previewFiles($event)">

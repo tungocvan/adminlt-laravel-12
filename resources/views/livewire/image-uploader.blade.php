@@ -41,7 +41,7 @@
                 Đường dẫn lưu ảnh: <strong> storage/app/public/{{ $pathDirectory }} <strong>
 
             </div>
-            <input type="file" multiple wire:model="photos" accept="image/*"
+            <input type="file" multiple wire:model.live="photos" accept="image/*"
             x-ref="fileInput"
             x-on:change="
                 Array.from($event.target.files).forEach(file => {

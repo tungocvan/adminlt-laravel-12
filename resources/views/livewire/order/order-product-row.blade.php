@@ -1,6 +1,6 @@
 <tr>
     <td>
-        <input type="checkbox" wire:click="toggleSelected" wire:model="selected">
+        <input type="checkbox" wire:click="toggleSelected" wire:model.live="selected">
     </td>
     <td>{{ $product->ten_hoat_chat }}</td>
     <td>{{ $product->don_vi_tinh }}</td>

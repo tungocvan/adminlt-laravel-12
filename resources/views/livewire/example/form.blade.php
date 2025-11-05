@@ -17,7 +17,7 @@
                 <button class="btn btn-primary" type="button" x-on:click="$wire.handleSubmit(message)">Submit</button>
             </div>  
             <div class="col-4">
-                <div x-data="{ open: $wire.entangle('showDropdown') }">
+                <div x-data="{ open: $wire.$entangle('showDropdown', true) }">
                     <button x-on:click="open = true">Show More...</button>
                  
                     <ul x-show="open" x-on:click.outside="open = false">
@@ -28,7 +28,7 @@
                 </div>
                 <div>
                     <form wire:submit="save">
-                    <input wire:model="title" type="text">
+                    <input wire:model.live="title" type="text">
                     <small>
                         Character count: <span x-text="$wire.title.length"></span> 
                     </small>

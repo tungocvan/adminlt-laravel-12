@@ -64,37 +64,37 @@
                     </button>
                 </div>
 
-                <form wire:submit.prevent="save">
+                <form wire:submit="save">
                     <div class="modal-body">
                         <div class="form-group">
                             <label>Họ và tên</label>
-                            <input type="text" class="form-control" wire:model="ho_va_ten">
+                            <input type="text" class="form-control" wire:model.live="ho_va_ten">
                             @error('ho_va_ten') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-group">
                             <label>Lớp</label>
-                            <input type="text" class="form-control" wire:model="lop">
+                            <input type="text" class="form-control" wire:model.live="lop">
                         </div>
                         <div class="form-group">
                             <label>Ngày sinh</label>
-                            <input type="date" class="form-control" wire:model="ngay_sinh">
+                            <input type="date" class="form-control" wire:model.live="ngay_sinh">
                         </div>
                         <div class="form-group">
                             <label>Giới tính</label>
-                            <input type="text" class="form-control" wire:model="gioi_tinh">
+                            <input type="text" class="form-control" wire:model.live="gioi_tinh">
                         </div>
                         <div class="form-group">
                             <label>Mã định danh</label>
-                            <input type="text" class="form-control" wire:model="ma_dinh_danh_hoc_sinh">
+                            <input type="text" class="form-control" wire:model.live="ma_dinh_danh_hoc_sinh">
                             @error('ma_dinh_danh_hoc_sinh') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-group">
                             <label>GVCN</label>
-                            <input type="text" class="form-control" wire:model="gvcn">
+                            <input type="text" class="form-control" wire:model.live="gvcn">
                         </div>
                         <div class="form-group">
                             <label>Bảo mẫu</label>
-                            <input type="text" class="form-control" wire:model="bao_mau">
+                            <input type="text" class="form-control" wire:model.live="bao_mau">
                         </div>
                     </div>
 

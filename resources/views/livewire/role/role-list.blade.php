@@ -55,14 +55,14 @@
             <div class="card-body">
                 <div class="form-group">
                     <label>Tên vai trò</label>
-                    <input type="text" wire:model.defer="name" class="form-control" placeholder="Nhập tên vai trò...">
+                    <input type="text" wire:model="name" class="form-control" placeholder="Nhập tên vai trò...">
                     @error('name') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="mb-0"><strong>Phân quyền theo module</strong></label>
                     <div class="form-check">
-                        <input type="checkbox" id="check_all" class="form-check-input" wire:model="selectAll">
+                        <input type="checkbox" id="check_all" class="form-check-input" wire:model.live="selectAll">
                         <label for="check_all" class="form-check-label text-primary">Chọn tất cả quyền</label>
                     </div>
                 </div>
@@ -143,7 +143,7 @@
             @else
                 <div class="form-group">
                     <label>Chọn module</label>
-                    <select wire:model="module" class="form-control">
+                    <select wire:model.live="module" class="form-control">
                         <option value="">-- Chọn module --</option>
                         @foreach($modules as $mod)
                             <option value="{{ $mod }}">{{ $mod }}</option>

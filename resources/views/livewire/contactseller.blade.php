@@ -72,9 +72,9 @@ new class extends Component {
                     </div>
                 @endif
             
-                <form wire:submit.prevent="send" enctype="multipart/form-data">
+                <form wire:submit="send" enctype="multipart/form-data">
                     <div class="form-group">
-                        <select wire:model="user_type" class="form-control" required>
+                        <select wire:model.live="user_type" class="form-control" required>
                             <option value="" disabled>-- Bạn Là... --</option>
                             <option value="Công ty Dược">Công ty Dược</option>
                             <option value="Dược Sĩ">Dược Sĩ</option>
@@ -89,31 +89,31 @@ new class extends Component {
             
                     <div class="form-group">
                         <label for="inputName">Name</label>
-                        <input wire:model.defer="name" type="text" id="inputName" class="form-control" />
+                        <input wire:model="name" type="text" id="inputName" class="form-control" />
                         @error('name') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
             
                     <div class="form-group">
                         <label for="inputEmail">E-Mail</label>
-                        <input wire:model.defer="email" type="email" id="inputEmail" class="form-control" />
+                        <input wire:model="email" type="email" id="inputEmail" class="form-control" />
                         @error('email') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
             
                     <div class="form-group">
                         <label for="inputSubject">Subject</label>
-                        <input wire:model.defer="subject" type="text" id="inputSubject" class="form-control" />
+                        <input wire:model="subject" type="text" id="inputSubject" class="form-control" />
                         @error('subject') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
             
                     <div class="form-group">
                         <label for="inputMessage">Message</label>
-                        <textarea wire:model.defer="message" id="inputMessage" class="form-control" rows="4"></textarea>
+                        <textarea wire:model="message" id="inputMessage" class="form-control" rows="4"></textarea>
                         @error('message') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
             
                     <div class="form-group">
                         <label for="inputFile">Danh mục sản phẩm</label>
-                        <input wire:model="files" type="file" id="inputFile" class="form-control" multiple  />
+                        <input wire:model.live="files" type="file" id="inputFile" class="form-control" multiple  />
                         @error('files') <small class="text-danger">{{ $message }}</small> @enderror
             
                         @if (!empty($files))

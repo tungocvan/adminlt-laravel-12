@@ -22,7 +22,7 @@
             </div>
         @endif
     </div>
-    <div x-data="{ showInput: false, isExport: $wire.entangle('isExport') }" class="row align-items-center my-2">
+    <div x-data="{ showInput: false, isExport: $wire.$entangle('isExport', true) }" class="row align-items-center my-2">
         <div class="col-md-12 d-flex align-items-center flex-wrap gap-2">
     
             <!-- Export -->
@@ -38,7 +38,7 @@
             <template x-if="showInput">
                 <div class="form-inline d-inline-flex align-items-center">
                     <input type="text"
-                           wire:model.defer="exportFileName"
+                           wire:model="exportFileName"
                            placeholder="categories.json"
                            class="form-control form-control-sm mr-2 w-auto">
                     
@@ -66,7 +66,7 @@
                         <i class="fa fa-upload"></i> Import JSON
                     </button>
                     <input type="file" 
-                           wire:model="importFile" 
+                           wire:model.live="importFile" 
                            accept=".json" 
                            class="form-control form-control-sm w-auto">
                     
@@ -179,7 +179,7 @@
 
                         <div class="form-group col-md-6">
                             <label>Tên</label>
-                            <input type="text" wire:model="name" class="form-control">
+                            <input type="text" wire:model.live="name" class="form-control">
                             @error('name')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -187,7 +187,7 @@
 
                         <div class="form-group col-md-6">
                             <label>Slug</label>
-                            <input type="text" wire:model="slug" class="form-control">
+                            <input type="text" wire:model.live="slug" class="form-control">
                             @error('slug')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -204,7 +204,7 @@
 
                             @if ($isAddingType)
                                 <div class="input-group mt-2">
-                                    <input type="text" wire:model="customType" class="form-control"
+                                    <input type="text" wire:model.live="customType" class="form-control"
                                         placeholder="Nhập loại mới...">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-success btn-sm"
@@ -216,7 +216,7 @@
 
                         <div class="form-group col-md-6">
                             <label>Cha</label>
-                            <select wire:model="parent_id" class="form-control">
+                            <select wire:model.live="parent_id" class="form-control">
                                 <option value="">-- Không chọn --</option>
                                 @foreach ($parents as $p)
                                     <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
@@ -226,17 +226,17 @@
 
                         <div class="form-group col-md-6">
                             <label>Trạng thái</label><br>
-                            <input type="checkbox" wire:model="is_active"> Active
+                            <input type="checkbox" wire:model.live="is_active"> Active
                         </div>
 
                         <div class="form-group col-md-6">
                             <label>Thứ tự</label>
-                            <input type="number" wire:model="sort_order" class="form-control">
+                            <input type="number" wire:model.live="sort_order" class="form-control">
                         </div>
 
                         <div class="form-group col-md-6">
                             <label>Icon</label>
-                            <input type="text" wire:model="icon" class="form-control">
+                            <input type="text" wire:model.live="icon" class="form-control">
                             @error('icon')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -244,7 +244,7 @@
 
                         <div class="form-group col-md-6">
                             <label>Can</label>
-                            <input type="text" wire:model="can" class="form-control">
+                            <input type="text" wire:model.live="can" class="form-control">
                             @error('can')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -252,7 +252,7 @@
 
                         <div class="form-group col-md-12">
                             <label>Mô tả</label>
-                            <textarea wire:model="description" class="form-control"></textarea>
+                            <textarea wire:model.live="description" class="form-control"></textarea>
                             @error('description')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -260,7 +260,7 @@
 
                         <div class="form-group col-md-6">
                             <label>Ảnh</label>
-                            <input type="file" wire:model="imageFile" class="form-control"
+                            <input type="file" wire:model.live="imageFile" class="form-control"
                                 style="height:calc(2.25rem + 10px)">
                             @error('imageFile')
                                 <small class="text-danger">{{ $message }}</small>
@@ -268,7 +268,7 @@
 
                             @if ($image)
                                 <div class="position-relative d-inline-block mt-2">
-                                    <img src="{{ $image instanceof \Livewire\TemporaryUploadedFile ? $image->temporaryUrl() : asset('storage/' . $image) }}"
+                                    <img src="{{ $image instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile ? $image->temporaryUrl() : asset('storage/' . $image) }}"
                                         alt="" width="100" class="img-thumbnail">
                                     <button type="button" wire:click="removeImage"
                                         class="btn btn-sm btn-danger position-absolute"

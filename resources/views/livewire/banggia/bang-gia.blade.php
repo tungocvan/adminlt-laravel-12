@@ -33,7 +33,7 @@
 
             {{-- Ô tìm kiếm --}}
             <div class="form-group">
-                <input type="text" class="form-control" placeholder="Tìm kiếm..." wire:model.debounce.500ms="search">
+                <input type="text" class="form-control" placeholder="Tìm kiếm..." wire:model.live.debounce.500ms="search">
             </div>
 
             {{-- Form thêm mới --}}
@@ -42,29 +42,29 @@
                     <div class="form-row">
                         <div class="form-group col-md-3">
                             <label>Tên khách hàng</label>
-                            <input type="text" class="form-control" wire:model="ten_khach_hang">
+                            <input type="text" class="form-control" wire:model.live="ten_khach_hang">
                             @error('ten_khach_hang') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>
                         <div class="form-group col-md-3">
                             <label>Người duyệt Báo giá</label>
-                            <input type="text" class="form-control" wire:model="nguoi_duyet_bg">
+                            <input type="text" class="form-control" wire:model.live="nguoi_duyet_bg">
                             @error('nguoi_duyet_bg') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>
                         <div class="form-group col-md-4">
                             <label>Tiêu đề báo giá</label>
-                            <input type="text" class="form-control" wire:model="tieu_de_bg">
+                            <input type="text" class="form-control" wire:model.live="tieu_de_bg">
                             @error('tieu_de_bg') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>
                         <div class="form-group col-md-2">
                             <label>Ngày lập Báo giá</label>
-                            <input type="text" class="form-control" wire:model="ngay_lap_bg">
+                            <input type="text" class="form-control" wire:model.live="ngay_lap_bg">
                             @error('ngay_lap_bg') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>Ghi chú</label>
-                        <textarea class="form-control" wire:model="ghi_chu" rows="2"></textarea>
+                        <textarea class="form-control" wire:model.live="ghi_chu" rows="2"></textarea>
                     </div>
 
                     {{-- File báo giá --}}
@@ -88,7 +88,7 @@
                         >
 
                         <div class="custom-control custom-checkbox mb-2">
-                            <input type="checkbox" id="selectAll" class="custom-control-input" wire:model="selectAll">
+                            <input type="checkbox" id="selectAll" class="custom-control-input" wire:model.live="selectAll">
                             <label for="selectAll" class="custom-control-label font-weight-bold">Chọn tất cả</label>
                         </div>
 
@@ -103,7 +103,7 @@
                                         class="custom-control-input"
                                         id="med{{ $m->id }}"
                                         value="{{ $m->id }}"
-                                        wire:model="selectedMedicines"
+                                        wire:model.live="selectedMedicines"
                                     >
                                     <label class="custom-control-label" for="med{{ $m->id }}">
                                         {{ $m->ten_biet_duoc }}
@@ -142,7 +142,7 @@
                     @forelse ($records as $r)
                         <tr>
                             <td class="text-center">
-                                <input type="checkbox" wire:model="selectedRows" value="{{ $r->id }}">
+                                <input type="checkbox" wire:model.live="selectedRows" value="{{ $r->id }}">
                             </td>
                             <td>{{ $r->ma_so }}</td>
                             <td>{{ $r->ten_khach_hang }}</td>

@@ -24,7 +24,7 @@
           </div>
   
           <div class="modal-body">
-            <form wire:submit.prevent="register">
+            <form wire:submit="register">
                 @if(session()->has('success'))
                     <div class="alert alert-success">
                         {{ session('success') }}

@@ -11,18 +11,18 @@
             {{ $editingId ? 'Edit Category' : 'Add New Category' }}
         </div>
         <div class="card-body">
-            <form wire:submit.prevent="createCategory">
+            <form wire:submit="createCategory">
                 <div class="mb-3">
                     <label for="name" class="form-label">Category Name</label>
                     <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                           id="name" wire:model="name" autofocus>
+                           id="name" wire:model.live="name" autofocus>
                     @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 
                 <div class="mb-3">
                     <label for="parentId" class="form-label">Parent Category</label>
                     <select class="form-select @error('parentId') is-invalid @enderror" 
-                            id="parentId" wire:model="parentId">
+                            id="parentId" wire:model.live="parentId">
                         <option value="">-- No Parent --</option>
                         @foreach($this->getParentOptions() as $category)
                             <option value="{{ $category->term_id }}">

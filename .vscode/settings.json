@@ -1,21 +1,30 @@
 {
-  // 🚫 Không format khi lưu — chỉ khi bạn click phải chọn Format Document
-  "editor.formatOnSave": false,
-
-  // 🔹 Cấu hình formatter cho Blade
-  // Ctrl+Shift+X => cài đặt shufo.vscode-blade-formatter
-  "[blade]": {
-    "editor.defaultFormatter": "shufo.vscode-blade-formatter"
-  },
-
-  // 🔹 Cấu hình formatter cho PHP
-  // Ctrl+Shift+X => cài đặt PHP Intelephense (by bmewburn)
-  "[php]": {
-    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
-  },
-
-  // Nhận diện file .blade.php
-  "files.associations": {
-    "*.blade.php": "blade"
+    "editor.formatOnSave": false,
+  
+    "[php]": {
+      "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
+      "editor.formatOnSave": false
+    },
+  
+    "[blade]": {
+      "editor.defaultFormatter": "shufo.vscode-blade-formatter"
+    },
+  
+    "files.associations": {
+      "*.blade.php": "blade",
+      "*.php": "blade"
+    },
+  
+    "intelephense.format.enable": true,
+    "intelephense.environment.phpVersion": "8.2",
+  
+    "php.validate.executablePath": "",
+  
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "intelephense.files.associations": ["*.php", "*.module", "*.inc"],
+    "intelephense.diagnostics.undefinedFunctions": true,
+    "intelephense.diagnostics.undefinedVariables": true
   }
-}
+  

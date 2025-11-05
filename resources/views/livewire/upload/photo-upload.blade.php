@@ -13,7 +13,7 @@
       </div>
     @endsession
 
-    <form wire:submit.prevent="submit" enctype="multipart/form-data">
+    <form wire:submit="submit" enctype="multipart/form-data">
         @if ($photo)
            
             <div>
@@ -25,16 +25,16 @@
         @endif
 
         <label>Image:</label>
-        <input type="file" name="photo" wire:model="photo" class="form-control">
+        <input type="file" name="photo" wire:model.live="photo" class="form-control">
         @error('photo') <p class="text-danger">{{ $message }}</p> @enderror
 
         <button type="submit" class="btn btn-success mt-2">Submit</button>
     </form>
 
     <hr />
-    <form wire:submit.prevent="save">
+    <form wire:submit="save">
       <div class="btn-group w-100">
-        <input type="file" wire:model="photo" accept="image/*"
+        <input type="file" wire:model.live="photo" accept="image/*"
             class="hidden"
             id="upload"
             x-ref="fileInput"

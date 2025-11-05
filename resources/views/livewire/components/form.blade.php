@@ -116,13 +116,13 @@
                             <div class="input-group-prepend">
                               <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                             </div>
-                            <input type="email" class="form-control" placeholder="Email" wire:model="email">
+                            <input type="email" class="form-control" placeholder="Email" wire:model.live="email">
                         </div>
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
                               <span class="input-group-text"><i class="fas fa-key"></i></span>
                             </div>
-                            <input type="text" class="form-control" placeholder="Username" wire:model="password">
+                            <input type="text" class="form-control" placeholder="Username" wire:model.live="password">
                         </div>
                     </div>
                     <div class="modal-footer justify-content-between">

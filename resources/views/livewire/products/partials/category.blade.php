@@ -1,6 +1,6 @@
 <div class="form-check m-2">
     <input type="checkbox" 
-           wire:model.defer="selectedCategories" 
+           wire:model="selectedCategories" 
            value="{{ $category->term_id }}"
            id="category_{{ $category->term_id }}" 
            class="form-check-input">

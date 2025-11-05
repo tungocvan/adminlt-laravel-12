@@ -7,7 +7,7 @@
             </div>
             <div class="modal-body">
                 @if($actionMenu == 'backup')
-                    <x-adminlte-input name="nameJson" label="Tên file backup" wire:model="nameJson" />
+                    <x-adminlte-input name="nameJson" label="Tên file backup" wire:model.live="nameJson" />
                 @else
                     <ul class="list-group">
                         @foreach($backupFiles as $file)

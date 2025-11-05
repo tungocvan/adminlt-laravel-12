@@ -2,7 +2,7 @@
     <div class="form-group">
         <div class="btn btn-default btn-file">      
         <i class="fas fa-paperclip"></i> <span>Attachment</span> 
-        <input wire:model="photos" type="file" id="photoInput"  x-on:change="uploadFiles" multiple>          
+        <input wire:model.live="photos" type="file" id="photoInput"  x-on:change="uploadFiles" multiple>          
         </div>
                 
         <template x-if="attachmentNames.length > 0">

@@ -7,7 +7,7 @@
               </div>
  
               <!-- form start -->
-              <form wire:submit.prevent="submit">
+              <form wire:submit="submit">
                   <div class="card-body">
                       <livewire:select-option-table 
                           placeholder="Chọn sản phẩm" 
@@ -21,14 +21,14 @@
                           placeholder="Ngày bắt đầu" 
                           name="start_date" 
                           format="DD/MM/YYYY" 
-                          wire:model="start_date"
+                          wire:model.live="start_date"
                       />
 
                       <livewire:date-picker 
                           placeholder="Ngày kết thúc" 
                           name="end_date" 
                           format="DD/MM/YYYY" 
-                          wire:model="end_date"
+                          wire:model.live="end_date"
                       />
                     
                       <x-image-upload 
@@ -38,7 +38,7 @@
                             removeMethod="removeImage" 
                      />
                       <livewire:text-editor 
-                          wire:model="description" 
+                          wire:model.live="description" 
                           name="description" 
                           label="Mô tả sản phẩm ngắn" 
                           placeholder="Nhập mô tả..."        

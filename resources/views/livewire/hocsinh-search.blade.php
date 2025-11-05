@@ -22,9 +22,9 @@
     </div>
 
     {{-- Form Tra cứu --}}
-    <form wire:submit.prevent="search" class="w-full max-w-md bg-white bg-opacity-90 rounded-xl shadow p-4 flex flex-col sm:flex-row gap-3">
+    <form wire:submit="search" class="w-full max-w-md bg-white bg-opacity-90 rounded-xl shadow p-4 flex flex-col sm:flex-row gap-3">
         <input
-            wire:model.defer="keyword"
+            wire:model="keyword"
             type="number"
             placeholder="Nhập mã định danh"
             class="flex-1 rounded-lg border-gray-300 focus:ring-0 focus:border-sky-500 text-center text-lg font-semibold">

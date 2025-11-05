@@ -18,9 +18,10 @@
  
 @stop
 
+
 @section('js')
 @stack('scripts')
-     {{-- https://www.daterangepicker.com/#examples  --}}
-    <script> console.log("Hi, I'm using the Laravel-AdminLTE package! "); </script>
 
 @stop
+
+

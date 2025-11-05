@@ -14,12 +14,12 @@
         </div>
         
         <div class="card-body">
-            <form wire:submit.prevent="submit" enctype="multipart/form-data">
+            <form wire:submit="submit" enctype="multipart/form-data">
                 <div class="row">
                     <div class="col-md-8">
                         <div class="form-group">
                             <label for="name">Product Name <span class="text-danger">*</span></label>
-                            <input type="text" wire:model.defer="name" id="name" class="form-control @error('name') is-invalid @enderror" required>
+                            <input type="text" wire:model="name" id="name" class="form-control @error('name') is-invalid @enderror" required>
                             @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
@@ -48,26 +48,26 @@
 
                         <div class="form-group">
                             <label for="tags">Tags</label>
-                            <input type="text" wire:model.defer="tags" id="tags" class="form-control" placeholder="Separate with commas">
+                            <input type="text" wire:model="tags" id="tags" class="form-control" placeholder="Separate with commas">
                             <small class="text-muted">Example: tag1, tag2, tag3</small>
                         </div>
 
                         <div class="form-group">
                             <label for="regularPrice">Regular Price ($) <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" wire:model.defer="regularPrice" id="regularPrice" class="form-control @error('regularPrice') is-invalid @enderror" required>
+                            <input type="number" step="0.01" wire:model="regularPrice" id="regularPrice" class="form-control @error('regularPrice') is-invalid @enderror" required>
                             @error('regularPrice') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="form-group">
                             <label for="salePrice">Sale Price ($)</label>
-                            <input type="number" step="0.01" wire:model.defer="salePrice" id="salePrice" class="form-control @error('salePrice') is-invalid @enderror">
+                            <input type="number" step="0.01" wire:model="salePrice" id="salePrice" class="form-control @error('salePrice') is-invalid @enderror">
                             @error('salePrice') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="form-group">
                             <label>Main Image <span class="text-danger">*</span></label>
                             <div class="custom-file">
-                                <input type="file" wire:model="image" class="custom-file-input @error('image') is-invalid @enderror" id="image" accept="image/*" 
+                                <input type="file" wire:model.live="image" class="custom-file-input @error('image') is-invalid @enderror" id="image" accept="image/*" 
                                         x-ref="fileInput"
                                         @change="handleFile">                                           
                                         
@@ -88,7 +88,7 @@
                         </div>
                         <div class="form-group">
                             <div x-transition class="border p-3 rounded">                             
-                                <input type="file" wire:model="gallery" multiple class="form-control-file" @change="handleFileMulti">
+                                <input type="file" wire:model.live="gallery" multiple class="form-control-file" @change="handleFileMulti">
                                 <small class="text-muted">You can select multiple images</small>
                                 
                                 <div id="previewUrls" class="mt-2 d-flex flex-wrap">

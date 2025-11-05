@@ -3,23 +3,22 @@
 namespace App\Livewire\Users;
 
 use Livewire\Component;
-use App\Models\User;
-use Spatie\Permission\Models\Role;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Facades\View;
-use App\Imports\UsersImport;
+use App\Models\User;
+use Spatie\Permission\Models\Role;
+use App\Helpers\TnvUserHelper;
 use App\Exports\UsersExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
-use App\Helpers\TnvUserHelper;
+use Livewire\Attributes\On;
 
 class UserList extends Component
 {
     use WithPagination, WithFileUploads;
 
-    // Table / filter
+    // Table & filters
     public $perPage = 5;
     public $search = '';
     public $sortField = 'id';
@@ -29,7 +28,7 @@ class UserList extends Component
     public $selectedUsers = [];
     public $selectAll = false;
 
-    // Modal / form state
+    // Modal states
     public $isEdit = false;
 
     // User fields
@@ -41,16 +40,23 @@ class UserList extends Component
     public $birthdate;
     public $google_id;
     public $is_admin = 0;
+    public ?string $message = null;
 
     // Role
-    public $role = null;              // For create/edit
-    public $selectedRoleId = null;    // For role modal
+    public $role = null; // for create/edit
+    public $selectedRoleId = null; // for role modal
+
+    protected $listeners = [
+        'refreshUsers' => '$refresh',
+    ];
+
+    protected $queryString = ['search', 'sortField', 'sortDirection', 'perPage'];
 
     protected $rulesCreate = [
-        'name' => 'required|string|max:255',
+        'name' => 'nullable|string',
         'email' => 'required|string|email|max:255|unique:users,email',
-        'username' => 'required|string|max:255|unique:users,username',
-        'password' => 'required|string|min:8',
+        'username' => 'nullable|string',
+        'password' => 'required|string|min:6',
     ];
 
     protected $rulesUpdate = [
@@ -59,58 +65,78 @@ class UserList extends Component
         'password' => 'nullable|string|min:8',
     ];
 
-    protected $listeners = [
-        'refreshUsers' => '$refresh',
-    ];
-
-    protected $updatesQueryString = ['search','sortField','sortDirection','perPage'];
-
-    // ---------- Computed properties ----------
+    // -------- Computed properties --------
     public function getUsersProperty()
     {
         $query = User::query();
 
-        if($this->search){
-            $query->where(function($q){
-                $q->where('name','like','%'.$this->search.'%')
-                  ->orWhere('email','like','%'.$this->search.'%')
-                  ->orWhere('username','like','%'.$this->search.'%');
+        if ($this->search) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', "%{$this->search}%")
+                    ->orWhere('email', 'like', "%{$this->search}%")
+                    ->orWhere('username', 'like', "%{$this->search}%");
             });
         }
 
-        $query->orderBy($this->sortField,$this->sortDirection);
-        return $query->paginate($this->perPage)
-             ->withQueryString()
-             ->withPath(route('user.index')); // route gốc
+        $query->orderBy($this->sortField, $this->sortDirection);
 
+        return $query
+            ->paginate($this->perPage)
+            ->appends(['search' => $this->search])
+            ->withPath(route('user.index'));
+    }
+
+    #[On('refreshUsers')]
+    public function refreshUsers($message = null)
+    {
+        // Nếu có message thì gán để hiển thị
+        if ($message) {
+            $this->message = $message;
+        }
     }
 
     public function getRolesProperty()
     {
-        return Role::orderBy('name')->pluck('name','id')->toArray();
+        return Role::orderBy('name')->pluck('name', 'id')->toArray();
     }
 
-    // ---------- Selection ----------
+    // -------- Table & selection --------
     public function toggleSelectAll()
     {
-        if($this->selectAll){
-            $this->selectedUsers = $this->users->pluck('id')->toArray();
-        } else {
-            $this->selectedUsers = [];
-        }
+        $this->selectedUsers = $this->selectAll ? $this->users->pluck('id')->toArray() : [];
     }
-
-    public function updatedSelectedUsers()
+    public function updateUserRole()
     {
-        session()->put('selectedUsers',$this->selectedUsers);
+        $this->validate(['selectedRoleId' => 'required|exists:roles,id']);
+        $role = Role::find($this->selectedRoleId); // Lấy role model từ ID
+        if (!$role) {
+            session()->flash('error', 'Role không tồn tại!');
+            return;
+        }
+        $users = User::whereIn('id', $this->selectedUsers)->get();
+        foreach ($users as $user) {
+            $user->syncRoles([$role->name]); // Truyền tên role, không phải ID
+        }
+        $this->closeModalRole();
+        $this->selectedUsers = [];
+        session()->flash('message', 'Cập nhật vai trò thành công!');
+        $this->dispatch('modalRole');
     }
 
     public function updatedPerPage()
     {
         $this->resetPage();
+        // Cập nhật giá trị perPage
+        // $this->perPage = (int) $value;
+
+        // // Reset page về 1 mà KHÔNG làm thay đổi route thành /livewire/update
+        // $this->resetPage();
+
+        // // Giữ nguyên query string đúng (user?page=1&perPage=10)
+        // $this->dispatch('refreshUsers');
     }
 
-    // ---------- Modal Open / Close ----------
+    // -------- Modal control --------
     public function openModal()
     {
         $this->resetForm();
@@ -125,12 +151,12 @@ class UserList extends Component
 
     public function openModalRole()
     {
-        if(empty($this->selectedUsers)){
-            session()->flash('error','Vui lòng chọn ít nhất một người dùng.');
+        if (empty($this->selectedUsers)) {
+            session()->flash('error', 'Vui lòng chọn ít nhất một người dùng.');
             return;
         }
 
-        if(count($this->selectedUsers)===1){
+        if (count($this->selectedUsers) === 1) {
             $u = User::with('roles')->find($this->selectedUsers[0]);
             $this->selectedRoleId = $u?->roles->pluck('id')->first() ?? null;
         } else {
@@ -146,43 +172,45 @@ class UserList extends Component
         $this->selectedRoleId = null;
     }
 
-    // ---------- Form Handling ----------
     protected function resetForm()
     {
-        $this->reset(['name','username','email','password','birthdate','google_id','userId','isEdit','role','is_admin']);
+        $this->reset(['userId', 'name', 'username', 'email', 'password', 'birthdate', 'google_id', 'is_admin', 'isEdit', 'role']);
     }
 
-    public function save()
+    // -------- CRUD operations --------
+    public function createUser()
     {
+        
         $validated = $this->validate($this->rulesCreate);
-
+        
         $data = [
             'email' => $validated['email'],
             'password' => $validated['password'],
-            'name' => $validated['name'],
-            'username' => $validated['username'],
+            'name' => $this->name ?? null,
+            'username' => $this->username ?? null,
             'is_admin' => $this->is_admin ?? 0,
             'birthdate' => $this->birthdate ?? null,
             'google_id' => $this->google_id ?? null,
             'role_name' => $this->role ?? 'User',
         ];
 
+        
         $result = TnvUserHelper::register($data);
 
-        if($result['status'] === 'success'){
-            $this->closeModal();
-            session()->flash('message','✅ User created successfully!');
-            $this->dispatch('refreshUsers');
+        if ($result['status'] === 'success') {
+            //$this->closeModal();
+            //session()->flash('message', '✅ Tạo người dùng thành công!');
+            $this->dispatch('refreshUsers',message:'✅ Tạo người dùng thành công!');
         } else {
-            session()->flash('error','❌ '.$result['message']);
+            session()->flash('error', '❌ ' . $result['message']);
         }
     }
 
-    public function edit($userId)
+    public function editUser($id)
     {
-        $user = User::find($userId);
-        if(!$user){
-            session()->flash('error','User not found!');
+        $user = User::find($id);
+        if (!$user) {
+            session()->flash('error', 'Không tìm thấy người dùng!');
             return;
         }
 
@@ -198,165 +226,167 @@ class UserList extends Component
         $this->dispatch('show-modal-user');
     }
 
-    public function update()
+    public function updateUser()
     {
-        $this->validate(array_merge($this->rulesUpdate, [
-            'email' => 'required|string|email|max:255|unique:users,email,'.$this->userId
-        ]));
+        //dd($this->rulesUpdate);
+        $this->validate(
+            array_merge($this->rulesUpdate, [
+                'email' => 'required|string|email|max:255|unique:users,email,' . $this->userId,
+            ]),
+        );
 
         $data = [
-            'name'=>$this->name,
-            'email'=>$this->email,
-            'username'=>$this->username,
-            'birthdate'=>$this->birthdate,
-            'google_id'=>$this->google_id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'username' => $this->username,
+            'birthdate' => $this->birthdate,
+            'google_id' => $this->google_id,
         ];
 
-        if(!empty($this->password)){
+        if (!empty($this->password)) {
             $data['password'] = $this->password;
         }
 
-        $result = TnvUserHelper::updateUser($this->userId,$data);
+        $result = TnvUserHelper::updateUser($this->userId, $data);
 
-        if($result['status'] !== 'success'){
-            $msg = $result['message'] ?? 'Update failed';
-            session()->flash('error',$msg);
+        if ($result['status'] !== 'success') {
+            session()->flash('error', $result['message'] ?? 'Cập nhật thất bại.');
             return;
         }
 
-        if(!empty($this->role)){
+        if (!empty($this->role)) {
             $user = User::find($this->userId);
-            if($user){
-                $user->syncRoles([$this->role]);
+
+            if ($user) {
+                $roleName = Role::find($this->role)?->name;
+                if ($roleName) {
+                    $user->syncRoles([$roleName]);
+                }
             }
         }
 
-        $this->closeModal();
-        session()->flash('message','User updated successfully!');
-        $this->dispatch('refreshUsers');
+        $this->dispatch('refreshUsers', message: '✅ Cập nhật người dùng thành công!');
     }
 
-    // ---------- Delete ----------
-    public function delete($userId)
+    public function deleteUser($id)
     {
-        
-        $user = User::find($userId);
-       
-        if(!$user){
-            session()->flash('error','User not found!');
+        $user = User::find($id);
+        if (!$user) {
+            session()->flash('error', 'Không tìm thấy người dùng.');
             return;
         }
 
-        if($user->is_admin == -1){
-            session()->flash('error','Cannot delete admin user');
+        if ($user->is_admin == -1) {
+            session()->flash('error', 'Không thể xóa tài khoản admin.');
             return;
         }
 
         $user->delete();
-        session()->flash('message','User deleted successfully!');
+        session()->flash('message', '🗑️ Xóa người dùng thành công!');
         $this->dispatch('refreshUsers');
     }
 
-    public function deleteSelected()
+    public function deleteSelectedUsers()
     {
-        if(empty($this->selectedUsers)){
-            session()->flash('error','No users selected!');
+        if (empty($this->selectedUsers)) {
+            session()->flash('error', 'Chưa chọn người dùng nào!');
             return;
         }
-      
 
-        $users = User::whereIn('id',$this->selectedUsers)->get();
-        foreach($users as $user){
-            if($user->is_admin != -1){
+        $users = User::whereIn('id', $this->selectedUsers)->get();
+        foreach ($users as $user) {
+            if ($user->is_admin != -1) {
                 $user->delete();
             }
         }
 
         $this->selectedUsers = [];
-        session()->flash('message','Selected users deleted!');
+        //session()->flash('message', '🗑️ Đã xóa người dùng được chọn!');
+        $this->dispatch('refreshUsers', message:'🗑️ Đã xóa người dùng được chọn!');
+    }
+
+    // -------- Role assignment --------
+    public function assignRoleToUsers()
+    {
+        $this->validate([
+            'selectedRoleId' => 'required|exists:roles,id',
+        ]);
+
+        $role = Role::find($this->selectedRoleId);
+        if (!$role) {
+            session()->flash('error', 'Vai trò không tồn tại!');
+            return;
+        }
+
+        $users = User::whereIn('id', $this->selectedUsers)->get();
+        foreach ($users as $user) {
+            $user->syncRoles([$role->name]);
+        }
+
+        $this->closeModalRole();
+        $this->selectedUsers = [];
+        session()->flash('message', '✅ Cập nhật vai trò thành công!');
         $this->dispatch('refreshUsers');
     }
 
-    // ---------- Role ----------
-    public function updateUserRole()
-    {
-        $this->validate([
-            'selectedRoleId' => 'required|exists:roles,id'
-        ]);
-    
-        $role = Role::find($this->selectedRoleId); // Lấy role model từ ID
-        if (!$role) {
-            session()->flash('error', 'Role không tồn tại!');
-            return;
-        }
-    
-        $users = User::whereIn('id', $this->selectedUsers)->get();
-        foreach ($users as $user) {
-            $user->syncRoles([$role->name]); // Truyền tên role, không phải ID
-        }
-    
-        $this->closeModalRole();
-        $this->selectedUsers = [];
-        session()->flash('message', 'Cập nhật vai trò thành công!');
-        $this->dispatch('modalRole');
-    }
-    
-
-    // ---------- Approve ----------
-    public function approve($id)
+    // -------- Approve / Verify --------
+    public function approveUser($id)
     {
         $user = User::findOrFail($id);
-        if(is_null($user->email_verified_at)){
-            $user->update(['email_verified_at'=>now()]);
-            session()->flash('message','Người dùng đã được duyệt!');
+        if (is_null($user->email_verified_at)) {
+            $user->update(['email_verified_at' => now()]);
+            session()->flash('message', '✅ Người dùng đã được duyệt!');
             $this->dispatch('refreshUsers');
         }
     }
 
-    // ---------- Export ----------
+    // -------- Export --------
     public function exportSelected()
     {
-        if(empty($this->selectedUsers)){
-            session()->flash('error','Vui lòng chọn ít nhất một người dùng.');
+        if (empty($this->selectedUsers)) {
+            session()->flash('error', 'Vui lòng chọn ít nhất một người dùng.');
             return;
         }
+
         $timestamp = Carbon::now()->format('Y-m-d-H-i');
         $fileName = "users-list-{$timestamp}.xlsx";
 
-        return Excel::download(new UsersExport($this->selectedUsers),$fileName);
+        return Excel::download(new UsersExport($this->selectedUsers), $fileName);
     }
 
     public function exportToPDF()
     {
-        if(empty($this->selectedUsers)){
-            session()->flash('error','Vui lòng chọn ít nhất một người dùng.');
+        if (empty($this->selectedUsers)) {
+            session()->flash('error', 'Vui lòng chọn ít nhất một người dùng.');
             return;
         }
-        $users = User::whereIn('id',$this->selectedUsers)->get();
-        $pdf = Pdf::loadView('exports.users-pdf',compact('users'));
+
+        $users = User::whereIn('id', $this->selectedUsers)->get();
+        $pdf = Pdf::loadView('exports.users-pdf', compact('users'));
         $timestamp = Carbon::now()->format('Y-m-d-H-i');
         $fileName = "users-list-{$timestamp}.pdf";
 
-        return response()->streamDownload(fn()=>print($pdf->output()),$fileName);
+        return response()->streamDownload(fn() => print $pdf->output(), $fileName);
     }
 
-    // ---------- Sorting ----------
+    // -------- Sorting --------
     public function sortBy($field)
     {
-        if($this->sortField === $field){
-            $this->sortDirection = $this->sortDirection==='asc'?'desc':'asc';
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
             $this->sortField = $field;
             $this->sortDirection = 'asc';
         }
-        $this->resetPage();
+
+        $this->setPage(1);
     }
 
     public function render()
     {
-        return view('livewire.users.user-list',[
-            'users'=>$this->users,
-            'roles'=>$this->roles,
+        return view('livewire.users.user-list', [
+            'users' => $this->users,
+            'roles' => $this->roles,
         ]);
     }
 }

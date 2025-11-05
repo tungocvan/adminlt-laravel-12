@@ -24,28 +24,28 @@
     </div>
 @endif
 
-<form wire:submit.prevent="save">
+<form wire:submit="save">
     <div class="row">
         <div class="col-md-12">
             <div class="form-group">
                 <strong>Name:</strong>
-                <input type="text" class="form-control" wire:model="name">
+                <input type="text" class="form-control" wire:model.live="name">
             </div>
             <div class="form-group">
                 <strong>Email:</strong>
-                <input type="email" class="form-control" wire:model="email">
+                <input type="email" class="form-control" wire:model.live="email">
             </div>
             <div class="form-group">
                 <strong>User Name:</strong>
-                <input type="text" class="form-control" wire:model="username">
+                <input type="text" class="form-control" wire:model.live="username">
             </div>
             <div class="form-group">
                 <strong>Password:</strong>
-                <input type="password" class="form-control" wire:model="password">
+                <input type="password" class="form-control" wire:model.live="password">
             </div>
             <div class="form-group">
                 <strong>Role:</strong>
-                <select class="form-control" multiple wire:model="role">
+                <select class="form-control" multiple wire:model.live="role">
                     @foreach ($roles as $value => $label)
                         <option value="{{ $value }}">{{ $label }}</option>
                     @endforeach

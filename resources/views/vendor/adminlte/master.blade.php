@@ -79,7 +79,8 @@
         <meta name="msapplication-TileColor" content="#ffffff">
         <meta name="msapplication-TileImage" content="{{ asset('favicon/ms-icon-144x144.png') }}">
     @endif
-    @vite(['resources/js/app.js']) 
+    @vite(['resources/js/app.js', 'resources/js/bootstrap.js'])
+
 
 
 </head>
@@ -106,15 +107,12 @@
 
     {{-- Livewire Script --}}
     @if(config('adminlte.livewire'))
-        @if(intval(app()->version()) >= 7)
-            @livewireScripts
-        @else
-            <livewire:scripts />
-        @endif
+        @livewireScripts
     @endif
-    
+     
     {{-- Custom Scripts --}}
     @yield('adminlte_js')        
+    
 </body>
 
 </html>

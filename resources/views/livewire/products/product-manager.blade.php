@@ -172,41 +172,41 @@
                     <div class="tab-content" id="myTabContent">
                       <div class="tab-pane fade  {{ @when(!request()->tab, 'show active') }}" id="home" role="tabpanel" aria-labelledby="home-tab"><br/>
                             <!-- Form -->
-                        <form wire:submit.prevent="save" enctype="multipart/form-data">
+                        <form wire:submit="save" enctype="multipart/form-data">
                             <div class="row" x-data="formData">
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label>Tên sản phẩm</label>
-                                        <input type="text" class="form-control" wire:model="title">
+                                        <input type="text" class="form-control" wire:model.live="title">
                                         @error('title') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                         
                                     <div class="form-group">
                                         <label>Slug</label>
-                                        <input type="text" class="form-control" wire:model="slug">
+                                        <input type="text" class="form-control" wire:model.live="slug">
                                     </div>
                                    
                                     <div wire:ignore  class="form-group">
                                         <label>Mô tả ngắn</label>
-                                        <textarea id="short_description" class="form-control" wire:model="short_description"></textarea>
+                                        <textarea id="short_description" class="form-control" wire:model.live="short_description"></textarea>
                                     </div>
                         
                                     <div  wire:ignore  class="form-group">
                                         <label>Mô tả chi tiết</label>
-                                        <textarea id="description" class="form-control" rows="4" wire:model="description"></textarea>
+                                        <textarea id="description" class="form-control" rows="4" wire:model.live="description"></textarea>
                                     </div>         
                          
                                        
                                 </div>
                                 <div class="col-6">
                                     <div class="form-group">
-                                        <x-money-input wire:model="regular_price" label="Giá thường" />                  
+                                        <x-money-input wire:model.live="regular_price" label="Giá thường" />                  
                                     </div>
                             
                                     
                         
                                     <div class="form-group">
-                                        <x-money-input wire:model="sale_price" label="Giá khuyến mãi" />
+                                        <x-money-input wire:model.live="sale_price" label="Giá khuyến mãi" />
                                         @if (session('status'))
                                             <div class="alert alert-danger">
                                                 {{ session('status') }}
@@ -222,12 +222,12 @@
 
                                     <x-gallery-upload 
                                         label="Gallery (nhiều ảnh)" 
-                                        wire:model="gallery"
+                                        wire:model.live="gallery"
                                         uploadModel="galleryUpload"
                                         :current="$gallery"
                                         removeMethod="removeGallery" />
                                     
-                                    <x-tag-input wire:model="tags" label="Tags (cách nhau bằng ;)" />
+                                    <x-tag-input wire:model.live="tags" label="Tags (cách nhau bằng ;)" />
                                 
                                     <div class="form-group">
                                         <label>Danh mục</label>

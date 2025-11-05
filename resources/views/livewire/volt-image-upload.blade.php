@@ -77,11 +77,11 @@ new class extends Component {
 
         <div class="card-body">
             <!-- Upload Form -->
-            <form wire:submit.prevent="save" class="form-inline">
+            <form wire:submit="save" class="form-inline">
                 <div class="form-group mr-3">
                     <input
                         type="file"
-                        wire:model{{ $multi ? 's' : '' }}="photo"
+                        wire:model.live{{ $multi ? 's' : '' }}="photo"
                         {{ $multi ? 'multiple' : '' }}
                         accept="image/*"
                         class="d-none"

@@ -55,9 +55,9 @@ class UploadImage extends Component
           </div>
           <div class="card-body">
               <!-- Form Upload -->
-              <form wire:submit.prevent="save">
+              <form wire:submit="save">
                   <div class="btn-group w-100">
-                      <input type="file" wire:model="photo" accept="image/*"
+                      <input type="file" wire:model.live="photo" accept="image/*"
                           class="hidden"
                           id="upload"
                           x-ref="fileInput"

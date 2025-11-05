@@ -11,13 +11,13 @@
             <div class="modal-body">
                 <form>
                     @if(isset($menuHeader))
-                        <x-adminlte-input name="menuHeader" label="Tên Menu" wire:model="menuHeader" />
-                        <x-adminlte-input name="menuCan" label="Can" wire:model="menuCan" />
+                        <x-adminlte-input name="menuHeader" label="Tên Menu" wire:model.live="menuHeader" />
+                        <x-adminlte-input name="menuCan" label="Can" wire:model.live="menuCan" />
                     @else
-                        <x-adminlte-input name="menuText" label="Tên Menu" wire:model="menuText" />
-                        <x-adminlte-input name="menuUrl" label="URL" wire:model="menuUrl" />
-                        <x-adminlte-input name="menuIcon" label="Icon" wire:model="menuIcon" />
-                        <x-adminlte-input name="menuCan" label="Can" wire:model="menuCan" />
+                        <x-adminlte-input name="menuText" label="Tên Menu" wire:model.live="menuText" />
+                        <x-adminlte-input name="menuUrl" label="URL" wire:model.live="menuUrl" />
+                        <x-adminlte-input name="menuIcon" label="Icon" wire:model.live="menuIcon" />
+                        <x-adminlte-input name="menuCan" label="Can" wire:model.live="menuCan" />
                     @endif
                 </form>
             </div>

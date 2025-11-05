@@ -135,7 +135,7 @@
        
                 <div class="form-group mb-3">
                     <label for="provinces-dropdown" class="mb-1">Chọn Tỉnh/Thành phố</label>
-                    <select wire:model="selectedProvince" id="provinces-dropdown" class="form-control select2">
+                    <select wire:model.live="selectedProvince" id="provinces-dropdown" class="form-control select2">
                         <option value="">-- Chọn Tỉnh/Thành phố --</option>
                         @foreach ($provinces as $province)
                             <option value="{{ $province->code }}" {{ $province->code == $selectedProvince ? 'selected' : '' }}>
@@ -147,7 +147,7 @@
                 {{-- Dropdown Wards --}}
                 <div class="form-group mb-3">
                     <label for="wards-dropdown" class="mb-1">Chọn Xã/Phường</label>                    
-                    <select wire:model="selectedWard" id="wards-dropdown" class="form-control select2" @disabled(empty($wards))>
+                    <select wire:model.live="selectedWard" id="wards-dropdown" class="form-control select2" @disabled(empty($wards))>
                         <option value="">-- Chọn Xã/Phường --</option>
                         @foreach ($wards as $ward)
                             <option value="{{ $ward->id }}" {{ $ward->id == $selectedWard ? 'selected' : '' }}>

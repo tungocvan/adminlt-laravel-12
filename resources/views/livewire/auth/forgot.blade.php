@@ -8,7 +8,7 @@
             <p class="login-box-msg">You forgot your password? Here you can easily retrieve a new password.</p>
             <form wire:submit="save">
               <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Email" wire:model="email">
+                <input type="text" class="form-control" placeholder="Email" wire:model.live="email">
                 <div class="input-group-append">
                   <div class="input-group-text">
                     <span class="fas fa-envelope"></span>

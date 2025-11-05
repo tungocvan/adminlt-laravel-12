@@ -42,7 +42,7 @@
                                     @if ($renameFile === $file['name'])
                                         <div class="d-flex align-items-center">
                                             <input type="text"
-                                                   wire:model.defer="newFileName"
+                                                   wire:model="newFileName"
                                                    class="form-control form-control-sm mr-2"
                                                    style="max-width: 200px;">
                                             <button wire:click="renameFileConfirm" class="btn btn-success btn-sm mr-1">

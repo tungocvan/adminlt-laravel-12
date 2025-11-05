@@ -4,7 +4,7 @@
         @if(count($selectedUsers) > 0)
             <div class="form-group">
                 <label>Chọn vai trò:</label>
-                <select class="form-control" wire:model.defer="selectedRoleId">
+                <select class="form-control" wire:model="selectedRoleId">
                     <option value="">-- Chọn role --</option>
                     @foreach($roles as $id => $name)
                         <option value="{{ $id }}">{{ $name }}</option>

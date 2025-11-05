@@ -89,7 +89,7 @@ new class extends Component
         <div class="modal fade show d-block" style="background: rgba(0,0,0,.5);" tabindex="-1">
             <div class="modal-dialog {{ $width }} modal-dialog-scrollable">
                 <div class="modal-content">
-                    <form wire:submit.prevent="submit">
+                    <form wire:submit="submit">
                         <div class="modal-header">
                             <h5 class="modal-title">{{ $modalTile }}</h5>
                             <button type="button" class="close" wire:click="closeModal"> <span aria-hidden="true">&times;</span></button>
@@ -99,7 +99,7 @@ new class extends Component
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label class="form-label">Họ tên</label>
-                                <input type="text" wire:model="name" class="form-control">
+                                <input type="text" wire:model.live="name" class="form-control">
                                 @error('name') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
 
@@ -111,12 +111,12 @@ new class extends Component
 
                             <div class="mb-3">
                                 <label class="form-label">Username (tự sinh)</label>
-                                <input type="text" class="form-control" wire:model="usernamePreview" readonly>
+                                <input type="text" class="form-control" wire:model.live="usernamePreview" readonly>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Mật khẩu</label>
-                                <input type="password" wire:model="password" class="form-control">
+                                <input type="password" wire:model.live="password" class="form-control">
                                 @error('password') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
                         </div>

@@ -10,7 +10,7 @@
       <div id="holder" style="margin-top:15px;max-height:100px;"></div>
       <hr>
       {{-- summernote basic --}}
-      <form  wire:submit.prevent="hanlderSubmit">
+      <form  wire:submit="hanlderSubmit">
             <div id="editorContainer" wire:ignore>
                 <!-- Trình soạn thảo Summernote -->
                 <x-adminlte-text-editor name="teBasic" id="teBasic"></x-adminlte-text-editor>            

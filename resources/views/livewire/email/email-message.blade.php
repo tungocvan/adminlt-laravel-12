@@ -1,27 +1,27 @@
 <div x-data="emailEditor">
     <div class="form-group d-flex flex-row">
         <div class="d-flex flex-row" style="width:95%;position:relative">
-            <input id="toEmail" class="form-control" placeholder="To:" wire:model="to" x-on:blur="checkTo"  x-model="to">
+            <input id="toEmail" class="form-control" placeholder="To:" wire:model.live="to" x-on:blur="checkTo"  x-model="to">
             <i x-show="to.length > 0" x-on:click="to = ''" class="fas fa-times" style="position: absolute; right:10px; top:10px;cursor: pointer;"></i>
         </div>        
         <button x-on:click="isCc = !isCc" class="btn-sm btn-outline-danger mx-1">Cc</button>
         <button x-on:click="isBcc = !isBcc" class="btn-sm btn-outline-danger mx-1">Bcc</button>
     </div>
     <div class="form-group" x-show="isCc">
-        <input class="form-control" placeholder="Cc:" wire:model="cc">
+        <input class="form-control" placeholder="Cc:" wire:model.live="cc">
     </div>
     <div class="form-group" x-show="isBcc">
-        <input class="form-control" placeholder="Bcc:" wire:model="bcc">
+        <input class="form-control" placeholder="Bcc:" wire:model.live="bcc">
     </div>
     <div class="form-group">
-        <input class="form-control" placeholder="Subject:" wire:model="subject">
+        <input class="form-control" placeholder="Subject:" wire:model.live="subject">
     </div>
     @livewire('files.file-manager', ['name' => 'email', 'label' => 'Nhập nội dung', 'height' => '300'])
 
     <div class="form-group">
         <div class="btn btn-default btn-file">      
            <i class="fas fa-paperclip"></i> <span>Attachment</span> 
-          <input wire:model="photos" type="file" id="photoInput"  x-on:change="uploadFiles" multiple>          
+          <input wire:model.live="photos" type="file" id="photoInput"  x-on:change="uploadFiles" multiple>          
         </div>
                   
         <template x-if="attachmentNames.length > 0">
