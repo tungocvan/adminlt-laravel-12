@@ -15,7 +15,6 @@ use Carbon\Carbon;
 use Livewire\Attributes\On;
 use Illuminate\Support\Facades\View;
 
- 
 class UserList extends Component
 {
     use WithPagination, WithFileUploads;
@@ -34,7 +33,7 @@ class UserList extends Component
     public $isEdit = false;
 
     // User fields
-    public $userId = null; 
+    public $userId = null;
     public $name;
     public $username;
     public $email;
@@ -48,6 +47,22 @@ class UserList extends Component
     // Role
     public $role = null; // for create/edit
     public $selectedRoleId = null; // for role modal
+
+    public $profile = [
+        'full_name' => '',
+        'gender' => '',
+        'birthdate' => '',
+        'job' => '',
+        'bio' => '',
+    ];
+
+    public $shipping_info = [
+        'address' => '',
+        'email' => '',
+        'company_name' => '',
+        'tax_code' => '',
+        'phone' => '',
+    ];
 
     protected $listeners = [
         'refreshUsers' => '$refresh',
@@ -106,13 +121,12 @@ class UserList extends Component
     // -------- Table & selection --------
     public function toggleSelectAll()
     {
-        
         $this->selectedUsers = $this->selectAll ? $this->users->pluck('id')->toArray() : [];
     }
-    
-    
-    public function updatedSelectedUsers(){
-        $this->message !== null && $this->message = null;
+
+    public function updatedSelectedUsers()
+    {
+        $this->message !== null && ($this->message = null);
     }
 
     public function updateUserRole()
@@ -138,7 +152,6 @@ class UserList extends Component
         }
 
         foreach ($users as $user) {
-
             // ✅ Cập nhật role nếu có selectedRoleId
             if ($role) {
                 $user->syncRoles([$role->name]);
@@ -160,8 +173,6 @@ class UserList extends Component
         session()->flash('message', 'Cập nhật thành công!');
         $this->dispatch('modalRole'); // đóng modal
     }
-
-   
 
     public function updatedPerPage()
     {
@@ -214,15 +225,14 @@ class UserList extends Component
 
     protected function resetForm()
     {
-        $this->reset(['userId', 'name', 'username', 'email', 'password', 'birthdate', 'google_id','referral_code', 'is_admin', 'isEdit', 'role']);
+        $this->reset(['userId', 'name', 'username', 'email', 'password', 'birthdate', 'google_id', 'referral_code', 'is_admin', 'isEdit', 'role']);
     }
 
     // -------- CRUD operations --------
     public function createUser()
     {
-        
         $validated = $this->validate($this->rulesCreate);
-        
+
         $data = [
             'email' => $validated['email'],
             'password' => $validated['password'],
@@ -235,13 +245,18 @@ class UserList extends Component
             'role_name' => $this->role ?? 'User',
         ];
 
-        
         $result = TnvUserHelper::register($data);
 
         if ($result['status'] === 'success') {
-            //$this->closeModal();
-            //session()->flash('message', '✅ Tạo người dùng thành công!');
-            $this->dispatch('refreshUsers',message:'✅ Tạo người dùng thành công!');
+            $id = $result['data']['id']; // lấy User model thực sự
+            $user = User::find($id);
+            if (!$user) {
+                $user->setOption('profile', $this->profile);
+                $user->setOption('shipping_info', $this->shipping_info);
+            }
+           
+
+            $this->dispatch('refreshUsers', message: '✅ Tạo người dùng thành công!');
         } else {
             session()->flash('error', '❌ ' . $result['message']);
         }
@@ -291,15 +306,14 @@ class UserList extends Component
         }
 
         $result = TnvUserHelper::updateUser($this->userId, $data);
-
+        
         if ($result['status'] !== 'success') {
             session()->flash('error', $result['message'] ?? 'Cập nhật thất bại.');
             return;
         }
-
+        $user = User::find($this->userId);
         if (!empty($this->role)) {
-            $user = User::find($this->userId);
-
+            
             if ($user) {
                 $roleName = Role::find($this->role)?->name;
                 if ($roleName) {
@@ -308,6 +322,9 @@ class UserList extends Component
             }
         }
 
+
+        $user->setOption('profile', $this->profile);
+        $user->setOption('shipping_info', $this->shipping_info);
         $this->dispatch('refreshUsers', message: '✅ Cập nhật người dùng thành công!');
     }
 
@@ -324,8 +341,8 @@ class UserList extends Component
             return;
         }
 
-        $user->delete();        
-        $this->dispatch('refreshUsers',message: '🗑️ Xóa người dùng thành công!');
+        $user->delete();
+        $this->dispatch('refreshUsers', message: '🗑️ Xóa người dùng thành công!');
     }
 
     public function deleteSelectedUsers()
@@ -344,7 +361,7 @@ class UserList extends Component
 
         $this->selectedUsers = [];
         //session()->flash('message', '🗑️ Đã xóa người dùng được chọn!');
-        $this->dispatch('refreshUsers', message:'🗑️ Đã xóa người dùng được chọn!');
+        $this->dispatch('refreshUsers', message: '🗑️ Đã xóa người dùng được chọn!');
     }
 
     // -------- Role assignment --------
@@ -376,14 +393,13 @@ class UserList extends Component
     {
         $user = User::findOrFail($id);
         if (is_null($user->email_verified_at)) {
-            $user->update(['email_verified_at' => now()]);            
-            $this->dispatch('refreshUsers',message:'✅ Người dùng đã được duyệt!');
-        }else{
-            $user->update(['email_verified_at' => null]);            
-            $this->dispatch('refreshUsers',message:'✅ Đã duyệt bỏ xác thực!');
+            $user->update(['email_verified_at' => now()]);
+            $this->dispatch('refreshUsers', message: '✅ Người dùng đã được duyệt!');
+        } else {
+            $user->update(['email_verified_at' => null]);
+            $this->dispatch('refreshUsers', message: '✅ Đã duyệt bỏ xác thực!');
         }
     }
-
 
     // -------- Export --------
     public function exportSelected()
@@ -414,20 +430,20 @@ class UserList extends Component
         return response()->streamDownload(fn() => print $pdf->output(), $fileName);
     }
 
-     public function printUsers()
+    public function printUsers()
     {
         $users = User::whereIn('id', $this->selectedUsers)->get();
-  
-        if(count($users) == 0) {
-            $this->error =  'Vui lòng chọn ít nhất một người dùng để in.';            
-        }else{
-             // Tạo nội dung HTML từ template
-            $this->error ='';
+
+        if (count($users) == 0) {
+            $this->error = 'Vui lòng chọn ít nhất một người dùng để in.';
+        } else {
+            // Tạo nội dung HTML từ template
+            $this->error = '';
             $html = View::make('exports.print-users', compact('users'))->render();
             $encodedHtml = base64_encode(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
-            $this->dispatch('open-print-window', ['url' => 'data:text/html;base64,' . $encodedHtml]);        
+            $this->dispatch('open-print-window', ['url' => 'data:text/html;base64,' . $encodedHtml]);
         }
-        } 
+    }
 
     // -------- Sorting --------
     public function sortBy($field)
@@ -438,9 +454,9 @@ class UserList extends Component
             $this->sortField = $field;
             $this->sortDirection = 'asc';
         }
-        
+
         $this->setPage(1);
-        $this->message !== null && $this->message = null;
+        $this->message !== null && ($this->message = null);
     }
 
     public function render()

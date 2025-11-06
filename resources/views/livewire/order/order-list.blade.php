@@ -1,5 +1,5 @@
 <div>
-    {{-- FORM TẠO/SỬA ĐƠN --}}
+    {{-- ========================= FORM TẠO/SỬA ĐƠN ========================= --}}
     @if ($formVisible)
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
@@ -7,33 +7,28 @@
                 <button class="btn btn-outline-light btn-sm" wire:click="hideForm">Hủy</button>
             </div>
             <div class="card-body">
-                <div class="row">
+                <div class="row g-3">
+                    {{-- LEFT: Thông tin khách --}}
                     <div class="col-md-6">
-                        <div class="form-group mb-2">
-                            <label>Email</label>
-                            <input type="text" class="form-control"  wire:model="email"
-                                placeholder="Nhập email khách hàng">
+                        <div class="mb-2">
+                            <label>Email khách</label>
+                            <input type="text" class="form-control" wire:model="email" placeholder="Nhập email khách">
                             @error('email')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
-                        <div class="mb-3">
-                            <label for="customer_id" class="form-label">Khách giới thiệu</label>
-                            <select
-                                id="customer_id"
-                                class="form-control"
-                                wire:model.live="customer_id"
-                            >
+
+                        <div class="mb-2">
+                            <label>Khách giới thiệu</label>
+                            <select class="form-control" wire:model.live="customer_id">
                                 <option value="">-- Chọn khách giới thiệu --</option>
-                        
                                 @foreach ($customers as $c)
                                     <option value="{{ $c->id }}">{{ $c->username }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        
-                        {{-- hiển thị combobox customer ở đây, để lấy id gán cho customer_id --}}
-                        <div class="form-group mb-2">
+
+                        <div class="mb-2">
                             <label>Status</label>
                             <select class="form-control" wire:model="status">
                                 <option value="pending">Pending</option>
@@ -43,94 +38,120 @@
                             </select>
                         </div>
 
-                        <div class="form-group mb-2">
-                            <label>Ghi chú khách hàng</label>
-                            <textarea class="form-control" wire:model="order_note"></textarea>
+                        <div class="mb-2">
+                            <label>Ghi chú khách</label>
+                            <textarea class="form-control" wire:model="order_note" rows="3"></textarea>
                         </div>
 
-                        <div class="form-group mb-2">
+                        <div class="mb-2">
                             <label>Ghi chú admin</label>
-                            <textarea class="form-control" wire:model="admin_note"></textarea>
+                            <textarea class="form-control" wire:model="admin_note" rows="3"></textarea>
                         </div>
                     </div>
 
+                    {{-- RIGHT: Sản phẩm --}}
                     <div class="col-md-6">
-                        <div class="input-group mb-2" style="max-width: 400px;">
-                            <input type="text" class="form-control"
-                                placeholder="Tìm kiếm hoạt chất hoặc tên thuốc..."
+                        {{-- Tìm kiếm --}}
+                        <div class="input-group mb-2" style="max-width: 100%;">
+                            <input type="text" class="form-control" placeholder="Tìm thuốc..."
                                 wire:model.live.debounce.500ms="productSearch" x-data
                                 @keydown.escape="$wire.clearProductSearch()" />
-
                             @if ($productSearch)
-                                <button type="button" class="btn btn-outline-danger" wire:click="clearProductSearch"
+                                <button class="btn btn-outline-danger" wire:click="clearProductSearch"
                                     title="Xóa tìm kiếm">
                                     <i class="fas fa-times"></i>
                                 </button>
                             @endif
                         </div>
 
+                        {{-- Thông báo --}}
                         @if (session()->has('message'))
                             <div class="alert alert-success">{{ session('message') }}</div>
                         @endif
 
-                        <div class="table-responsive" style="max-height: 350px; overflow-y:auto;">
-                            <table class="table-bordered table-sm table">
-                                <thead class="thead-light sticky-top">
-                                    <tr>
-                                        <th><input type="checkbox" wire:model.live="selectAllProducts"></th>
-                                        <th>Tên thuốc</th>
-                                        <th>Đơn vị</th>
-                                        <th>Đơn giá</th>
-                                        <th>Số lượng</th>
-                                        <th>Thành tiền</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($filteredProducts as $product)
-                                        <tr wire:key="product-{{ $product->id }}">
-                                            <td><input type="checkbox" wire:change="toggleProduct({{ $product->id }})"
+                        {{-- Danh sách sản phẩm --}}
+                        <div class="row g-2" style="max-height: 400px; overflow-y:auto;">
+                            @forelse($filteredProducts as $product)
+                                <div class="col-12">
+                                    <div class="card p-2">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <input type="checkbox" wire:change="toggleProduct({{ $product->id }})"
                                                     @checked(isset($selectedProducts[$product->id]))>
-                                            </td>
-                                            <td>{{ $product->ten_hoat_chat }}</td>
-                                            <td>{{ $product->don_vi_tinh }}</td>
-                                            <td>{{ number_format($product->don_gia ?? 0) }}</td>
-                                            <td>
+                                                <strong class="ms-2">{{ $product->ten_hoat_chat }}</strong>
+
+                                                {{-- HIỂN THỊ SỐ LÔ / HẠN DÙNG SAU KHI NHẬP --}}
                                                 @if (isset($selectedProducts[$product->id]))
-                                                    <div class="input-group input-group-sm">
-                                                        <div class="input-group-prepend">
-                                                            <button type="button" class="btn btn-outline-secondary"
-                                                                wire:click="decrementQuantity({{ $product->id }})">-</button>
+                                                    @if ($selectedProducts[$product->id]['so_lo'] || $selectedProducts[$product->id]['han_dung'])
+                                                        <div class="small text-muted mt-1">
+                                                            @if ($selectedProducts[$product->id]['so_lo'])
+                                                                <div>Số lô:
+                                                                    {{ $selectedProducts[$product->id]['so_lo'] }}</div>
+                                                            @endif
+                                                            @if ($selectedProducts[$product->id]['han_dung'])
+                                                                <div>Hạn dùng:
+                                                                    {{ $selectedProducts[$product->id]['han_dung'] }}
+                                                                </div>
+                                                            @endif
                                                         </div>
-                                                        <input type="text" class="form-control text-center"
-                                                            wire:model="selectedProducts.{{ $product->id }}.quantity"
-                                                            readonly>
-                                                        <div class="input-group-append">
-                                                            <button type="button" class="btn btn-outline-secondary"
-                                                                wire:click="incrementQuantity({{ $product->id }})">+</button>
-                                                        </div>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                            <div><small>{{ $product->don_vi_tinh }}</small></div>
+                                        </div>
+
+                                        <div class="mt-1">
+                                            <div><strong>Đơn giá:</strong> {{ number_format($product->don_gia ?? 0) }}
+                                            </div>
+
+                                            @if (isset($selectedProducts[$product->id]))
+                                                {{-- Số lượng --}}
+                                                <div class="input-group input-group-sm mt-1" style="max-width:140px;">
+                                                    <button class="btn btn-outline-secondary" type="button"
+                                                        wire:click="decrementQuantity({{ $product->id }})">-</button>
+                                                    <input type="text" class="form-control text-center"
+                                                        wire:model="selectedProducts.{{ $product->id }}.quantity"
+                                                        readonly>
+                                                    <button class="btn btn-outline-secondary" type="button"
+                                                        wire:click="incrementQuantity({{ $product->id }})">+</button>
+                                                </div>
+
+                                                {{-- Nút số lô / hạn dùng --}}
+                                                <button type="button" class="btn btn-sm btn-info mt-1"
+                                                    wire:click="toggleLotInput({{ $product->id }})">
+                                                    Số lô / Hạn dùng
+                                                </button>
+
+                                                {{-- Input số lô / hạn dùng --}}
+                                                @if ($selectedProducts[$product->id]['show_lot_input'] ?? false)
+                                                    <div class="mt-1">
+                                                        <input type="text"
+                                                            wire:model="selectedProducts.{{ $product->id }}.so_lo"
+                                                            placeholder="Số lô" class="form-control mb-1">
+                                                        <input type="date"
+                                                            wire:model="selectedProducts.{{ $product->id }}.han_dung"
+                                                            class="form-control">
                                                     </div>
                                                 @endif
-                                            </td>
-                                            <td>
-                                                @if (isset($selectedProducts[$product->id]))
+
+                                                {{-- Thành tiền --}}
+                                                <div class="mt-1 text-end">
+                                                    <strong>Thành tiền:</strong>
                                                     {{ number_format(($selectedProducts[$product->id]['don_gia'] ?? 0) * ($selectedProducts[$product->id]['quantity'] ?? 1)) }}
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="text-center">Không có sản phẩm</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                            @empty
+                                <div class="col-12 text-center">Không có sản phẩm</div>
+                            @endforelse
                         </div>
 
-                        <div class="mt-2 text-right">
-                            <strong>Tổng tiền: {{ number_format($total) }}</strong>
-                        </div>
-
-                        <div class="mt-2 text-right">
+                        {{-- Tổng tiền & nút --}}
+                        <div class="mt-3 text-end">
+                            <h5>Tổng tiền: {{ number_format($total) }}</h5>
                             <button class="btn btn-success" wire:click="saveOrder">Lưu đơn hàng</button>
                             <button class="btn btn-secondary" wire:click="hideForm">Hủy</button>
                         </div>
@@ -140,38 +161,37 @@
         </div>
     @endif
 
-    {{-- DANH SÁCH ĐƠN HÀNG --}}
+    {{-- ========================= DANH SÁCH ĐƠN HÀNG ========================= --}}
     @if (!$formVisible)
         <div class="card mb-3 shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center bg-info text-white">
                 <h3 class="card-title mb-0">Danh sách đơn hàng</h3>
                 <button class="btn btn-primary btn-sm" wire:click="showForm" wire:loading.attr="disabled">Tạo đơn
                     hàng</button>
-
             </div>
             <div class="card-body table-responsive">
                 <table class="table-bordered table-hover table-sm table">
-                    <thead class="thead-light">
-                        <tr style="text-align:center">
-                            <th style="width:30px">ID</th>
+                    <thead class="thead-light text-center">
+                        <tr>
+                            <th>ID</th>
                             <th>Email</th>
                             <th>Total</th>
                             <th>Status</th>
                             <th>Khách hàng</th>
-                            <th style="width:150px">Ngày tạo</th>
+                            <th>Ngày tạo</th>
                             <th>Link Download</th>
-                            <th style="width:120px">Hành động</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($orders as $order)
-                            <tr >
-                                <td style="text-align:center">{{ $order->id }}</td>
+                            <tr class="text-center">
+                                <td>{{ $order->id }}</td>
                                 <td>{{ $order->email }}</td>
                                 <td style="text-align:right">{{ number_format($order->total, 0) }}</td>
-                                <td style="text-align:center">{{ ucfirst($order->status) }}</td>
-                                <td style="text-align:center;width:120px">{{ $order->customer_id ?? $order->id }}</td>
-                                <td style="text-align:center">{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                                <td>{{ ucfirst($order->status) }}</td>
+                                <td>{{ $order->customer_id ?? $order->id }}</td>
+                                <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
                                     @if ($order->link_download)
                                         <a href="{{ asset("storage/{$order->link_download}") }}" target="_blank">Tải
@@ -180,24 +200,18 @@
                                         -
                                     @endif
                                 </td>
-                                <td style="text-align:center">
+                                <td>
                                     <button class="btn btn-sm btn-info"
                                         wire:click="showForm({{ $order->id }})">Sửa</button>
                                     <button class="btn btn-sm btn-danger" x-data
-                                        @click="
-                                            if (confirm('Bạn có chắc muốn xóa đơn #{{ $order->id }}?')) {
-                                                $wire.deleteOrder({{ $order->id }});
-                                            }
-                                        ">
+                                        @click="if(confirm('Bạn có chắc muốn xóa đơn #{{ $order->id }}?')) { $wire.deleteOrder({{ $order->id }}); }">
                                         Xóa
                                     </button>
-
                                 </td>
-
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center">Không có đơn hàng</td>
+                                <td colspan="8" class="text-center">Không có đơn hàng</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -207,4 +221,3 @@
         </div>
     @endif
 </div>
- 

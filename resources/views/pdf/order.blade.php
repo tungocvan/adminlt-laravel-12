@@ -100,7 +100,10 @@
     </table>
 
     <h2 class="title">PHIẾU XUẤT KHO</h2>
+    @php
+       $shipping = optional($customer)->getOption('shipping_info', []);
 
+    @endphp
     {{-- THÔNG TIN KHÁCH HÀNG --}}
     <div class="info">
         <table class="header-table">
@@ -112,7 +115,7 @@
                     <strong>:</strong> 
                 </td>
                 <td style="text-align: left;">
-                    {{ $order->user->name ?? 'Khách lẻ' }}
+                    {{  $shipping['company_name']  ?? $customer->username ?? 'Khách lẻ' }}
                 </td>
             </tr>
             <tr>
@@ -123,7 +126,7 @@
                     <strong>:</strong> 
                 </td>
                 <td style="text-align: left;">
-                    {{ $order->email ?? 'Khách lẻ' }}
+                    {{ $shipping['email'] ?? $customer->email ?? '' }}
                 </td>
             </tr>
             <tr>
@@ -134,7 +137,8 @@
                     <strong>:</strong> 
                 </td>
                 <td style="text-align: left;">
-                    {{ $order->user?->address ?? 'tungocvan@gmai.com' }}
+                    {{ $shipping['address'] ?? '0123456789' }}
+
                 </td>
             </tr>
             <tr>
@@ -145,7 +149,7 @@
                     <strong>:</strong> 
                 </td>
                 <td style="text-align: left;">
-                    {{ $order->user?->address ?? '0123456789' }}
+                    {{ $shipping['tax_code'] ?? '0123456789' }}
                 </td>
             </tr>
             <tr>
@@ -156,33 +160,12 @@
                     <strong>:</strong> 
                 </td>
                 <td style="text-align: left;">
-                    {{ $order->user?->address ?? '0903.971.949' }}
+                    {{ $shipping['phone'] ?? '0903.971.949' }}
                 </td>
             </tr>
         </table>
 
-        {{-- <p></p>
-        <p><strong>Địa chỉ:</strong></p>
-        <p><strong>Địa chỉ:</strong></p>
-        <p><strong>Email:</strong> {{ $order->email }}</p>
-
-        @if(!empty($order->order_note))
-            <p><strong>Ghi chú khách hàng:</strong> {{ $order->order_note }}</p>
-        @endif
-
-        @if(!empty($order->admin_note))
-            <p><strong>Ghi chú admin:</strong> {{ $order->admin_note }}</p>
-        @endif --}}
-
-        {{-- <p><strong>Trạng thái:</strong>
-            @switch($order->status)
-                @case('pending') Chờ xử lý @break
-                @case('confirmed') Đã xác nhận @break
-                @case('cancelled') Đã hủy @break
-                @case('finished') Hoàn tất @break
-                @default Không xác định
-            @endswitch
-        </p> --}}
+  
     </div>
 
     {{-- DANH SÁCH SẢN PHẨM --}}

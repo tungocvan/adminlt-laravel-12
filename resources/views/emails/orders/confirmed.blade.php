@@ -7,6 +7,7 @@ Cảm ơn bạn đã đặt hàng tại **CÔNG TY TNHH INAFO VIỆT NAM**.
 
 ---
 
+
 Bạn có thể tải hóa đơn PDF của đơn hàng bằng cách nhấn vào nút dưới đây:
 
 @component('mail::button', ['url' => $pdfLink, 'color' => 'success'])

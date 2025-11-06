@@ -37,7 +37,7 @@ class Order extends Model
         static::created(function ($order) {
             if ($order->status == "pending") {
             //    Mail::to($order->email)->send(new OrderCreatedMail($order));
-                Mail::to($order->email)->queue(new OrderCreatedMail($order));
+            //    Mail::to($order->email)->queue(new OrderCreatedMail($order));
             
             }
         });
@@ -47,6 +47,8 @@ class Order extends Model
             // Chỉ xử lý khi confirmed và chưa có link_download
             if ($order->status === 'confirmed' && !$order->link_download) {
 
+                $customer_id = $order->customer_id;
+                $customer = User::find($customer_id);
                 // -----------------------------
                 // 1️⃣ Tạo thư mục theo ngày
                 // -----------------------------
@@ -62,6 +64,7 @@ class Order extends Model
                 try {
                     $pdf = Pdf::loadView('pdf.order', [
                         'order' => $order,
+                        'customer' => $customer,
                         'details' => $order->order_detail,
                     ]);
 
@@ -86,7 +89,7 @@ class Order extends Model
                 // -----------------------------
                 try {
                    //Mail::to($order->email)->send(new OrderConfirmedMail($order));
-                   Mail::to($order->email)->queue(new OrderConfirmedMail($order));
+                   //Mail::to($order->email)->queue(new OrderConfirmedMail($order));
                 } catch (\Exception $e) {
                     \Log::error('Gửi email thất bại: ' . $e->getMessage());
                 }

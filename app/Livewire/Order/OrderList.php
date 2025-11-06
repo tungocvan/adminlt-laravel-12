@@ -1,5 +1,5 @@
 <?php
- 
+
 namespace App\Livewire\Order;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -19,12 +19,12 @@ class OrderList extends Component
     // Form fields
     public $formVisible = false;
     public $orderId = null;
-    public $email = ''; 
+    public $email = '';
     public $status = 'pending';
     public $customers = [];
     public $customer_id = null;
     public $order_note = '';
-    public $admin_note = ''; 
+    public $admin_note = '';
 
     // Product selection
     public $productSearch = '';
@@ -36,32 +36,27 @@ class OrderList extends Component
         'email' => 'required|email',
     ];
 
-  
-
     /* =========================
      * PRODUCT SEARCH + SELECT
      * ========================= */
     public function updatedProductSearch()
     {
-       // $this->selectAllProducts = false;
+        // $this->selectAllProducts = false;
         // $this->selectedProducts = [];
     }
 
     public function clearProductSearch()
     {
         $this->productSearch = '';
-   
     }
 
     public function updatedSelectAllProducts($value)
     {
-       
         $query = Medicine::query();
-      
+
         if ($this->productSearch) {
             $query->where(function ($q) {
-                $q->where('ten_hoat_chat', 'like', "%{$this->productSearch}%")
-                  ->orWhere('ten_biet_duoc', 'like', "%{$this->productSearch}%");
+                $q->where('ten_hoat_chat', 'like', "%{$this->productSearch}%")->orWhere('ten_biet_duoc', 'like', "%{$this->productSearch}%");
             });
         }
 
@@ -81,18 +76,21 @@ class OrderList extends Component
         } else {
             $this->selectedProducts = [];
         }
-       
+
         $this->recalculateTotal();
     }
     public function toggleProduct($id)
     {
         $visible = Medicine::when($this->productSearch, function ($q) {
-            $q->where('ten_hoat_chat', 'like', "%{$this->productSearch}%")
-              ->orWhere('ten_biet_duoc', 'like', "%{$this->productSearch}%");
-        })->where('id', $id)->exists();
-    
-        if (!$visible) return;
-    
+            $q->where('ten_hoat_chat', 'like', "%{$this->productSearch}%")->orWhere('ten_biet_duoc', 'like', "%{$this->productSearch}%");
+        })
+            ->where('id', $id)
+            ->exists();
+
+        if (!$visible) {
+            return;
+        }
+
         if (isset($this->selectedProducts[$id])) {
             unset($this->selectedProducts[$id]);
         } else {
@@ -104,13 +102,45 @@ class OrderList extends Component
                 'quantity' => 1,
                 'don_gia' => $p->don_gia ?? 0,
                 'total' => $p->don_gia ?? 0,
+                'so_lo' => '',
+                'han_dung' => '',
+                'show_lot_input' => false,
             ];
         }
-    
+
         $this->recalculateTotal();
     }
-    
-    
+
+    public function toggleLotInput($id)
+    {
+        if (!isset($this->selectedProducts[$id])) {
+            $p = Medicine::find($id);
+            if (!$p) {
+                return;
+            }
+
+            $this->selectedProducts[$id] = [
+                'title' => $p->ten_hoat_chat ?? 'Chưa có tên',
+                'dvt' => $p->don_vi_tinh ?? '-',
+                'quy_cach' => $p->quy_cach_dong_goi ?? '-',
+                'quantity' => 1,
+                'don_gia' => $p->don_gia ?? 0,
+                'total' => $p->don_gia ?? 0,
+                'so_lo' => '',
+                'han_dung' => '',
+                'show_lot_input' => true,
+            ];
+        } else {
+            // đảm bảo key tồn tại
+            if (!isset($this->selectedProducts[$id]['so_lo'])) {
+                $this->selectedProducts[$id]['so_lo'] = '';
+            }
+            if (!isset($this->selectedProducts[$id]['han_dung'])) {
+                $this->selectedProducts[$id]['han_dung'] = '';
+            }
+            $this->selectedProducts[$id]['show_lot_input'] = !($this->selectedProducts[$id]['show_lot_input'] ?? false);
+        }
+    }
 
     /* =========================
      * QUANTITY CONTROL
@@ -148,13 +178,12 @@ class OrderList extends Component
      * ========================= */
     public function showForm($id = null)
     {
-        
         $this->resetForm();
         $this->email = Auth::user()->email;
         $this->customer_id = Auth::user()->id;
-        $this->customers = User::select('id','username')->where('referral_code',$this->email)->get();        
+        $this->customers = User::select('id', 'username')->where('referral_code', $this->email)->get();
         $this->formVisible = true;
-        
+
         if ($id) {
             $order = Order::find($id);
             if ($order) {
@@ -166,16 +195,22 @@ class OrderList extends Component
                 $this->admin_note = $order->admin_note;
 
                 $this->selectedProducts = [];
-                foreach ($order->order_detail as $item) {
-                   // dd($item);
-                   $product_id = $item['product_id'];
+
+                // chắc chắn là mảng
+                $orderDetails = is_array($order->order_detail) ? $order->order_detail : json_decode($order->order_detail, true);
+
+                foreach ($orderDetails as $item) {
+                    $product_id = $item['product_id'];
                     $this->selectedProducts[$product_id] = [
                         'title' => $item['title'] ?? 'Chưa có tên',
                         'dvt' => $item['dvt'] ?? '-',
                         'quy_cach' => $item['quy_cach'] ?? '-',
                         'quantity' => $item['quantity'] ?? 1,
                         'don_gia' => $item['don_gia'] ?? 0,
-                        'total' => $item['total'] ?? (($item['quantity'] ?? 1) * ($item['don_gia'] ?? 0)),
+                        'total' => $item['total'] ?? ($item['quantity'] ?? 1) * ($item['don_gia'] ?? 0),
+                        'so_lo' => $item['so_lo'] ?? '',
+                        'han_dung' => $item['han_dung'] ?? '',
+                        'show_lot_input' => !empty($item['so_lo']) || !empty($item['han_dung']),
                     ];
                 }
 
@@ -186,7 +221,7 @@ class OrderList extends Component
 
     public function hideForm()
     {
-        $this->formVisible = false; 
+        $this->formVisible = false;
     }
 
     private function resetForm()
@@ -206,14 +241,13 @@ class OrderList extends Component
      * ========================= */
     public function saveOrder()
     {
-        
         $this->validate();
 
         if (empty($this->selectedProducts)) {
             $this->addError('selectedProducts', 'Bạn phải chọn ít nhất 1 sản phẩm.');
             return;
         }
-        
+
         $user = User::where('email', $this->email)->first();
 
         $orderDetail = [];
@@ -230,6 +264,8 @@ class OrderList extends Component
                 'quantity' => $qty,
                 'don_gia' => $price,
                 'total' => $qty * $price,
+                'so_lo' => $item['so_lo'] ?? null,
+                'han_dung' => $item['han_dung'] ?? null,
             ];
 
             $total += $qty * $price;
@@ -246,9 +282,7 @@ class OrderList extends Component
             'total' => $total,
         ];
         //dd($this->selectedProducts);
-        $this->orderId
-            ? Order::find($this->orderId)?->update($data)
-            : Order::create($data);
+        $this->orderId ? Order::find($this->orderId)?->update($data) : Order::create($data);
 
         session()->flash('message', 'Đơn hàng đã được lưu thành công.');
 
@@ -284,12 +318,15 @@ class OrderList extends Component
     {
         $orders = Order::latest()->paginate(10);
 
-        $products = Medicine::query()
-            ->when($this->productSearch, fn($q) =>
-                $q->where('ten_hoat_chat', 'like', "%{$this->productSearch}%")
-                  ->orWhere('ten_biet_duoc', 'like', "%{$this->productSearch}%"))
-            ->orderBy('ten_hoat_chat')
-            ->get();
+        if ($this->orderId) {
+            // Nếu đang sửa đơn: chỉ hiển thị sản phẩm đã chọn
+            $products = Medicine::whereIn('id', array_keys($this->selectedProducts))
+                ->orderBy('ten_hoat_chat')
+                ->get();
+        } else {
+            // Trường hợp tạo mới hoặc search bình thường
+            $products = Medicine::query()->when($this->productSearch, fn($q) => $q->where('ten_hoat_chat', 'like', "%{$this->productSearch}%")->orWhere('ten_biet_duoc', 'like', "%{$this->productSearch}%"))->orderBy('ten_hoat_chat')->get();
+        }
 
         return view('livewire.order.order-list', [
             'orders' => $orders,
@@ -297,4 +334,4 @@ class OrderList extends Component
             'total' => $this->total,
         ]);
     }
-} 
+}
