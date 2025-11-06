@@ -15,7 +15,7 @@ use Carbon\Carbon;
 use Livewire\Attributes\On;
 use Illuminate\Support\Facades\View;
 
-
+ 
 class UserList extends Component
 {
     use WithPagination, WithFileUploads;
@@ -114,23 +114,54 @@ class UserList extends Component
     public function updatedSelectedUsers(){
         $this->message !== null && $this->message = null;
     }
+
     public function updateUserRole()
     {
-        $this->validate(['selectedRoleId' => 'required|exists:roles,id']);
-        $role = Role::find($this->selectedRoleId); // Lấy role model từ ID
-        if (!$role) {
-            session()->flash('error', 'Role không tồn tại!');
+        // Không validate cứng, vì role/referral có thể chọn 1 trong 2
+        $users = User::whereIn('id', $this->selectedUsers)->get();
+
+        if ($users->isEmpty()) {
+            session()->flash('error', 'Không có user nào được chọn!');
             return;
         }
-        $users = User::whereIn('id', $this->selectedUsers)->get();
-        foreach ($users as $user) {
-            $user->syncRoles([$role->name]); // Truyền tên role, không phải ID
+
+        $role = null;
+
+        // ✅ Nếu có selectedRoleId → xử lý role
+        if (!empty($this->selectedRoleId)) {
+            $role = Role::find($this->selectedRoleId);
+
+            if (!$role) {
+                session()->flash('error', 'Role không tồn tại!');
+                return;
+            }
         }
+
+        foreach ($users as $user) {
+
+            // ✅ Cập nhật role nếu có selectedRoleId
+            if ($role) {
+                $user->syncRoles([$role->name]);
+            }
+
+            // ✅ Cập nhật referral_code nếu có nhập
+            if (!empty($this->referral_code)) {
+                $user->referral_code = $this->referral_code;
+                $user->save();
+            }
+        }
+
+        // Reset
         $this->closeModalRole();
         $this->selectedUsers = [];
-        session()->flash('message', 'Cập nhật vai trò thành công!');
-        $this->dispatch('modalRole');
+        $this->selectedRoleId = null;
+        $this->referral_code = null;
+
+        session()->flash('message', 'Cập nhật thành công!');
+        $this->dispatch('modalRole'); // đóng modal
     }
+
+   
 
     public function updatedPerPage()
     {
@@ -293,9 +324,8 @@ class UserList extends Component
             return;
         }
 
-        $user->delete();
-        session()->flash('message', '🗑️ Xóa người dùng thành công!');
-        $this->dispatch('refreshUsers');
+        $user->delete();        
+        $this->dispatch('refreshUsers',message: '🗑️ Xóa người dùng thành công!');
     }
 
     public function deleteSelectedUsers()
@@ -397,7 +427,7 @@ class UserList extends Component
             $encodedHtml = base64_encode(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
             $this->dispatch('open-print-window', ['url' => 'data:text/html;base64,' . $encodedHtml]);        
         }
-        }
+        } 
 
     // -------- Sorting --------
     public function sortBy($field)
@@ -408,8 +438,9 @@ class UserList extends Component
             $this->sortField = $field;
             $this->sortDirection = 'asc';
         }
-
+        
         $this->setPage(1);
+        $this->message !== null && $this->message = null;
     }
 
     public function render()

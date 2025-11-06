@@ -4,8 +4,9 @@ namespace Modules;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use File;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Blade;
 use Livewire\Livewire;
 
 class ModuleServiceProvider extends ServiceProvider
@@ -87,6 +88,20 @@ class ModuleServiceProvider extends ServiceProvider
                 $alias = Str::kebab($className); // CamelCase -> kebab-case
                 Livewire::component(strtolower($module) . '.' . $alias, $fullClass);
             }
+        }
+
+        /** ---------------- BLADE COMPONENTS ---------------- */
+        $componentPath = $modulePath . '/Http/Components';
+        $bladeViewPath = $modulePath . '/resources/views/components';
+
+        if (File::exists($componentPath)) {
+            Blade::componentNamespace("Modules\\{$module}\\Http\\Components", strtolower($module));
+        }
+
+        if (File::exists($bladeViewPath)) {
+            // 🔹 Cho phép load view của Blade component trong module
+            $this->loadViewsFrom($bladeViewPath, strtolower($module));
+
         }
     }
 }

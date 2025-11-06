@@ -1,11 +1,11 @@
 <?php
  
 namespace App\Livewire\Order;
-
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Order;
-//use Modules\Order\Models\Order;
+//use App\Models\Order;
+use Modules\Order\Models\Order;
 use App\Models\Medicine;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
@@ -19,10 +19,12 @@ class OrderList extends Component
     // Form fields
     public $formVisible = false;
     public $orderId = null;
-    public $email = '';
+    public $email = ''; 
     public $status = 'pending';
+    public $customers = [];
+    public $customer_id = null;
     public $order_note = '';
-    public $admin_note = '';
+    public $admin_note = ''; 
 
     // Product selection
     public $productSearch = '';
@@ -33,6 +35,8 @@ class OrderList extends Component
     protected $rules = [
         'email' => 'required|email',
     ];
+
+  
 
     /* =========================
      * PRODUCT SEARCH + SELECT
@@ -144,8 +148,11 @@ class OrderList extends Component
      * ========================= */
     public function showForm($id = null)
     {
-        //dd($id);
+        
         $this->resetForm();
+        $this->email = Auth::user()->email;
+        $this->customer_id = Auth::user()->id;
+        $this->customers = User::select('id','username')->where('referral_code',$this->email)->get();        
         $this->formVisible = true;
         
         if ($id) {
@@ -154,6 +161,7 @@ class OrderList extends Component
                 $this->orderId = $order->id;
                 $this->email = $order->email;
                 $this->status = $order->status;
+                $this->customer_id = $order->customer_id;
                 $this->order_note = $order->order_note;
                 $this->admin_note = $order->admin_note;
 
@@ -178,7 +186,7 @@ class OrderList extends Component
 
     public function hideForm()
     {
-        $this->formVisible = false;
+        $this->formVisible = false; 
     }
 
     private function resetForm()
@@ -198,13 +206,14 @@ class OrderList extends Component
      * ========================= */
     public function saveOrder()
     {
+        
         $this->validate();
 
         if (empty($this->selectedProducts)) {
             $this->addError('selectedProducts', 'Bạn phải chọn ít nhất 1 sản phẩm.');
             return;
         }
-
+        
         $user = User::where('email', $this->email)->first();
 
         $orderDetail = [];
@@ -228,6 +237,7 @@ class OrderList extends Component
 
         $data = [
             'email' => $this->email,
+            'customer_id' => $this->customer_id,
             'user_id' => $user->id ?? null,
             'status' => $this->status,
             'order_note' => $this->order_note,
@@ -235,7 +245,7 @@ class OrderList extends Component
             'order_detail' => $orderDetail,
             'total' => $total,
         ];
-
+        //dd($this->selectedProducts);
         $this->orderId
             ? Order::find($this->orderId)?->update($data)
             : Order::create($data);
@@ -287,4 +297,4 @@ class OrderList extends Component
             'total' => $this->total,
         ]);
     }
-}
+} 

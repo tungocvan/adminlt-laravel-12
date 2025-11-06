@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('email');            
             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('customer_id')->nullable();
             $table->json('order_detail'); // chứa mảng sản phẩm dạng JSON
             $table->decimal('total', 12, 2);
             $table->enum('status', ['pending', 'confirmed', 'cancelled', 'finished'])->default('pending');

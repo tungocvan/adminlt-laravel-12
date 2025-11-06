@@ -23,7 +23,7 @@ class Order extends Model
         'total',
         'status',
         'link_download'
-    ];
+    ]; 
 
     protected $casts = [
         'order_detail' => 'array', // tự động decode JSON thành mảng

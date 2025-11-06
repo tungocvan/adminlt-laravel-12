@@ -60,6 +60,7 @@ class CreateModule extends Command
                 $name.'/Http/Middleware',
                 $name.'/Http/Requests',
                 $name.'/Http/Livewire',
+                $name.'/Http/Components',
                 $name.'/Models',
                 $name.'/resources',
                 $name.'/resources/sass',
@@ -68,6 +69,7 @@ class CreateModule extends Command
                 $name.'/resources/lang',
                 $name.'/resources/views',
                 $name.'/resources/views/livewire',
+                $name.'/resources/views/components',
                 $name.'/routes'
             ];
             foreach ($moduleDir as $value) {

@@ -11,13 +11,28 @@
                     <div class="col-md-6">
                         <div class="form-group mb-2">
                             <label>Email</label>
-                            <input type="text" class="form-control" wire:model="email"
+                            <input type="text" class="form-control"  wire:model="email"
                                 placeholder="Nhập email khách hàng">
                             @error('email')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
-
+                        <div class="mb-3">
+                            <label for="customer_id" class="form-label">Khách giới thiệu</label>
+                            <select
+                                id="customer_id"
+                                class="form-control"
+                                wire:model.live="customer_id"
+                            >
+                                <option value="">-- Chọn khách giới thiệu --</option>
+                        
+                                @foreach ($customers as $c)
+                                    <option value="{{ $c->id }}">{{ $c->username }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        {{-- hiển thị combobox customer ở đây, để lấy id gán cho customer_id --}}
                         <div class="form-group mb-2">
                             <label>Status</label>
                             <select class="form-control" wire:model="status">
@@ -137,24 +152,26 @@
             <div class="card-body table-responsive">
                 <table class="table-bordered table-hover table-sm table">
                     <thead class="thead-light">
-                        <tr>
-                            <th>ID</th>
+                        <tr style="text-align:center">
+                            <th style="width:30px">ID</th>
                             <th>Email</th>
                             <th>Total</th>
                             <th>Status</th>
-                            <th>Ngày tạo</th>
+                            <th>Khách hàng</th>
+                            <th style="width:150px">Ngày tạo</th>
                             <th>Link Download</th>
-                            <th>Hành động</th>
+                            <th style="width:120px">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($orders as $order)
-                            <tr>
-                                <td>{{ $order->id }}</td>
+                            <tr >
+                                <td style="text-align:center">{{ $order->id }}</td>
                                 <td>{{ $order->email }}</td>
-                                <td>{{ number_format($order->total, 0) }}</td>
-                                <td>{{ ucfirst($order->status) }}</td>
-                                <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                                <td style="text-align:right">{{ number_format($order->total, 0) }}</td>
+                                <td style="text-align:center">{{ ucfirst($order->status) }}</td>
+                                <td style="text-align:center;width:120px">{{ $order->customer_id ?? $order->id }}</td>
+                                <td style="text-align:center">{{ $order->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
                                     @if ($order->link_download)
                                         <a href="{{ asset("storage/{$order->link_download}") }}" target="_blank">Tải
@@ -163,7 +180,7 @@
                                         -
                                     @endif
                                 </td>
-                                <td>
+                                <td style="text-align:center">
                                     <button class="btn btn-sm btn-info"
                                         wire:click="showForm({{ $order->id }})">Sửa</button>
                                     <button class="btn btn-sm btn-danger" x-data
@@ -190,3 +207,4 @@
         </div>
     @endif
 </div>
+ 

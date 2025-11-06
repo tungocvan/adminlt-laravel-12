@@ -26,7 +26,7 @@ return new class extends Migration
         
             $table->string('google_id')->nullable()->comment('ID tài khoản Google (nếu đăng nhập bằng Google)');
             $table->string('device_token')->nullable()->comment('Token của thiết bị để gửi thông báo đẩy');
-            $table->string('referral_code')->nullable()->unique()->comment('Mã giới thiệu duy nhất cho người dùng');
+            $table->string('referral_code')->nullable()->comment('Mã giới thiệu duy nhất cho người dùng');
         
             $table->rememberToken()->comment('Token ghi nhớ đăng nhập');
             $table->timestamps();

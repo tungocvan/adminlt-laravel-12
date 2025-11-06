@@ -13,14 +13,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Traits\Filterable;
 use App\Models\Traits\AutoParseDates;
+use App\Traits\HasOptions;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles, HasApiTokens, Filterable;
+    use HasFactory, Notifiable, HasRoles, HasApiTokens, Filterable, HasOptions;
 
-    protected $fillable = ['name', 'email', 'username', 'password', 'is_admin', 'birthdate', 'google_id','referral_code', 'email_verified_at'];
+    protected $fillable = ['name', 'email', 'username', 'password', 'is_admin', 'birthdate', 'google_id', 'referral_code', 'email_verified_at'];
 
-    protected $hidden = ['password', 'remember_token','device_token']; 
+    protected $hidden = ['password', 'remember_token', 'device_token'];
 
     protected function casts(): array
     {
@@ -62,5 +63,9 @@ class User extends Authenticatable
                 ->orWhere('email', 'like', "%{$keyword}%")
                 ->orWhere('username', 'like', "%{$keyword}%");
         });
+    }
+    public function options()
+    {
+        return $this->morphMany(Option::class, 'optionable');
     }
 }
