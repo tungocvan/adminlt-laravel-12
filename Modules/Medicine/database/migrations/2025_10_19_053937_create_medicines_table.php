@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('medicines', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('stt_tt20_2022')->nullable();
+            $table->integer('stt_tt20_2022')->nullable();
             $table->string('phan_nhom_tt15',20)->nullable();
             $table->string('ten_hoat_chat')->nullable();
             $table->string('nong_do_ham_luong', 150)->nullable();
@@ -26,9 +26,9 @@ return new class extends Migration
             $table->string('han_dung', 255)->nullable();
             $table->string('co_so_san_xuat',255)->nullable();
             $table->string('nuoc_san_xuat', 100)->nullable();
-            $table->unsignedBigInteger('gia_ke_khai')->nullable();
-            $table->unsignedBigInteger('don_gia')->nullable();
-            $table->unsignedBigInteger('gia_von')->nullable();
+            $table->decimal('gia_ke_khai', 10, 2)->nullable();
+            $table->decimal('don_gia', 10, 2)->nullable();
+            $table->decimal('gia_von', 10, 2)->nullable();
             $table->boolean('trang_thai_trung_thau')->default(false);
             $table->string('nha_phan_phoi')->nullable();
             $table->string('nhom_thuoc')->nullable();
