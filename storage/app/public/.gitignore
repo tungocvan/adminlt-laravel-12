@@ -1,2 +1,4 @@
 *
 !.gitignore
+!help/
+!mysql/

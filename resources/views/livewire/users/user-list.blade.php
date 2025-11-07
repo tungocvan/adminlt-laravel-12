@@ -85,7 +85,7 @@
             <div class="table-responsive">
                 <table class="table-hover table-bordered mb-0 table">
                     <thead class="thead-light">
-                        <tr>
+                        <tr> 
                             <th width="40"><input type="checkbox" wire:model.live="selectAll"
                                     wire:click="toggleSelectAll"></th>
                             <th wire:click="sortBy('id')" style="cursor:pointer;">ID <i

@@ -172,21 +172,21 @@
     <table class="items">
         <thead>
             <tr>
-                <th>STT</th>
+                <th style="width: 20px;">STT</th>
                 <th>Tên sản phẩm</th>
-                <th>Số lô</th>
-                <th>Hạn dùng</th>
-                <th>ĐVT</th>
-                <th>Số lượng</th>
-                <th>Đơn giá (₫)</th>
-                <th>Thành tiền (₫)</th>
+                <th style="width: 70px;">Số lô</th>
+                <th style="width: 80px;">Hạn dùng</th>
+                <th style="width: 30px;">ĐVT</th>
+                <th style="width: 30px;">Số lượng</th>
+                <th style="width: 90px;">Đơn giá (₫)</th>
+                <th style="width: 110px;">Thành tiền (₫)</th>
             </tr>
         </thead>
         <tbody>
             @foreach($details as $index => $item)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td style="width: 30%;text-align: left;">{{ $item['title'] ?? 'Chưa có tên' }}</td>
+                    <td style="text-align: left;">{{ $item['title'] ?? 'Chưa có tên' }}</td>
                     <td style="text-align: center;">{{ $item['so_lo'] ?? '01012025' }}</td>
                     <td style="text-align: center;">{{ $item['han_dung'] ?? '01/01/2027' }}</td>
                     <td style="text-align: center;">{{ $item['dvt'] ?? '-' }}</td>

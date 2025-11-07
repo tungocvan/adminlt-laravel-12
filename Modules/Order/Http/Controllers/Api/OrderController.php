@@ -8,6 +8,7 @@ use App\Helpers\TnvOrderHelper;
 //use App\Models\Order;
 use Modules\Order\Models\Order;
 use Illuminate\Support\Facades\Validator;
+use App\Services\OrderService;
 
 class OrderController extends Controller
 {
@@ -105,44 +106,44 @@ class OrderController extends Controller
      * PUT /api/orders/{id}
      * Cập nhật đơn hàng
      */
-    public function update(Request $request, $id)
-    {
-        $order = Order::find($id);
-        if (!$order) {
-            return response()->json(['message' => 'Đơn hàng không tồn tại.'], 404);
-        }
+    // public function update(Request $request, $id)
+    // {
+    //     $order = Order::find($id);
+    //     if (!$order) {
+    //         return response()->json(['message' => 'Đơn hàng không tồn tại.'], 404);
+    //     }
 
-        $validated = $request->validate([
-            'status' => 'nullable|string|max:50',
-            'user_id' => 'nullable|numeric|min:0', 
-            'total' => 'nullable|numeric|min:0',             
-            'admin_note' => 'nullable|string',
-            'order_detail' => 'nullable|array',
-        ]);
+    //     $validated = $request->validate([
+    //         'status' => 'nullable|string|max:50',
+    //         'user_id' => 'nullable|numeric|min:0', 
+    //         'total' => 'nullable|numeric|min:0',             
+    //         'admin_note' => 'nullable|string',
+    //         'order_detail' => 'nullable|array',
+    //     ]);
         
 
-        $order->update($validated);
+    //     $order->update($validated);
 
-        return response()->json([
-            'message' => 'Cập nhật đơn hàng thành công.',
-            'order' => $order,
-        ]);
-    }
+    //     return response()->json([
+    //         'message' => 'Cập nhật đơn hàng thành công.',
+    //         'order' => $order,
+    //     ]);
+    // }
 
     /**
      * DELETE /api/orders/{id}
      */
-    public function destroy($id)
-    {
-        $order = Order::find($id);
-        if (!$order) {
-            return response()->json(['message' => 'Đơn hàng không tồn tại.'], 404);
-        }
+    // public function destroy($id)
+    // {
+    //     $order = Order::find($id);
+    //     if (!$order) {
+    //         return response()->json(['message' => 'Đơn hàng không tồn tại.'], 404);
+    //     }
 
-        $order->delete();
+    //     $order->delete();
 
-        return response()->json(['message' => 'Đã xóa đơn hàng thành công.']);
-    }
+    //     return response()->json(['message' => 'Đã xóa đơn hàng thành công.']);
+    // }
 
     public function updateItem(Request $request)
     {
@@ -218,6 +219,79 @@ class OrderController extends Controller
             'message' => 'Xóa sản phẩm thành công',
             'order' => $order,
         ]);
+    }
+
+
+    public function create(Request $request, OrderService $service)
+    {
+        $data = $request->validate([
+            'user_id'        => 'required|integer',
+            'customer_id'    => 'required|integer',
+            'email'          => 'required|email',
+            'order_detail'   => 'required|array',
+            'order_detail.*.product_id' => 'required|integer',
+            'order_detail.*.quantity'   => 'required|integer|min:1',
+        ]);
+
+        try {
+            $order = $service->createOrder($data);
+
+            return response()->json([
+                'success' => true,
+                'order'   => $order,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error'   => $e->getMessage(),
+            ], 400);
+        }
+    }
+    public function update($id, Request $request, OrderService $service)
+    {
+        $data = $request->validate([
+            'customer_id' => 'required|integer',
+            'email'       => 'required|email',
+            'status'      => 'nullable|string',
+            'order_note'  => 'nullable|string',
+            'admin_note'  => 'nullable|string',
+
+            'order_detail' => 'required|array',
+            'order_detail.*.product_id' => 'required|integer',
+            'order_detail.*.quantity'   => 'required|integer|min:1',
+        ]);
+
+        try {
+            $order = $service->updateOrder($id, $data);
+
+            return response()->json([
+                'success' => true,
+                'order'   => $order,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error'   => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function destroy($id, OrderService $service)
+    {
+        try {
+            $result = $service->deleteOrder($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => $result['message']
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 
 }

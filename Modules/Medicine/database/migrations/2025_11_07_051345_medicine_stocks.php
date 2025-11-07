@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->integer('so_luong')->default(0);
             $table->decimal('gia_von', 10, 2)->nullable(); // tối đa 99.999.999,99
             $table->decimal('don_gia', 10, 2)->nullable();     // tối đa 99.999.999,99
-            $table->enum('status', ['available', 'expired', 'reserved'])->default('available');
+            $table->string('status')->default('available');
             $table->string('location', 100)->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();

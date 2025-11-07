@@ -9,6 +9,7 @@ use Modules\Order\Models\Order;
 use App\Models\Medicine;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
+use App\Models\MedicineStock;
 
 class OrderList extends Component
 {
@@ -22,6 +23,8 @@ class OrderList extends Component
     public $email = '';
     public $status = 'pending';
     public $customers = [];
+    public $selectAll = false;
+    public $selectedOrder = [];
     public $customer_id = null;
     public $order_note = '';
     public $admin_note = '';
@@ -45,6 +48,40 @@ class OrderList extends Component
         // $this->selectedProducts = [];
     }
 
+    public function toggleSelectAll()
+    {
+        if ($this->selectAll) {
+            // Lấy tất cả order hiện tại (trên page hiện tại)
+            $this->selectedOrder = Order::latest()->pluck('id')->toArray();
+        } else {
+            $this->selectedOrder = [];
+        }
+    }
+    // Xóa các order đã chọn
+    public function deleteSelectedOrders()
+    {
+        if (empty($this->selectedOrder)) {
+            $this->addError('deleteError', 'Bạn chưa chọn đơn hàng nào.');
+            return;
+        }
+
+        \DB::transaction(function () {
+            $orders = Order::whereIn('id', $this->selectedOrder)->get();
+
+            foreach ($orders as $order) {
+                if ($order->link_download) {
+                    Storage::disk('public')->delete($order->link_download);
+                }
+                $order->delete();
+            }
+        });
+
+        session()->flash('message', count($this->selectedOrder) . ' đơn hàng đã được xóa thành công.');
+
+        $this->selectedOrder = [];
+        $this->selectAll = false;
+        $this->resetPage();
+    }
     public function clearProductSearch()
     {
         $this->productSearch = '';
@@ -94,6 +131,12 @@ class OrderList extends Component
         if (isset($this->selectedProducts[$id])) {
             unset($this->selectedProducts[$id]);
         } else {
+            $show_lot_input = MedicineStock::getNearestExpiry($id);
+            // lấy số lô và hạn dùng gần nhất
+            $so_lo = $show_lot_input['so_lo'];
+            $han_dung = $show_lot_input['han_dung'];
+            $so_luong_ton = $show_lot_input['so_luong'];
+           
             $p = Medicine::find($id);
             $this->selectedProducts[$id] = [
                 'title' => $p->ten_hoat_chat ?? 'Chưa có tên',
@@ -102,8 +145,9 @@ class OrderList extends Component
                 'quantity' => 1,
                 'don_gia' => $p->don_gia ?? 0,
                 'total' => $p->don_gia ?? 0,
-                'so_lo' => '',
-                'han_dung' => '',
+                'so_lo' => $so_lo,
+                'han_dung' => $han_dung,
+                'so_luong_ton' => $so_luong_ton,
                 'show_lot_input' => false,
             ];
         }
@@ -113,53 +157,103 @@ class OrderList extends Component
 
     public function toggleLotInput($id)
     {
-        $p = Medicine::find($id);
-        if (!$p) {
-            return;
-        }
-
-        // Lấy các lô còn tồn kho
-        $stocks = \App\Models\MedicineStock::where('medicine_id', $id)
-            ->where('so_luong', '>', 0)
+        // Lấy tất cả các lô theo hạn dùng tăng dần
+        $stocks = MedicineStock::where('medicine_id', $id)
             ->orderBy('han_dung', 'asc')
             ->get(['so_lo', 'han_dung', 'so_luong']);
 
-        // Nếu sản phẩm đã chọn
+        if ($stocks->isEmpty()) {
+            // Không có lô nào
+            $this->dispatch('alert', type: 'error', message: 'Thuốc này không còn tồn kho!');
+            return;
+        }
+
+        // Nếu sản phẩm chưa được chọn → KHÔNG xử lý
         if (!isset($this->selectedProducts[$id])) {
-            $this->selectedProducts[$id] = [
-                'title' => $p->ten_hoat_chat ?? 'Chưa có tên',
-                'dvt' => $p->don_vi_tinh ?? '-',
-                'quy_cach' => $p->quy_cach_dong_goi ?? '-',
-                'quantity' => 1,
-                'don_gia' => $p->don_gia ?? 0,
-                'total' => $p->don_gia ?? 0,
-                'so_lo' => $stocks->first()->so_lo ?? '',
-                'han_dung' => $stocks->first()->han_dung ?? '',
-                'available_stocks' => $stocks,
-                'show_lot_input' => true,
-            ];
-        } else {
-            $this->selectedProducts[$id]['show_lot_input'] = !($this->selectedProducts[$id]['show_lot_input'] ?? false);
-            if (!isset($this->selectedProducts[$id]['available_stocks'])) {
-                $this->selectedProducts[$id]['available_stocks'] = $stocks;
-            }
+            return;
+        }
+
+        // Toggle hiển thị combobox
+        $current = $this->selectedProducts[$id]['show_lot_input'] ?? false;
+        $this->selectedProducts[$id]['show_lot_input'] = !$current;
+
+        // Gán danh sách lô
+        $this->selectedProducts[$id]['available_stocks'] = $stocks;
+
+        // Khi bật combobox (true) → gán lô đầu tiên mặc định
+        if ($this->selectedProducts[$id]['show_lot_input']) {
+            $first = $stocks->first();
+
+            $this->selectedProducts[$id]['so_lo'] = $first->so_lo;
+            $this->selectedProducts[$id]['han_dung'] = \Carbon\Carbon::parse($first->han_dung)->format('Y-m-d');
+            $this->selectedProducts[$id]['so_luong_ton'] = $first->so_luong;
         }
     }
 
     public function updatedSelectedProducts($value, $name)
     {
+        // Phân tích path property
         $parts = explode('.', $name);
-        if (count($parts) !== 3) {
+
+        if (count($parts) === 2) {
+            // Ví dụ: 5.quantity
+            [$productId, $field] = $parts;
+        } elseif (count($parts) === 3) {
+            // Ví dụ: selectedProducts.5.quantity
+            [$prefix, $productId, $field] = $parts;
+        } else {
             return;
         }
 
-        [$prefix, $productId, $field] = $parts;
+        if (!isset($this->selectedProducts[$productId])) {
+            return;
+        }
 
+        $product = &$this->selectedProducts[$productId];
+
+        // ===============================
+        // Xử lý khi thay đổi số lượng
+        // ===============================
+        if ($field === 'quantity') {
+            $qty = (int) $value;
+            $maxQty = $product['so_luong_ton'] ?? 9999;
+
+            if ($qty > $maxQty) {
+                $product['quantity'] = $maxQty;
+                $this->dispatchBrowserEvent('alert', [
+                    'type' => 'error',
+                    'message' => "Số lượng vượt tồn kho! Tối đa: {$maxQty}",
+                ]);
+            } elseif ($qty < 1) {
+                $product['quantity'] = 1;
+            } else {
+                $product['quantity'] = $qty;
+            }
+
+            $this->updateProductTotal($productId);
+        }
+
+        // ===============================
+        // Xử lý khi thay đổi số lô
+        // ===============================
         if ($field === 'so_lo') {
-            $stock = collect($this->selectedProducts[$productId]['available_stocks'])->firstWhere('so_lo', $value);
+            $stock = collect($product['available_stocks'] ?? [])->firstWhere('so_lo', $value);
 
             if ($stock) {
-                $this->selectedProducts[$productId]['han_dung'] = \Carbon\Carbon::parse($stock->han_dung)->format('Y-m-d');
+                // Cập nhật hạn dùng và tồn kho theo lô mới
+                $product['han_dung'] = \Carbon\Carbon::parse($stock['han_dung'])->format('Y-m-d');
+                $product['so_luong_ton'] = $stock['so_luong'];
+
+                // Nếu quantity hiện tại vượt tồn kho mới → điều chỉnh
+                if ($product['quantity'] > $stock['so_luong']) {
+                    $product['quantity'] = $stock['so_luong'];
+                    $this->dispatchBrowserEvent('alert', [
+                        'type' => 'error',
+                        'message' => "Số lượng giảm xuống tồn kho hiện tại: {$stock['so_luong']}",
+                    ]);
+                }
+
+                $this->updateProductTotal($productId);
             }
         }
     }
@@ -171,14 +265,18 @@ class OrderList extends Component
     {
         if (isset($this->selectedProducts[$id])) {
             $this->selectedProducts[$id]['quantity']++;
+            // nếu $this->selectedProducts[$id]['quantity'] > $this->selectedProducts[$id]['so_luong_ton'] báo không đủ số lượng
             $this->updateProductTotal($id);
         }
     }
 
     public function decrementQuantity($id)
     {
+        //dd($id);
         if (isset($this->selectedProducts[$id])) {
             $this->selectedProducts[$id]['quantity'] = max(1, $this->selectedProducts[$id]['quantity'] - 1);
+            // dd($this->selectedProducts[$id]['so_luong_ton']);
+            // nếu $this->selectedProducts[$id]['quantity'] > $this->selectedProducts[$id]['so_luong_ton'] báo không đủ số lượng
             $this->updateProductTotal($id);
         }
     }
@@ -300,37 +398,45 @@ class OrderList extends Component
 
         $user = User::where('email', $this->email)->first();
 
-        $orderDetail = [];
-        $total = 0;
+        if (!$user) {
+            $this->addError('email', 'Người dùng không tồn tại.');
+            return;
+        }
 
-        // Bắt đầu transaction để đảm bảo atomic
-        \DB::transaction(function () use (&$orderDetail, &$total, $user) {
+        \DB::beginTransaction();
+
+        try {
+            $orderDetail = [];
+            $total = 0;
+
             foreach ($this->selectedProducts as $id => $item) {
-                $qty = $item['quantity'] ?? 1;
-                $price = $item['don_gia'] ?? 0;
+                $qty = (int) ($item['quantity'] ?? 1);
+                $price = (float) ($item['don_gia'] ?? 0);
                 $so_lo = $item['so_lo'] ?? null;
                 $han_dung = $item['han_dung'] ?? null;
 
-                // Nếu có số lô và hạn dùng, kiểm tra tồn kho
+                // Kiểm tra tồn kho nếu có lô/hạn dùng
                 if ($so_lo && $han_dung) {
-                    $stock = \App\Models\MedicineStock::where('medicine_id', $id)->where('so_lo', $so_lo)->where('han_dung', $han_dung)->first();
+                    $stock = MedicineStock::where('medicine_id', $id)->where('so_lo', $so_lo)->where('han_dung', $han_dung)->first();
 
                     if (!$stock) {
-                        throw new \Exception("Lô {$so_lo} của thuốc ID {$id} không tồn tại!");
+                        throw new \Exception("Lô {$so_lo} của thuốc {$item['title']} không tồn tại!");
                     }
 
                     if ($stock->so_luong < $qty) {
-                        throw new \Exception("Không đủ tồn kho cho thuốc {$stock->medicine->ten_hoat_chat} lô {$so_lo}. Tồn kho hiện tại: {$stock->so_luong}");
+                        throw new \Exception("Không đủ tồn kho cho thuốc {$item['title']} lô {$so_lo}. Tồn kho hiện tại: {$stock->so_luong}");
                     }
 
                     // Giảm tồn kho
                     $stock->so_luong -= $qty;
-                    if ($stock->so_luong == 0) {
+                    if ($stock->so_luong <= 0) {
                         $stock->status = 'empty';
+                        $stock->so_luong = 0;
                     }
                     $stock->save();
                 }
 
+                // Thêm vào chi tiết đơn
                 $orderDetail[] = [
                     'product_id' => $id,
                     'title' => $item['title'] ?? 'Chưa có tên',
@@ -346,30 +452,37 @@ class OrderList extends Component
                 $total += $qty * $price;
             }
 
+            // Dữ liệu order
             $data = [
                 'email' => $this->email,
                 'customer_id' => $this->customer_id,
-                'user_id' => $user->id ?? null,
+                'user_id' => $user->id,
                 'status' => $this->status,
                 'order_note' => $this->order_note,
                 'admin_note' => $this->admin_note,
                 'order_detail' => $orderDetail,
                 'total' => $total,
             ];
-            dd($data['order_detail']);
 
             if ($this->orderId) {
+                // Cập nhật
                 Order::find($this->orderId)?->update($data);
             } else {
+                // Tạo mới
                 Order::create($data);
             }
-        });
 
-        session()->flash('message', 'Đơn hàng đã được lưu thành công.');
+            \DB::commit();
 
-        $this->hideForm();
-        $this->resetForm();
-        $this->resetPage();
+            session()->flash('message', 'Đơn hàng đã được lưu thành công.');
+
+            $this->hideForm();
+            $this->resetForm();
+            $this->resetPage();
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            $this->addError('saveError', 'Lỗi khi lưu đơn hàng: ' . $e->getMessage());
+        }
     }
 
     public function deleteOrder($orderId)

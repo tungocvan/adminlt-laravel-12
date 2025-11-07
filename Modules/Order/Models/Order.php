@@ -10,6 +10,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Mail\OrderCreatedMail;
 use App\Mail\OrderConfirmedMail; // tạo mail mới kèm link PDF
 use App\Models\User;
+use Modules\Medicine\Models\MedicineStock;
 
 class Order extends Model
 {
@@ -101,4 +102,36 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'email', 'email');
     }
+
+    public function getStockInfo($stockId)
+    {
+        return MedicineStock::select('so_lo', 'han_dung', 'so_luong')
+            ->where('id', $stockId)
+            ->first();
+    }
+    public function getOrderStockDetails()
+    {
+        $details = json_decode($this->order_detail, true);
+
+        if (!$details) {
+            return [];
+        }
+
+        return collect($details)->map(function ($item) {
+
+            $stock = MedicineStock::select('so_lo', 'han_dung', 'so_luong')
+                ->where('id', $item['medicine_stock_id'])
+                ->first();
+
+            return [
+                'medicine_stock_id' => $item['medicine_stock_id'],
+                'so_lo'             => $stock->so_lo ?? null,
+                'han_dung'          => $stock->han_dung ?? null,
+                'so_luong'          => $stock->so_luong ?? null,
+                'quantity'          => $item['quantity'] ?? null,
+                'price'             => $item['price'] ?? null,
+            ];
+        });
+    }
+
 }
