@@ -25,9 +25,6 @@ class UserController extends Controller
     }
     
 
-
-
-     
     public function show(Request $request, $identifier)
     {
         $params = [];
@@ -48,10 +45,12 @@ class UserController extends Controller
                 'message' => 'User not found',
             ], 404);
         }
-
+        $data = $user->first();
+        $data['shipping_info']=$data->getOption('shipping_info', []);
         return response()->json([
             'success' => true,
-            'data' => $user->first(),
+            'data' => $data,
+
         ]);
     }
  

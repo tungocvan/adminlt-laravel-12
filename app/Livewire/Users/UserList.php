@@ -272,7 +272,8 @@ class UserList extends Component
             session()->flash('error', 'Không tìm thấy người dùng!');
             return;
         }
-
+        $this->shipping_info = $user->getOption('shipping_info', []); 
+        $this->profile = $user->getOption('profile', []); 
         $this->userId = $user->id;
         $this->name = $user->name;
         $this->username = $user->username;
