@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS `sessions` (
+  `id` varchar(255) NOT NULL,
+  `user_id` bigint unsigned,
+  `ip_address` varchar(45),
+  `user_agent` text,
+  `payload` longtext NOT NULL,
+  `last_activity` int NOT NULL
+);
+
+INSERT INTO `sessions` (`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) VALUES ('7W0anC0Q0u0BYcbxWP59xhrceTFnilRbwr6t6q1w','1','127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36','YTo2OntzOjY6Il90b2tlbiI7czo0MDoiUnZWNmU1d0VGbThPb1NrVUV0dTJmcWVDb2xJNEM2WER2YU4za0tBayI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQwOiJodHRwczovL2FkbWlubHQubGFyYXZlbC50ay9maWxlL2RiLWV4Y2VsIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MTp7aTowO3M6NToiZXJyb3IiO31zOjM6Im5ldyI7YTowOnt9fXM6MjI6IlBIUERFQlVHQkFSX1NUQUNLX0RBVEEiO2E6Mjp7czoyNjoiMDFLOFpYNzdQS0sxRjBZRDFCQlNFQUVZN0siO047czoyNjoiMDFLOFpYNzhKWE0zQzQ3V0gxMThEWFNEVFMiO047fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==','1762008631');
+INSERT INTO `sessions` (`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) VALUES ('VW1OBFuX2siHBgrjWWDz6rL8tSJSDcj7qUY1BLNC','1','127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36','YTo2OntzOjY6Il90b2tlbiI7czo0MDoiU1o3dEVDRHhYSmplYXRUSGc0RmIybVFNb3RSejNEY3JidWRjYnRGTCI7czozOiJ1cmwiO2E6MDp7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6MjI6IlBIUERFQlVHQkFSX1NUQUNLX0RBVEEiO2E6Mzp7czoyNjoiMDFLOTBURlQzOFhSN01TMzJEUk1HRE1LNUoiO047czoyNjoiMDFLOTBURlRUQzhXWks4QlZBUVRTVFpXR1QiO047czoyNjoiMDFLOTBURlRYNDlXRkpIUUhYRDI0Uk5XSjgiO047fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQyOiJodHRwczovL2FkbWlubHQubGFyYXZlbC50ay9maWxlL21pZ3JhdGlvbnMiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=','1762040400');

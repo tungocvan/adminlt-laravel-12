@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS `bang_bao_gia` (
+  `id` bigint unsigned NOT NULL auto_increment,
+  `ma_so` varchar(255) NOT NULL,
+  `user_id` bigint unsigned,
+  `customer_id` bigint unsigned,
+  `ten_khach_hang` varchar(255),
+  `file_path` varchar(255),
+  `product_ids` json,
+  `company` json,
+  `ghi_chu` text,
+  `exported_at` timestamp,
+  `created_at` timestamp,
+  `updated_at` timestamp
+);
+

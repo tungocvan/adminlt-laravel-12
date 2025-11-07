@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS `cache_locks` (
+  `key` varchar(255) NOT NULL,
+  `owner` varchar(255) NOT NULL,
+  `expiration` int NOT NULL
+);
+
