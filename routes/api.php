@@ -19,11 +19,11 @@ Route::get('/bang-bao-gia', [BangBaoGiaController::class, 'index']);
 
 Route::post('/google/callback', [GoogleAuthController::class, 'callback']);
 
-Route::controller(AuthController::class)->group(function(){
-    Route::get('init', 'init');
-    Route::post('register', 'register');
-    Route::post('login', 'login');
-});
+// Route::controller(AuthController::class)->group(function(){
+//     Route::get('init', 'init');
+//     Route::post('register', 'register'); 
+//     Route::post('login', 'login');
+// });
 
 // Route::middleware('protect.auth.api')->group(function () {
 //     Route::get('/init', [AuthController::class, 'init']);

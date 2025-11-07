@@ -554,7 +554,7 @@ class TnvUserHelper
         // --- 4️⃣ Lấy thông tin user ---
         /** @var \App\Models\User $authUser */
         $authUser = Auth::user();
-
+        $authUser['shipping_info'] = $authUser->getOption('shipping_info', []); 
         // --- 5️⃣ Tạo token (cho API sử dụng Sanctum hoặc Passport) ---
         $token = $authUser->createToken('api_token')->plainTextToken;
 
