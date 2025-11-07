@@ -18,14 +18,7 @@ class OrderController extends Controller
      */
     public function list(Request $request)
     {
-    
-        $params = $request->only([
-            'fields', 'search', 'email', 'status',
-            'min_total', 'max_total',
-            'date_from', 'date_to',
-            'order_by', 'sort',
-            'paginate', 'cache','is_admin'
-        ]);
+        $params = $request->only(['fields', 'search', 'email', 'status', 'min_total', 'max_total', 'date_from', 'date_to', 'order_by', 'sort', 'paginate', 'cache', 'is_admin']);
 
         $orders = TnvOrderHelper::getOrders($params);
 
@@ -53,13 +46,12 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-       
         // ✅ 1. Xác thực dữ liệu
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|numeric',
             'email' => 'required|email',
             'orderDetail' => 'required|array|min:1',
-            'orderDetail.*.product_id' => 'required|integer',           
+            'orderDetail.*.product_id' => 'required|integer',
             'orderDetail.*.price' => 'required|numeric|min:0',
             'orderDetail.*.quantity' => 'required|integer|min:1',
             'orderDetail.*.total' => 'required|numeric|min:0',
@@ -67,11 +59,14 @@ class OrderController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Dữ liệu không hợp lệ',
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json(
+                [
+                    'status' => false,
+                    'message' => 'Dữ liệu không hợp lệ',
+                    'errors' => $validator->errors(),
+                ],
+                422,
+            );
         }
 
         try {
@@ -87,18 +82,23 @@ class OrderController extends Controller
             ]);
 
             // ✅ 3. Trả về JSON phản hồi
-            return response()->json([
-                'status' => true,
-                'message' => 'Đơn hàng đã được tạo thành công!',
-                'order_id' => $order->id,
-                'order' => $order,
-            ], 201);
-
+            return response()->json(
+                [
+                    'status' => true,
+                    'message' => 'Đơn hàng đã được tạo thành công!',
+                    'order_id' => $order->id,
+                    'order' => $order,
+                ],
+                201,
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Lỗi khi lưu đơn hàng: ' . $e->getMessage(),
-            ], 500);
+            return response()->json(
+                [
+                    'status' => false,
+                    'message' => 'Lỗi khi lưu đơn hàng: ' . $e->getMessage(),
+                ],
+                500,
+            );
         }
     }
 
@@ -115,12 +115,11 @@ class OrderController extends Controller
 
     //     $validated = $request->validate([
     //         'status' => 'nullable|string|max:50',
-    //         'user_id' => 'nullable|numeric|min:0', 
-    //         'total' => 'nullable|numeric|min:0',             
+    //         'user_id' => 'nullable|numeric|min:0',
+    //         'total' => 'nullable|numeric|min:0',
     //         'admin_note' => 'nullable|string',
     //         'order_detail' => 'nullable|array',
     //     ]);
-        
 
     //     $order->update($validated);
 
@@ -148,11 +147,11 @@ class OrderController extends Controller
     public function updateItem(Request $request)
     {
         // kiểm tra status có phải là pending thì mới cho thực hiện, không phải thì báo đơn hàng đã được xác thực
-       
+
         $request->validate([
             'order_id' => 'required|exists:orders,id',
             'email' => 'required|email',
-            'user_id' => 'nullable|numeric|min:0', 
+            'user_id' => 'nullable|numeric|min:0',
             'status' => 'required|string',
             'order_detail' => 'nullable|array', // <-- cho phép rỗng
             'admin_note' => 'nullable|string', // <-- cho phép rỗng
@@ -160,18 +159,21 @@ class OrderController extends Controller
         ]);
 
         $order = Order::find($request->order_id);
-            // Chỉ cho phép update nếu pending
+        // Chỉ cho phép update nếu pending
         if ($order->status !== 'pending') {
-            return response()->json([
-                'message' => 'Đơn hàng đã được xác thực, không thể cập nhật.'
-            ], 403); // 403 Forbidden
+            return response()->json(
+                [
+                    'message' => 'Đơn hàng đã được xác thực, không thể cập nhật.',
+                ],
+                403,
+            ); // 403 Forbidden
         }
         $details = $request->order_detail;
         // Nếu mảng rỗng → xóa đơn hàng
         if (empty($details)) {
             $order->delete();
             return response()->json([
-                'message' => 'Đơn hàng đã bị xóa vì không còn sản phẩm nào.'
+                'message' => 'Đơn hàng đã bị xóa vì không còn sản phẩm nào.',
             ]);
         }
 
@@ -184,16 +186,16 @@ class OrderController extends Controller
         $order->admin_note = $request->admin_note;
         $order->save();
 
-      
-        return response()->json([
-            'success' => true,
-            'message' => 'Cập nhật đơn hàng thành công',
-            'order' => $order,
-        ], 200);
-        
+        return response()->json(
+            [
+                'success' => true,
+                'message' => 'Cập nhật đơn hàng thành công',
+                'order' => $order,
+            ],
+            200,
+        );
     }
 
-    
     public function removeItem(Request $request)
     {
         $request->validate([
@@ -221,16 +223,15 @@ class OrderController extends Controller
         ]);
     }
 
-
     public function create(Request $request, OrderService $service)
     {
         $data = $request->validate([
-            'user_id'        => 'required|integer',
-            'customer_id'    => 'required|integer',
-            'email'          => 'required|email',
-            'order_detail'   => 'required|array',
+            'user_id' => 'required|integer',
+            'customer_id' => 'required|integer',
+            'email' => 'required|email',
+            'order_detail' => 'required|array',
             'order_detail.*.product_id' => 'required|integer',
-            'order_detail.*.quantity'   => 'required|integer|min:1',
+            'order_detail.*.quantity' => 'required|integer|min:1',
         ]);
 
         try {
@@ -238,27 +239,30 @@ class OrderController extends Controller
 
             return response()->json([
                 'success' => true,
-                'order'   => $order,
+                'order' => $order,
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error'   => $e->getMessage(),
-            ], 400);
+            return response()->json(
+                [
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                ],
+                400,
+            );
         }
     }
     public function update($id, Request $request, OrderService $service)
     {
         $data = $request->validate([
-            'customer_id' => 'required|integer',
-            'email'       => 'required|email',
-            'status'      => 'nullable|string',
-            'order_note'  => 'nullable|string',
-            'admin_note'  => 'nullable|string',
+            'customer_id' => 'nullable|integer',
+            'email' => 'nullable|email',
+            'status' => 'nullable|string',
+            'order_note' => 'nullable|string',
+            'admin_note' => 'nullable|string',
 
-            'order_detail' => 'required|array',
-            'order_detail.*.product_id' => 'required|integer',
-            'order_detail.*.quantity'   => 'required|integer|min:1',
+            'order_detail' => 'nullable|array',
+            'order_detail.*.product_id' => 'required_with:order_detail|integer',
+            'order_detail.*.quantity' => 'required_with:order_detail|integer|min:1',
         ]);
 
         try {
@@ -266,32 +270,36 @@ class OrderController extends Controller
 
             return response()->json([
                 'success' => true,
-                'order'   => $order,
+                'order' => $order,
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error'   => $e->getMessage(),
-            ], 400);
+            return response()->json(
+                [
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                ],
+                400,
+            );
         }
     }
 
     public function destroy($id, OrderService $service)
     {
         try {
-            $result = $service->deleteOrder($id);
+            $result = $service->delete($id);
 
             return response()->json([
                 'success' => true,
-                'message' => $result['message']
+                'message' => $result['message'],
             ]);
-
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 400);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ],
+                400,
+            );
         }
     }
-
 }

@@ -5,9 +5,14 @@
             <input type="text" id="name" name="name" class="form-control" placeholder="Nhập tên" wire:model="name"
                 required>
         </div>
-        <div class="form-group col-md-6">
+        {{-- <div class="form-group col-md-6">
             <x-components::tnv-input-date name="birthdate" label="Ngày sinh" wire:model.live="birthdate" placement="top"
                 :config="['format' => 'DD/MM/YYYY']" />        
+        </div> --}}
+        <div class="form-group col-md-6">
+            <label for="birthdate">Ngày sinh</label>
+            <input type="date" id="birthdate" class="form-control"
+                wire:model.defer="birthdate">
         </div>
     </div>
 

@@ -112,6 +112,7 @@ class UserList extends Component
             $this->message = $message;
         }
     }
+        
 
     public function getRolesProperty()
     {
@@ -196,6 +197,7 @@ class UserList extends Component
 
     public function closeModal()
     {
+        
         $this->dispatch('close-modal-user');
         $this->resetForm();
     }
@@ -223,7 +225,8 @@ class UserList extends Component
         $this->selectedRoleId = null;
     }
 
-    protected function resetForm()
+    #[On('reset-form')]
+    public function resetForm()
     {
         $this->reset(['userId', 'name', 'username', 'email', 'password', 'birthdate', 'google_id', 'referral_code', 'is_admin', 'isEdit', 'role']);
     }

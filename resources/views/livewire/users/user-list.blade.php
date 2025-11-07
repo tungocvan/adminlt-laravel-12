@@ -182,7 +182,8 @@
             });
 
             $('[data-dismiss="modal"]').on('click', function() {
-                $(this).closest('.modal').modal('hide');
+                $(this).closest('.modal').modal('hide');          
+                Livewire.dispatch('reset-form');    
             });
 
             document.addEventListener('open-print-window', event => {

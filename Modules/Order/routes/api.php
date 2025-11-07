@@ -28,6 +28,7 @@ Route::prefix('/orders')->group(function () {
 });
 
 Route::post('/orders/create', [OrderController::class, 'create']);
-Route::post('/orders/{id}/update', [OrderApiController::class, 'update']);
+Route::post('/orders/{id}/update', [OrderController::class, 'update']);
 Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
-
+Route::delete('{id}', [OrderController::class, 'destroy']);
+ 

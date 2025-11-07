@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS `user_options` (
+  `option_id` bigint unsigned NOT NULL auto_increment,
+  `user_id` bigint unsigned NOT NULL,
+  `option_name` varchar(191) NOT NULL,
+  `option_value` longtext,
+  `autoload` varchar(20) NOT NULL DEFAULT 'yes',
+  `created_at` timestamp,
+  `updated_at` timestamp
+);
+

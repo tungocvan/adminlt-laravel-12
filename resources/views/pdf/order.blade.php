@@ -188,7 +188,8 @@
                     <td>{{ $index + 1 }}</td>
                     <td style="text-align: left;">{{ $item['title'] ?? 'Chưa có tên' }}</td>
                     <td style="text-align: center;">{{ $item['so_lo'] ?? '01012025' }}</td>
-                    <td style="text-align: center;">{{ $item['han_dung'] ?? '01/01/2027' }}</td>
+                    <td style="text-align: center;">{{ $item['han_dung'] ? \Carbon\Carbon::parse($item['han_dung'])->format('d/m/Y') : '' }}
+                    </td>
                     <td style="text-align: center;">{{ $item['dvt'] ?? '-' }}</td>
                     <td style="text-align: center;">{{ $item['quantity'] ?? 0 }}</td>
                     <td style="text-align: right;">{{ number_format($item['don_gia'] ?? 0, 0, ',', '.') }}</td>
