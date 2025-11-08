@@ -281,6 +281,7 @@ class UserList extends Component
         $this->userId = $user->id;
         $this->name = $user->name;
         $this->username = $user->username;
+        $this->password = null;
         $this->email = $user->email;
         $this->birthdate = $user->birthdate;
         $this->google_id = $user->google_id;
