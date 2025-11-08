@@ -22,5 +22,6 @@ Route::controller(UserController::class)->group(function(){
     Route::delete('users/{id}','destroy');    
     Route::delete('users','destroyMultiple');
     Route::put('users/{id}','update');
+    Route::put('users/{id}/app','updateApp');
 
 });
