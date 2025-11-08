@@ -24,7 +24,7 @@
         </div>
         <div class="form-group col-md-6">
             <label for="password">Mật khẩu</label>
-            <input type="password" id="password" name="password" class="form-control"
+            <input type="password" id="password" name="password" class="form-control" value=""
                 placeholder="{{ $isEdit ? 'Để trống nếu không đổi' : 'Nhập mật khẩu' }}" wire:model="password"
                 {{ $isEdit ? '' : 'required' }}>
         </div>
