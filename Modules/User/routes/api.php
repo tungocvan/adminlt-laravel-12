@@ -19,6 +19,7 @@ use Modules\User\Http\Controllers\Api\UserController;
 Route::controller(UserController::class)->group(function(){      
     Route::post('users','index');           
     Route::get('users/{id}','show');           
+    Route::post('users/{id}/options','showOption');           
     Route::delete('users/{id}','destroy');    
     Route::delete('users','destroyMultiple');
     Route::put('users/{id}','update');

@@ -124,4 +124,60 @@ class UserController extends Controller
         $result = TnvUserHelper::deleteUsers($ids);
         return response()->json($result);
     }
+
+    public function showOption(Request $request, $id)
+    {
+        // Tìm người dùng theo ID
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Người dùng không tồn tại.',
+                ],
+                404,
+            );
+        }
+
+        // Lấy danh sách options từ request
+        $options = $request->input('options');
+
+        $result = [];
+
+        // Nếu không truyền options, lấy tất cả option từ getAllOptions
+        if (empty($options)) {
+            if (method_exists($user, 'getAllOptions')) {
+                $allOptions = $user->getAllOptions();
+                // Lọc bỏ giá trị null
+                $result = array_filter($allOptions, fn($v) => !is_null($v));
+            }
+        } else {
+            // Nếu truyền options, kiểm tra phải là mảng
+            if (!is_array($options)) {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'message' => 'Options phải là một mảng.',
+                    ],
+                    400,
+                );
+            }
+
+            // Lọc và lấy option hợp lệ
+            $result = collect($options)
+                ->mapWithKeys(function ($optionKey) use ($user) {
+                    if (method_exists($user, 'getOption') && !is_null($value = $user->getOption($optionKey))) {
+                        return [$optionKey => $value];
+                    }
+                    return []; // Bỏ option không hợp lệ
+                })
+                ->all();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $result,
+        ]);
+    }
 }
