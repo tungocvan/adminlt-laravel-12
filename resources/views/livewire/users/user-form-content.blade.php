@@ -46,7 +46,7 @@
                     <option value="{{ $id }}">{{ $name }}</option>
                 @endforeach
             </select>
-        </div>
+        </div> 
     </div>
 
     <div class="form-row">

@@ -80,7 +80,7 @@ class UserList extends Component
     protected $rulesUpdate = [
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255',
-        'password' => 'nullable|string|min:8',
+        'password' => 'nullable|string|min:6',
     ];
 
     // -------- Computed properties --------
@@ -289,26 +289,26 @@ class UserList extends Component
 
     public function updateUser()
     {
-        //dd($this->rulesUpdate);
-        $this->validate(
-            array_merge($this->rulesUpdate, [
-                'email' => 'required|string|email|max:255|unique:users,email,' . $this->userId,
-            ]),
-        );
+       
+        // $this->validate(
+        //     array_merge($this->rulesUpdate, [
+        //         'email' => 'required|string|email|max:255|unique:users,email,' . $this->userId,
+        //     ]),
+        // );
 
         $data = [
-            'name' => $this->name,
-            'email' => $this->email,
-            'username' => $this->username,
-            'birthdate' => $this->birthdate,
-            'google_id' => $this->google_id,
-            'referral_code' => $this->referral_code,
+            'name' => $this->name ?? '',
+            'email' => $this->email ?? '',
+            'username' => $this->username ?? '',
+            'birthdate' => $this->birthdate ?? null,
+            'google_id' => $this->google_id ?? '',
+            'referral_code' => $this->referral_code ?? '',
         ];
-
+        
         if (!empty($this->password)) {
             $data['password'] = $this->password;
         }
-
+ 
         $result = TnvUserHelper::updateUser($this->userId, $data);
         
         if ($result['status'] !== 'success') {
