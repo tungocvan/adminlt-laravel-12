@@ -27,5 +27,10 @@
             <input type="text" id="phone" class="form-control" placeholder="Số điện thoại"
                 wire:model.defer="shipping_info.phone">
         </div>
+        <div class="form-group">
+            <label for="website">Website</label>
+            <input type="text" id="website" class="form-control" placeholder="Website"
+                wire:model.defer="shipping_info.website">
+        </div>
     </div>
 </div>

@@ -47,11 +47,12 @@ class UserList extends Component
     // Role
     public $role = null; // for create/edit
     public $selectedRoleId = null; // for role modal
-
+ 
     public $profile = [
         'full_name' => '',
         'gender' => '',
         'birthdate' => '',
+        'id_number' => '',
         'job' => '',
         'bio' => '',
     ];
@@ -62,6 +63,7 @@ class UserList extends Component
         'company_name' => '',
         'tax_code' => '',
         'phone' => '',
+        'website' => '',
     ];
 
     protected $listeners = [
@@ -234,8 +236,10 @@ class UserList extends Component
     // -------- CRUD operations --------
     public function createUser()
     {
+        // chỉ validate các field cần thiết $this->rulesCreate
         $validated = $this->validate($this->rulesCreate);
 
+        // dữ liệu cần đưa vào table khi tạo mới
         $data = [
             'email' => $validated['email'],
             'password' => $validated['password'],
