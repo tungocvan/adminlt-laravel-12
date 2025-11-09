@@ -23,13 +23,12 @@ class MedicineStock extends Model
         'han_dung',
         'so_luong',
         'gia_von',
-        'don_gia',
         'status',
         'location',
         'notes',
     ];
 
-    // Định dạng ngày tháng
+    // Định dạng ngày tháng 
     protected $dates = [
         'han_dung',
         'created_at',

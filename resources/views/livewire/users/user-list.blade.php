@@ -148,10 +148,6 @@
             </div>
         </div>
     </div>
-    {{-- @livewire('test.test-list') --}}
-    {{-- @livewire('components.tnv-modal') --}}
-    {{-- Modals --}}
-    {{-- <x-components::tnv-modal /> --}}
     @include('livewire.users.user-form')    
     @include('livewire.users.user-form-role') 
 

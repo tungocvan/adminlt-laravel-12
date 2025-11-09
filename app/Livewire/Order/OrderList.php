@@ -10,6 +10,7 @@ use App\Models\Medicine;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use App\Models\MedicineStock;
+use App\Services\OrderService;
 
 class OrderList extends Component
 {
@@ -136,7 +137,7 @@ class OrderList extends Component
             $so_lo = $show_lot_input['so_lo'];
             $han_dung = $show_lot_input['han_dung'];
             $so_luong_ton = $show_lot_input['so_luong'];
-           
+
             $p = Medicine::find($id);
             $this->selectedProducts[$id] = [
                 'title' => $p->ten_hoat_chat ?? 'Chưa có tên',
@@ -387,9 +388,11 @@ class OrderList extends Component
     /* =========================
      * SAVE / DELETE ORDER
      * ========================= */
-    public function saveOrder()
+    public function saveOrder(OrderService $orderService)
     {
-        $this->validate();
+        $this->validate([
+            'email' => 'required|email',
+        ]);
 
         if (empty($this->selectedProducts)) {
             $this->addError('selectedProducts', 'Bạn phải chọn ít nhất 1 sản phẩm.');
@@ -397,82 +400,35 @@ class OrderList extends Component
         }
 
         $user = User::where('email', $this->email)->first();
-
         if (!$user) {
             $this->addError('email', 'Người dùng không tồn tại.');
             return;
         }
 
-        \DB::beginTransaction();
+        $payload = [
+            'user_id' => $user->id,
+            'customer_id' => $this->customer_id,
+            'status' => $this->status,
+            'order_note' => $this->order_note,
+            'admin_note' => $this->admin_note,
+            'order_detail' => [],
+        ];
+
+        foreach ($this->selectedProducts as $id => $item) {
+            $payload['order_detail'][] = [
+                'product_id' => $id,
+                'quantity' => $item['quantity'],
+                'so_lo' => $item['so_lo'] ?? null,
+                'han_dung' => $item['han_dung'] ?? null,
+            ];
+        }
 
         try {
-            $orderDetail = [];
-            $total = 0;
-
-            foreach ($this->selectedProducts as $id => $item) {
-                $qty = (int) ($item['quantity'] ?? 1);
-                $price = (float) ($item['don_gia'] ?? 0);
-                $so_lo = $item['so_lo'] ?? null;
-                $han_dung = $item['han_dung'] ?? null;
-
-                // Kiểm tra tồn kho nếu có lô/hạn dùng
-                if ($so_lo && $han_dung) {
-                    $stock = MedicineStock::where('medicine_id', $id)->where('so_lo', $so_lo)->where('han_dung', $han_dung)->first();
-
-                    if (!$stock) {
-                        throw new \Exception("Lô {$so_lo} của thuốc {$item['title']} không tồn tại!");
-                    }
-
-                    if ($stock->so_luong < $qty) {
-                        throw new \Exception("Không đủ tồn kho cho thuốc {$item['title']} lô {$so_lo}. Tồn kho hiện tại: {$stock->so_luong}");
-                    }
-
-                    // Giảm tồn kho
-                    $stock->so_luong -= $qty;
-                    if ($stock->so_luong <= 0) {
-                        $stock->status = 'empty';
-                        $stock->so_luong = 0;
-                    }
-                    $stock->save();
-                }
-
-                // Thêm vào chi tiết đơn
-                $orderDetail[] = [
-                    'product_id' => $id,
-                    'title' => $item['title'] ?? 'Chưa có tên',
-                    'dvt' => $item['dvt'] ?? '-',
-                    'quy_cach' => $item['quy_cach'] ?? '-',
-                    'quantity' => $qty,
-                    'don_gia' => $price,
-                    'total' => $qty * $price,
-                    'so_lo' => $so_lo,
-                    'han_dung' => $han_dung,
-                ];
-
-                $total += $qty * $price;
-            }
-
-            // Dữ liệu order
-            $data = [
-                'email' => $this->email,
-                'customer_id' => $this->customer_id,
-                'user_id' => $user->id,
-                'status' => $this->status,
-                'order_note' => $this->order_note,
-                'admin_note' => $this->admin_note,
-                'order_detail' => $orderDetail,
-                'total' => $total,
-            ];
-
             if ($this->orderId) {
-                // Cập nhật
-                Order::find($this->orderId)?->update($data);
+                $orderService->updateOrder($this->orderId, $payload);
             } else {
-                // Tạo mới
-                Order::create($data);
+                $orderService->createOrder($payload);
             }
-
-            \DB::commit();
 
             session()->flash('message', 'Đơn hàng đã được lưu thành công.');
 
@@ -480,12 +436,11 @@ class OrderList extends Component
             $this->resetForm();
             $this->resetPage();
         } catch (\Exception $e) {
-            \DB::rollBack();
             $this->addError('saveError', 'Lỗi khi lưu đơn hàng: ' . $e->getMessage());
         }
     }
 
-    public function deleteOrder($orderId)
+    public function deleteOrder($orderId, OrderService $orderService)
     {
         $order = Order::find($orderId);
 
@@ -495,11 +450,21 @@ class OrderList extends Component
         }
 
         try {
+            // Xóa file nếu có
             if ($order->link_download) {
-                Storage::disk('public')->delete($order->link_download);
+                \Storage::disk('public')->delete($order->link_download);
             }
-            $order->delete();
+
+            // Xóa order bằng service
+            $orderService->delete($orderId);
+
             session()->flash('message', "Đơn hàng #{$orderId} đã xóa thành công.");
+
+            // Cập nhật UI
+            $this->resetPage();
+            if (in_array($orderId, $this->selectedOrder)) {
+                $this->selectedOrder = array_diff($this->selectedOrder, [$orderId]);
+            }
         } catch (\Exception $e) {
             $this->addError('deleteError', 'Xóa đơn hàng thất bại: ' . $e->getMessage());
         }

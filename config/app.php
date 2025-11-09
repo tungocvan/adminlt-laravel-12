@@ -125,4 +125,9 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+
+    'order_create' => env('ORDER_CREATE', true),
+    'order_update' => env('ORDER_UPDATE', true),
+    'order_delete' => env('ORDER_DELETE', true),
+
 ];

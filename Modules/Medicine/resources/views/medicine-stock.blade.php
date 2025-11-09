@@ -2,7 +2,7 @@
    
 @section('content') 
 <div class="container">
-    @livewire('medicine.medicines-manager')
+     @livewire('medicine.medicines-stock')
 </div>
 
 @endsection

@@ -20,6 +20,11 @@ class MedicineController extends Controller
     {
         return view('Medicine::medicine');
     }
+    public function medicineStock()
+    {
+        return view('Medicine::medicine-stock');
+    }
+
 
     /**
      * Show the form for creating a new resource.

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Order;
 
 use Illuminate\Console\Command;
 use App\Services\OrderService;
