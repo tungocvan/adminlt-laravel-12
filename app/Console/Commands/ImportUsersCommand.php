@@ -13,7 +13,7 @@ class ImportUsersCommand extends Command
      *
      * php artisan import:users <file-path>
      */
-    protected $signature = 'import:users {file : Đường dẫn đến file Excel (.xlsx hoặc .xls)}';
+    protected $signature = 'import:users {file? : Đường dẫn đến file Excel (.xlsx hoặc .xls)}';
 
     /**
      * Mô tả command (hiển thị khi chạy php artisan list)
@@ -25,7 +25,8 @@ class ImportUsersCommand extends Command
      */
     public function handle()
     {
-        $filePath = $this->argument('file');
+        $pathDefault = storage_path().'/app/public/excel/database/users.xlsx';
+        $filePath = $this->argument('file') ?? $pathDefault;
 
         // --- Kiểm tra file tồn tại ---
         if (!file_exists($filePath)) {

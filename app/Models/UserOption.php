@@ -18,7 +18,7 @@ class UserOption extends Model
         'option_value',
         'autoload',
     ];
-
+    protected $guarded = [];
     protected $casts = [
         'option_value' => 'array',
     ];

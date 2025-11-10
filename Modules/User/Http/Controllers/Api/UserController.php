@@ -6,21 +6,32 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Helpers\TnvUserHelper;
+use App\Services\UserService;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $params = $request->all();
-        $perPage = $request->input('per_page', 20);
+        // 🔹 Lấy params từ query string
+        $params = $request->only([
+            'id', 'email', 'is_admin', 'referral_code', 'status',
+            'search', 'birthdate', 'birthdate_from', 'birthdate_to',
+            'created_at', 'created_at_from', 'created_at_to',
+            'updated_at', 'updated_at_from', 'updated_at_to',
+            'sort_by', 'sort_order', 'type', 'per_page',
+        ]);
 
-        $result = User::filter($params, $perPage);
+        // 🔹 Keyword fields cho search
+        $params['keyword_fields'] = ['name', 'email'];
 
+        // 🔹 Gọi service
+        $users = UserService::getUsers($params);
+
+        // 🔹 Chuẩn hóa response JSON
         return response()->json([
             'success' => true,
-            'data' => $result['data'],
-            'meta' => $result['meta'],
-            'params' => $params,
+            'data'    => $users,
+            'meta'    => method_exists($users, 'toArray') ? $users->toArray() : null,
         ]);
     }
 
@@ -28,27 +39,34 @@ class UserController extends Controller
     {
         $params = [];
 
-        // Nếu là số => coi là ID
-        if (is_numeric($identifier)) {
-            $params['id'] = (int) $identifier;
-        } else {
-            // Ngược lại coi là email
-            $params['email'] = $identifier;
+        // Nếu là số => ID, ngược lại => email
+        $params[is_numeric($identifier) ? 'id' : 'email'] = $identifier;
+
+        $users = TnvUserHelper::getUsers($params);
+
+        if ($users->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found',
+            ], 404);
         }
 
-        $user = TnvUserHelper::getUsers($params);
+        $user = $users->first();
 
-        if ($user->isEmpty()) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'User not found',
-                ],
-                404,
-            );
+        // ✅ Lấy toàn bộ options
+        // Nếu model có hàm getAllOptions()
+        if (method_exists($user, 'getAllOptions')) {
+            $options = $user->getAllOptions();
         }
-        $data = $user->first();
-        $data['shipping_info'] = $data->getOption('shipping_info', []);
+        // Nếu bạn lưu trong $user->options (json)
+        else {
+            $options = $user->options ?? [];
+        }
+
+        // Gắn options vào data trả ra API
+        $data = $user->toArray();
+        $data['options'] = $options;
+
         return response()->json([
             'success' => true,
             'data' => $data,

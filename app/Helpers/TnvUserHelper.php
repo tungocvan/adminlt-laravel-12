@@ -618,9 +618,10 @@ class TnvUserHelper
                     'name' => 'required|string|max:100',
                     'email' => 'required|email|unique:users,email',
                     'password' => 'nullable|string|min:6',
-                    'role_name' => 'nullable|string',
+                    'role_name' => 'nullable|string', 
                     'is_admin' => 'nullable|integer',
-                    'verified' => 'nullable|string',
+                    'referral_code' => 'nullable|string',
+                    'email_verified_at' => 'nullable|string',
                 ]);
 
                 if ($validator->fails()) {
@@ -653,7 +654,7 @@ class TnvUserHelper
                 $password = !empty($data['password']) ? Hash::make($data['password']) : Hash::make('123456');
 
                 // --- Email verified ---
-                $emailVerifiedAt = !empty($data['verified']) ? now() : null;
+                $emailVerifiedAt = !empty($data['email_verified_at']) ? now() : null;
 
                 // --- Tạo user ---
                 $user = User::create([
@@ -662,6 +663,7 @@ class TnvUserHelper
                     'username' => $data['username'],
                     'password' => $password,
                     'is_admin' => $data['is_admin'] ?? 0,
+                    'referral_code' => $data['referral_code'] ?? 'tungocvan@gmail.com',
                     'email_verified_at' => $emailVerifiedAt,
                 ]);
 

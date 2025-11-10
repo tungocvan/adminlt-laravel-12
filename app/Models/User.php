@@ -67,5 +67,6 @@ class User extends Authenticatable
     public function options()
     {
         return $this->morphMany(Option::class, 'optionable');
-    }
+    } 
+
 }
