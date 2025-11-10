@@ -11,3 +11,4 @@ Route::middleware(['web','auth'])->prefix('/banggia')->name('banggia.')->group(f
 Route::get('/banggia/{id}/download', [BangGiaController::class, 'download'])->withoutMiddleware(['web', 'throttle', 'VerifyCsrfToken'])->name('banggia.download');
 
 Route::get('/banggia/{id}/pdf', [BangGiaController::class, 'downloadPdf'])->name('banggia.downloadPdf');
+
