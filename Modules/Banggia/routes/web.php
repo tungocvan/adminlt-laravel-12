@@ -13,7 +13,7 @@ Route::get('/banggia/{id}/download', [BangGiaController::class, 'download'])->wi
 Route::get('/banggia/{id}/pdf', [BangGiaController::class, 'downloadPdf'])->name('banggia.downloadPdf');
 
 Route::get('/baogia/{filename}', function ($filename) {
-    $path = public_path('baogia/' . $filename);
+    $path = storage_path('app/public/baogia/' . $filename);
 
     if (!file_exists($path)) {
         abort(404, 'File not found.');
