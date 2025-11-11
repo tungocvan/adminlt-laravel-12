@@ -15,6 +15,7 @@ return new class extends Migration
             $table->unsignedBigInteger('customer_id')->nullable()->comment('Khách hàng');
             $table->string('ten_khach_hang')->nullable();
             $table->string('file_path')->nullable()->comment('Đường dẫn file Excel đã tạo');
+            $table->string('pdf_path')->nullable()->comment('Đường dẫn file pdf đã tạo');
             $table->json('product_ids')->nullable()->comment('Danh sách ID sản phẩm');
             $table->json('company')->nullable()->comment('Lưu thông tin bảng giá');
             $table->text('ghi_chu')->nullable();

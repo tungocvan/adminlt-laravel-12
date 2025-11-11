@@ -118,16 +118,27 @@ class BangGia extends Component
         }
 
         try {
+            // Xóa file Excel nếu tồn tại
             if ($record->file_path && Storage::disk('public')->exists($record->file_path)) {
                 Storage::disk('public')->delete($record->file_path);
             }
             $record->delete();
-            session()->flash('message', '✅ Đã xóa bảng báo giá!');
+            
+            // Xóa file PDF nếu tồn tại
+            if ($record->pdf_path && Storage::disk('public')->exists($record->pdf_path)) {
+                Storage::disk('public')->delete($record->pdf_path);
+            }
+
+            // Xóa record trong database
+            $record->delete();
+
+            session()->flash('message', '✅ Đã xóa bảng báo giá và các file liên quan!');
         } catch (\Throwable $e) {
             Log::error('❌ Lỗi khi xóa bảng báo giá', ['id' => $id, 'error' => $e]);
             session()->flash('error', '⚠️ Không thể xóa bảng báo giá.');
         }
     }
+
 
     public function deleteSelected()
     {

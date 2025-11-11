@@ -32,14 +32,21 @@ class BanggiaController extends Controller
 
         if (!$record->file_path) {
             return back()->with('error', '❌ File chưa được tạo.');
-        }
-     //   dd($record);
-
-        // Gọi hàm tái sử dụng
+        } 
         return TnvHelper::downloadFile($record->file_path, 'public');
     }
 
     public function downloadPdf($id)
+    {
+        $record = \App\Models\BangBaoGia::findOrFail($id);
+
+        if (!$record->pdf_path) {
+            return back()->with('error', '❌ File chưa được tạo.');
+        } 
+        return TnvHelper::downloadFile($record->pdf_path, 'public');
+    }
+
+    public function downloadPdf1($id)
     {
         $record = \App\Models\BangBaoGia::findOrFail($id);
     

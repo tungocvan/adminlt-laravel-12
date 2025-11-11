@@ -72,10 +72,18 @@
                         <div class="form-group">
                             <label>File báo giá đã tạo</label><br>
                             <a href="{{ asset('storage/' . $file_path) }}" download>
-                                📄 Xem / Tải báo giá
+                                📄 Xem / Tải file Excel
                             </a>
                         </div>
                     @endif
+                    {{-- @if ($pdf_path) 
+                        <div class="form-group">
+                            <label>File Pdf báo giá đã tạo</label><br>
+                            <a href="{{ asset('storage/' . $pdf_path) }}" download>
+                                📄 Xem / Tải file Pdf
+                            </a>
+                        </div>
+                    @endif --}}
 
                     {{-- Danh sách thuốc --}}
                     <div class="form-group" x-data="{ search: '' }">
@@ -165,7 +173,14 @@
                                         <i class="fas fa-download"></i> Excel
                                     </a>
                                 @else
-                                    <span class="text-muted">Chưa có file</span>
+                                    <span class="text-muted">Excel Chưa có file</span>
+                                @endif
+                                @if ($r->pdf_path)
+                                    <a href="{{ route('banggia.downloadPdf', $r->id) }}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-download"></i> Pdf
+                                    </a>
+                                @else
+                                    <span class="text-muted">| Pdf Chưa có file</span>
                                 @endif
                             </td>
                             <td>{{ $r->created_at->format('d/m/Y') }}</td>
