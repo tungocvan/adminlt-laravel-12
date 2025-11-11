@@ -68,7 +68,7 @@
                     </div>
 
                     {{-- File báo giá --}}
-                    @if ($file_path)
+                    @if ($file_path) 
                         <div class="form-group">
                             <label>File báo giá đã tạo</label><br>
                             <a href="{{ asset('storage/' . $file_path) }}" download>

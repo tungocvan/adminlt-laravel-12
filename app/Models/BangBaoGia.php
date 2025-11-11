@@ -45,7 +45,7 @@ class BangBaoGia extends Model
                 $file = TnvMedicineHelper::exportWithTemplate([
                     'selectedId'    => $model->product_ids ?? [],
                     'customer_name' => $model->ten_khach_hang,
-                    'note'          => $model->ghi_chu,
+                    'note'          => $model->ghi_chu ?? '',
                     'company'       => $model->company ?? []
                 ]);
 

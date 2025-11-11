@@ -197,8 +197,10 @@ class BangGia extends Component
 
     public function render()
     {
+        $records = $this->records()->paginate($this->perPage);
+        //dd($records);
         return view('livewire.banggia.bang-gia', [
-            'records'   => $this->records()->paginate($this->perPage),
+            'records'   => $records,
             'medicines' => $this->medicines,
         ]);
     }
