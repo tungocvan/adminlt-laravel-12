@@ -21,3 +21,9 @@ Route::get('/baogia/{filename}', function ($filename) {
 
     return response()->download($path, $filename);
 });
+
+Route::get('/baogia/pdf/{file}', function ($file) {
+    $path = storage_path('app/public/baogia/pdf/' . $file);
+    if (!file_exists($path)) abort(404);
+    return response()->file($path);
+});
