@@ -3,8 +3,8 @@
         <h4>Quản lý Danh mục</h4>
         <button wire:click="openCreate" class="btn btn-primary mx-2">
             <i class="fa fa-plus"></i> Thêm mới
-        </button>        
-      
+        </button>
+
         @if (count($selectedCategories) > 0)
             <div x-data="{
                 confirmDelete() {
@@ -24,62 +24,53 @@
     </div>
     <div x-data="{ showInput: false, isExport: $wire.$entangle('isExport', true) }" class="row align-items-center my-2">
         <div class="col-md-12 d-flex align-items-center flex-wrap gap-2">
-    
+
             <!-- Export -->
             <template x-if="!showInput">
-                <button 
-                    @click="showInput = true; isExport = true" 
-                    class="btn btn-success btn-sm mr-2">
+                <button @click="showInput = true; isExport = true" class="btn btn-success btn-sm mr-2">
                     <i class="fa fa-download"></i> Export JSON
                 </button>
             </template>
-    
+
             <!-- Ô nhập tên file export -->
             <template x-if="showInput">
                 <div class="form-inline d-inline-flex align-items-center">
-                    <input type="text"
-                           wire:model="exportFileName"
-                           placeholder="categories.json"
-                           class="form-control form-control-sm mr-2 w-auto">
-                    
-                    <button wire:click="exportJson"
-                            @click="showInput = false; isExport = false"
-                            class="btn btn-primary btn-sm mr-1">
+                    <input type="text" wire:model="exportFileName" placeholder="categories.json"
+                        class="form-control form-control-sm mr-2 w-auto">
+
+                    <button wire:click="exportJson" @click="showInput = false; isExport = false"
+                        class="btn btn-primary btn-sm mr-1">
                         <i class="fa fa-save"></i> Lưu
                     </button>
-                    
-                    <button @click="showInput = false; isExport = false"
-                            class="btn btn-secondary btn-sm">
+
+                    <button @click="showInput = false; isExport = false" class="btn btn-secondary btn-sm">
                         Hủy
                     </button>
                 </div>
             </template>
-    
+
             <!-- Import (ẩn khi export đang bật) -->
             <template x-if="!isExport">
                 <div class="d-flex align-items-center">
-                     <!-- Nút phục hồi mặc định -->
-                <button wire:click="restoreDefault" class="btn btn-warning btn-sm mx-2">
-                    <i class="fa fa-undo"></i> Phục hồi mặc định
-                </button>
+                    <!-- Nút phục hồi mặc định -->
+                    <button wire:click="restoreDefault" class="btn btn-warning btn-sm mx-2">
+                        <i class="fa fa-undo"></i> Phục hồi mặc định
+                    </button>
                     <button wire:click="importJson" class="btn btn-info btn-sm mr-2">
                         <i class="fa fa-upload"></i> Import JSON
                     </button>
-                    <input type="file" 
-                           wire:model.live="importFile" 
-                           accept=".json" 
-                           class="form-control form-control-sm w-auto">
-                    
+                    <input type="file" wire:model.live="importFile" accept=".json"
+                        class="form-control form-control-sm w-auto">
+
                 </div>
-               
+
             </template>
-    
-            @error('importFile') 
-                <span class="text-danger text-sm ml-2">{{ $message }}</span> 
+
+            @error('importFile')
+                <span class="text-danger ml-2 text-sm">{{ $message }}</span>
             @enderror
         </div>
     </div>
-    
 
     @if (session()->has('message'))
         <div class="alert alert-success">
@@ -108,12 +99,17 @@
         </div>
 
         <div class="col-md-3">
-            <select wire:model.live="selectedParent" class="form-control">
+            {{-- <select wire:model.live="selectedParent" class="form-control">
                 <option value="">-- Chọn Menu gốc --</option>
                 @foreach ($parents as $p)
                     <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
                 @endforeach
-            </select>
+            </select> --}}
+            <x-components::tnv-categories wire:model.live="selectedParent" />
+
+            {{-- <livewire:components.tnv-categories model="selectedParent"/> --}}
+
+
         </div>
         <div class="col-md-4">
             <button wire:click="$set('filterType','')" class="btn btn-sm btn-secondary"
@@ -148,7 +144,7 @@
                 <th width="160">Thao tác</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody>         
             {!! \App\Helpers\TnvCategoryHelper::renderCategoryRows($categories) !!}
         </tbody>
     </table>

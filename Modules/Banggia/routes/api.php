@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\BangBaoGia;
+use Modules\Banggia\Http\Controllers\Api\BangBaoGiaController;
 
 Route::post('/bang-gia', function (Request $request) {
 
@@ -62,3 +63,6 @@ Route::post('/bang-gia', function (Request $request) {
         ], 500);
     }
 });
+
+Route::post('/bang-bao-gia', [BangBaoGiaController::class, 'store']);
+Route::get('/bang-bao-gia', [BangBaoGiaController::class, 'index']);

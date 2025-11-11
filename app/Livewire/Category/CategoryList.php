@@ -47,6 +47,7 @@ class CategoryList extends Component
     public $typeOptions = ['category' => 'Category', 'menu' => 'Menu']; // danh sách loại có sẵn
 
     public $selectedCategories = [];
+    
     public $selectAll = false;
     public $importFile;
     public $exportFileName = 'categories.json';
@@ -83,7 +84,7 @@ class CategoryList extends Component
             ->mapWithKeys(fn($t) => [$t => ucfirst($t)])
             ->toArray() ?: ['category' => 'Category'];
     }
-
+ 
     public function render()
     {
         $query = Category::query()
@@ -337,6 +338,7 @@ class CategoryList extends Component
     }
     public function updatedSelectedParent()
     {
+      
         $this->resetPage();
     }
 

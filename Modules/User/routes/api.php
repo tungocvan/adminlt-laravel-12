@@ -26,3 +26,7 @@ Route::controller(UserController::class)->group(function(){
     Route::put('users/{id}/app','updateApp');
 
 });
+
+Route::middleware('auth:sanctum')->get('/user', function () {
+    return auth()->user();
+});
