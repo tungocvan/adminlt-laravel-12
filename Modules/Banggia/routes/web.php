@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Banggia\Http\Controllers\BanggiaController;
 use App\Models\BangBaoGia;
+use  App\Helpers\TnvHelper;
 use Illuminate\Support\Facades\Storage;
 
 Route::middleware(['web','auth'])->prefix('/banggia')->name('banggia.')->group(function(){
@@ -19,7 +20,7 @@ Route::get('/baogia/{filename}', function ($filename) {
         abort(404, 'File not found.');
     }
 
-    return response()->download($path, $filename);
+    return TnvHelper::downloadFile($path, 'public'); // Gọi hàm static của bạn
 });
 
 Route::get('/baogia/pdf/{file}', function ($file) {
