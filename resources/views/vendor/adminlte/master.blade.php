@@ -98,7 +98,8 @@
         <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('vendor/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
         <script src="{{ asset('vendor/adminlte/dist/js/adminlte.min.js') }}"></script>
-        <script src="{{ asset('js/alertUser.js') }}"></script>
+        <script src="{{ asset('js/notifications.js') }}"></script>
+
 
     @else
         <script src="{{ mix(config('adminlte.laravel_mix_js_path', 'js/app.js')) }}"></script>

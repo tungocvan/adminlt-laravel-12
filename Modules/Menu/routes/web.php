@@ -12,6 +12,7 @@ Route::middleware(['web','auth'])->prefix('/menu')->name('menu.')->group(functio
 Route::middleware(['web','auth'])->group(function(){
     Route::get('user-notify', [NotificationsController::class, 'index']);
     Route::get('notifications/get',[NotificationsController::class, 'getNotificationsData'])->name('notifications.get');
+    Route::post('/notifications/read/{id}', [NotificationsController::class, 'markAsRead'])->name('notifications.read');
     Route::get('language/get',[NotificationsController::class, 'getLanguage'])->name('language.get');
     Route::get('lang/{lang}', function ($lang) {
         if (!in_array($lang, ['en', 'vi'])) {

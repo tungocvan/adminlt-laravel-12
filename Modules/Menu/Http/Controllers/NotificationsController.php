@@ -38,27 +38,43 @@ class NotificationsController extends Controller
         $dropdownHtml = '';
         foreach ($notifications as $key => $alert) {
             $icon = "<i class='mr-2 fas fa-bell'></i>";
-            $time = "<span class='float-right text-muted text-sm'>"
-                    . $alert->created_at->diffForHumans()
-                    . "</span>";
+            $time = "<span class='float-right text-muted text-sm'>{$alert->created_at->diffForHumans()}</span>";
 
-            $dropdownHtml .= "<a href='#' class='dropdown-item'>
+            $dropdownHtml .= "<a href='#' class='dropdown-item alert-item' data-id='{$alert->id}'>
                                 {$icon}{$alert->title}{$time}
-                              </a>";
+                            </a>";
 
             if ($key < $notifications->count() - 1) {
                 $dropdownHtml .= "<div class='dropdown-divider'></div>";
             }
         }
 
-        return [
+        return response()->json([
             'label' => $notifications->count(),
             'label_color' => 'danger',
             'icon_color' => 'dark',
             'dropdown' => $dropdownHtml,
-        ];
+        ]);
     }
-    
+
+    public function markAsRead(Request $request, $id)
+    {
+        $user = $request->user();
+
+        $alert = AlertUser::where('user_id', $user->id)
+            ->where('id', $id)
+            ->first();
+
+        if (!$alert) {
+            return response()->json(['success' => false, 'message' => 'Notification not found'], 404);
+        }
+
+        $alert->update(['is_read' => true]);
+
+        return response()->json(['success' => true]);
+    }
+
+
     public function getLanguageData(Request $request){
         $notifications = [
             [

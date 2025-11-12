@@ -1,6 +1,5 @@
-<nav class="main-header navbar
-    {{ config('adminlte.classes_topnav_nav', 'navbar-expand') }}
-    {{ config('adminlte.classes_topnav', 'navbar-white navbar-light') }}">
+<nav
+    class="main-header navbar {{ config('adminlte.classes_topnav_nav', 'navbar-expand') }} {{ config('adminlte.classes_topnav', 'navbar-white navbar-light') }}">
 
     {{-- Navbar left links --}}
     <ul class="navbar-nav">
@@ -15,6 +14,7 @@
     </ul>
 
     {{-- Navbar right links --}}
+    {{-- Navbar right links --}}
     <ul class="navbar-nav ml-auto">
         {{-- Custom right links --}}
         @yield('content_top_nav_right')
@@ -22,9 +22,13 @@
         {{-- Configured right links --}}
         @each('adminlte::partials.navbar.menu-item', $adminlte->menu('navbar-right'), 'item')
 
+        
+          {{-- Notification dropdown --}}
+
+
         {{-- User menu link --}}
-        @if(Auth::user())
-            @if(config('adminlte.usermenu_enabled'))
+        @if (Auth::user())
+            @if (config('adminlte.usermenu_enabled'))
                 @include('adminlte::partials.navbar.menu-item-dropdown-user-menu')
             @else
                 @include('adminlte::partials.navbar.menu-item-logout-link')
@@ -32,14 +36,14 @@
         @endif
 
         {{-- Right sidebar toggler link --}}
-        @if(config('adminlte.right_sidebar'))
+        @if (config('adminlte.right_sidebar'))
             @include('adminlte::partials.navbar.menu-item-right-sidebar-toggler')
         @endif
-                {{-- Custom topnav menu items (your custom dropdown like language switcher) --}}
-                @if(config('adminlte.custom_menu', false))
-                @includeIf('adminlte::partials.navbar.custom')
-            @endif
-    
+
+        {{-- Custom topnav menu items --}}
+        @if (config('adminlte.custom_menu', false))
+            @includeIf('adminlte::partials.navbar.custom')
+        @endif
     </ul>
 
 </nav>
