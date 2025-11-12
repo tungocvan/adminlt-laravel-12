@@ -68,5 +68,9 @@ class User extends Authenticatable
     {
         return $this->morphMany(Option::class, 'optionable');
     } 
+        public function alerts()
+    {
+        return $this->hasMany(AlertUser::class);
+    }
 
-}
+}   

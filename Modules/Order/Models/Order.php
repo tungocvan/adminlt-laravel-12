@@ -10,6 +10,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Mail\OrderCreatedMail;
 use App\Mail\OrderConfirmedMail; // tạo mail mới kèm link PDF
 use App\Models\User;
+use App\Models\AlertUser;
 use Modules\Medicine\Models\MedicineStock;
 
 class Order extends Model
@@ -28,6 +29,14 @@ class Order extends Model
         static::created(function ($order) {
             if (config('app.order_create') === true && $order->status === 'pending') {
                 Mail::to($order->email)->queue(new OrderCreatedMail($order));
+            }
+            $admins = User::all();
+            foreach ($admins as $admin) {
+                AlertUser::create([
+                    'user_id' => $admin->id,
+                    'title'   => 'Đơn hàng mới #' . $order->id,
+                    'content' => 'Một đơn hàng mới đã được tạo với status: ' . $order->status,
+                ]);
             }
         });
 

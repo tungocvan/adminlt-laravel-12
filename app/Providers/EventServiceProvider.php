@@ -14,6 +14,9 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\UserRegistered::class => [
             \App\Listeners\SendWelcomeEmail::class,
         ],
+        \App\Events\AlertUserCreated::class => [
+              \App\Listeners\DispatchAlertToLivewire::class,
+         ],
     ];
 
     /**
@@ -22,5 +25,6 @@ class EventServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
+       
     }
 }

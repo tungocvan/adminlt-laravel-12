@@ -2,14 +2,14 @@ import Echo from "laravel-echo";
 import { io } from "socket.io-client";
 
 // Khởi tạo trực tiếp client
-const socket = io("https://node.tungocvan.com", {
+const socket = io("https://node.laravel.tk", {
     transports: ["websocket", "polling"],
     withCredentials: false,
 });
 
 window.io = io;
 // Tạo socket client toàn cục
-window.socket = io("https://node.tungocvan.com", {
+window.socket = io("https://node.laravel.tk", {
     transports: ["websocket", "polling"],
 });
 
@@ -17,7 +17,7 @@ window.socket = io("https://node.tungocvan.com", {
 window.Echo = new Echo({
     broadcaster: "socket.io",
     client: io,
-    host: "https://node.tungocvan.com",
+    host: "https://node.laravel.tk",
 });
 
 socket.on("connect", () => {

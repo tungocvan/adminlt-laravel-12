@@ -46,6 +46,11 @@ class NotificationsController extends Controller
                 'text' => rand(0, 10) . ' new reports',
                 'time' => rand(0, 60) . ' minutes',
             ],
+            [
+                'icon' => 'fas fa-fw fa-file text-danger',
+                'text' => rand(0, 10) . ' new reports2',
+                'time' => rand(0, 60) . ' minutes',
+            ],
         ];
 
         // Now, we create the notification dropdown main content.
