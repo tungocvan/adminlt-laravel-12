@@ -1,6 +1,6 @@
 <div>
     <!-- Livewire component: TestList -->
-    <h2 class="text-red">test list</h2>
+    <h2 class="text-red">test list1</h2>
 </div>
 
 @push('css')

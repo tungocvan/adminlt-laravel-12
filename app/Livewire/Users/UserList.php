@@ -25,7 +25,7 @@ class UserList extends Component
     public $sortField = 'id';
     public $sortDirection = 'asc';
 
-    // Selection
+    // Selection 
     public $selectedUsers = [];
     public $selectAll = false;
 
