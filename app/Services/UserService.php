@@ -396,6 +396,45 @@ class UserService
     // -----------------------------
     // 5️⃣ PROFILE & SHIPPING
     // -----------------------------
+    public static function updateGmail(int $userId, array $info_gmail)
+    {
+        $user = User::find($userId);
+
+        if (!$user) {
+            return [
+                'status' => 'error',
+                'message' => '❌ Không tìm thấy người dùng.'
+            ];
+        }
+
+        // Email đã được xác thực từ user
+        $email = $user->email;
+        $name =  $user->name;
+        // Chuẩn bị thông tin Gmail
+        $gmailInfo = [
+            'email' => $email,
+            'password' => $info_gmail['password'] ?? null,
+            'name' => $name,
+            'updated_at' => now()->toDateTimeString(),
+        ];
+
+        // Kiểm tra có password không
+        if (empty($gmailInfo['password'])) {
+            return [
+                'status' => 'error',
+                'message' => '⚠️ Bạn cần cung cấp mật khẩu ứng dụng Gmail (App Password).'
+            ];
+        }
+
+        // Lưu qua setOption (mã hoá tự động)
+        $user->setOption('gmail', $gmailInfo);
+
+        return [
+            'status' => 'success',
+            'message' => '✅ Đã cập nhật thông tin Gmail cho người dùng: ' . $email,
+            'data' => $gmailInfo,
+        ];
+    }
 
     public static function updateProfile(int $userId, array $profile)
     {

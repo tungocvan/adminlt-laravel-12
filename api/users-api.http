@@ -6,6 +6,10 @@
 #   "id":1
 # }
 
+GET https://adminlt.laravel.tk/api/users/1
+Accept: application/json
+Content-Type: application/json
+
 # PUT https://adminlt.laravel.tk/api/users/1
 # Accept: application/json
 # Content-Type: application/json
@@ -32,6 +36,6 @@
 #     ]
 # }
 
-GET https://adminlt.laravel.tk/api/bang-bao-gia
-Accept: application/json
-Content-Type: application/json
+# GET https://adminlt.laravel.tk/api/bang-bao-gia
+# Accept: application/json
+# Content-Type: application/json

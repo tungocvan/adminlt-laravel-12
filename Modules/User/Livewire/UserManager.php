@@ -4,6 +4,7 @@ namespace Modules\User\Livewire;
 
 
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
@@ -21,10 +22,29 @@ class UserManager extends Component
     public $sortField = 'id';
     public $sortDirection = 'asc';
     
+    // Modal states
+    public $isEdit = false;
+     // Role
+    public $role = null; // for create/edit
+    public $selectedRoleId = null; // for role modal
+
+    public $user = [
+        'userId' => null,
+        'name' => null,
+        'username' => null,
+        'email' => null,
+        'password' => null,
+        'birthdate' => null,
+        'google_id' => null,
+        'referral_code' => null,
+        'is_admin' => 0
+    ];
+
     public function render()
     {
         return view('User::livewire.user-manager',[
             'users' => $this->users,
+            'roles' => $this->roles,
         ]);
     }
 
@@ -48,6 +68,11 @@ class UserManager extends Component
      
     }
 
+    public function getRolesProperty()
+    {
+        return Role::orderBy('name')->pluck('name', 'id')->toArray();
+    }
+
     public function toggleSelectAll()
     {       
         $this->selected = $this->selectAll ? $this->users->pluck('id')->toArray() : [];
@@ -63,13 +88,28 @@ class UserManager extends Component
     public function edit($id)
     {
         // xử lý edit $id 
-        dd($id);
+
+        $user = User::find($id);
+        if (!$user) {
+            session()->flash('error', 'Không tìm thấy người dùng!');
+            return;
+        }
+        dd($user);
     }
     public function delete($id)
     {
         // xử lý delete $id
         dd($id);
     }
+    public function save()
+    {
+        // xử lý delete $id
+        dd($this->user);
+    }
+    public function updateUser(){
+        dd($this->user);
+    }
+
     public function approveUser($id)
     {
         // xử lý delete $id
@@ -89,12 +129,19 @@ class UserManager extends Component
     }
     public function openModal()
     {
-        dd('openModal new/edit');
+        //dd('openModal new/edit');        
         // bắn sự kiện về để mở modal
+       // $this->resetForm();
+        $this->dispatch('show-modal-user');
     }
     public function deleteSelected()
     {
         dd($this->selected);
         // bắn sự kiện về để mở modal
+    }
+    #[On('reset-form')]
+    public function resetForm()
+    {
+        $this->reset($this->user);
     }
 } 

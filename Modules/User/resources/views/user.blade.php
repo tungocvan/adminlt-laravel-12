@@ -6,8 +6,8 @@
 @stop
 
 @section('content')
-      {{-- @livewire('users.user-list') --}}
-      @livewire('user.user-manager')
+      @livewire('users.user-list')
+      {{-- @livewire('user.user-manager') --}}
 @stop
 
 @section('css')

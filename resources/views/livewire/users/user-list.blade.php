@@ -16,14 +16,7 @@
             <div class="row mb-3">
                 <div class="col-md-4">
                     <div class="input-group input-group-sm">
-                        <div class="mr-2" style="width:100px">
-                            <select wire:key="per-page-select" wire:model.live="perPage"
-                                class="form-control form-control-sm" wire:ignore.self>
-                                <option value="5">Hiển thị 5</option>
-                                <option value="10">Hiển thị 10</option>
-                                <option value="50">Hiển thị 50</option>
-                            </select>
-                        </div>
+                       
                         <input type="text" wire:model.live.debounce.300ms="search" class="form-control"
                             placeholder="Tìm kiếm...">
 
@@ -143,9 +136,20 @@
             </div>
 
             {{-- Pagination --}}
-            <div class="d-flex justify-content-end mt-3">
-                {{ $users->links('pagination::bootstrap-4') }}
-            </div>
+    <div class="row mt-2">
+        <div class="col-md-1">
+            <select wire:key="per-page-select" wire:model.live="perPage" class="form-control form-control-sm"
+                wire:ignore.self>
+                <option value="5">Hiển thị 5</option>
+                <option value="10">Hiển thị 10</option>
+                <option value="50">Hiển thị 50</option>
+            </select>
+        </div>
+        <div class="col-md-11">
+            {{ $users->links() }}
+        </div>
+
+    </div>
         </div>
     </div>
     @include('livewire.users.user-form')    

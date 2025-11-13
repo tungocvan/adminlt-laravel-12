@@ -126,14 +126,53 @@
         </div>
 
     </div>
+    @include('User::livewire.user-form') 
 </div>
-@push('css')
-    <style>
+@push('js')
+    {{-- JS để show/hide modal + fix perPage select --}}
+    <script>
+        document.addEventListener('livewire:init', () => {
+            // Show / hide modal
+            document.addEventListener('show-modal-user', () => {
+                $('#modalUser').modal({
+                    backdrop: 'static',
+                    keyboard: false,
+                }).modal('show');
+            });
+            document.addEventListener('refreshUsers', () => {
+                $('#modalUser').modal('hide');
+            });
+            document.addEventListener('show-modal-role', () => {
+                $('#modalRole').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                }).modal('show');
+            });
+            document.addEventListener('modalRole', () => {
+                $('#modalRole').modal('hide');
+            });
 
-    </style>
+            $('[data-dismiss="modal"]').on('click', function() {
+                $(this).closest('.modal').modal('hide');          
+                Livewire.dispatch('reset-form');    
+            });
+
+            document.addEventListener('open-print-window', event => {
+                let newWindow = window.open('', '_blank');
+                if (newWindow) {
+                    let decodedHtml = atob(event.detail[0].url.split(',')[1]); // Giải mã base64
+                    newWindow.document.open();
+                    newWindow.document.write(decodedHtml);
+                    newWindow.document.close();
+                    newWindow.print();
+                    setTimeout(() => newWindow.close(), 1000); // Đóng sau khi in
+                } else {
+                    alert('Trình duyệt chặn popup! Hãy kiểm tra cài đặt.');
+                }
+            });
+
+            
+
+        });
+    </script>
 @endpush
-@section('css')
-    <style>
-
-    </style>
-@endsection

@@ -7,19 +7,15 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Helpers\TnvUserHelper;
 use App\Services\UserService;
+//use App\Services\UserMailService;
+use App\Jobs\SendUserMailJob;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
         // 🔹 Lấy params từ query string
-        $params = $request->only([
-            'id', 'email', 'is_admin', 'referral_code', 'status',
-            'search', 'birthdate', 'birthdate_from', 'birthdate_to',
-            'created_at', 'created_at_from', 'created_at_to',
-            'updated_at', 'updated_at_from', 'updated_at_to',
-            'sort_by', 'sort_order', 'type', 'per_page',
-        ]);
+        $params = $request->only(['id', 'email', 'is_admin', 'referral_code', 'status', 'search', 'birthdate', 'birthdate_from', 'birthdate_to', 'created_at', 'created_at_from', 'created_at_to', 'updated_at', 'updated_at_from', 'updated_at_to', 'sort_by', 'sort_order', 'type', 'per_page']);
 
         // 🔹 Keyword fields cho search
         $params['keyword_fields'] = ['name', 'email'];
@@ -30,8 +26,8 @@ class UserController extends Controller
         // 🔹 Chuẩn hóa response JSON
         return response()->json([
             'success' => true,
-            'data'    => $users,
-            'meta'    => method_exists($users, 'toArray') ? $users->toArray() : null,
+            'data' => $users,
+            'meta' => method_exists($users, 'toArray') ? $users->toArray() : null,
         ]);
     }
 
@@ -45,10 +41,13 @@ class UserController extends Controller
         $users = TnvUserHelper::getUsers($params);
 
         if ($users->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found',
-            ], 404);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'User not found',
+                ],
+                404,
+            );
         }
 
         $user = $users->first();
@@ -196,6 +195,28 @@ class UserController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $result,
+        ]);
+    }
+
+    public function send(Request $request)
+    {
+        $user = $request->user();
+
+        $data = $request->validate([
+            'to' => 'required',
+            'subject' => 'required|string|max:255',
+            'body' => 'nullable|string',
+            'html' => 'nullable|string',
+            'cc' => 'nullable|array',
+            'bcc' => 'nullable|array',
+            'attachments' => 'nullable|array',
+        ]);
+
+        SendUserMailJob::dispatch($user, $data['to'], $data['subject'], $data['body'] ?? null, $data['html'] ?? null, $data['cc'] ?? [], $data['bcc'] ?? [], $data['attachments'] ?? []);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Mail đã được đưa vào queue, worker sẽ gửi.'
         ]);
     }
 }

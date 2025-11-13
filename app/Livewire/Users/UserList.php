@@ -33,7 +33,7 @@ class UserList extends Component
     public $isEdit = false;
 
     // User fields
-    public $userId = null;
+    public $userId = null; 
     public $name;
     public $username;
     public $email;

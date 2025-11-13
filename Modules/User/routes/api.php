@@ -30,3 +30,26 @@ Route::controller(UserController::class)->group(function(){
 Route::middleware('auth:sanctum')->get('/user', function () {
     return auth()->user();
 });
+
+Route::middleware('auth:sanctum')->post('/user/send-mail', [UserController::class, 'send']);
+
+Route::get('/debug/symfony-mailer', function () {
+
+$classes = [
+    'HtmlPart' => \Symfony\Component\Mime\Part\HtmlPart::class,
+    'TextPart' => \Symfony\Component\Mime\Part\TextPart::class,
+    'Message'  => \Symfony\Component\Mime\Message::class,
+];
+
+$result = [];
+
+foreach ($classes as $name => $class) {
+    $result[$name] = class_exists($class) ? '✅ exists' : '❌ not found';
+}
+
+// PHP version & loaded extensions
+$result['PHP Version'] = phpversion();
+$result['Loaded Extensions'] = get_loaded_extensions();
+
+    return response()->json($result);
+});
