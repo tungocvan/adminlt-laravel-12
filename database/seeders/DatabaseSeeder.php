@@ -20,10 +20,10 @@ class DatabaseSeeder extends Seeder
             CreateAdminUserSeeder::class,        
             VnAdministrativeUnitSeeder::class
         ]);
-        Artisan::call('import:danhmuc', [
-            'path' => 'database/seeders/data/nhom_thuoc.json',
-        ]);
-        Artisan::call('import:danhmucthuoc');
+        // Artisan::call('import:danhmuc', [
+        //     'path' => 'database/seeders/data/nhom_thuoc.json',
+        // ]);
+        // Artisan::call('import:danhmucthuoc');
       
     }
 }
