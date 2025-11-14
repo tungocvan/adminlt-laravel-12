@@ -55,6 +55,7 @@ class UserList extends Component
         'id_number' => '',
         'job' => '',
         'bio' => '',
+        'mail_password' => ''
     ];
 
     public $shipping_info = [

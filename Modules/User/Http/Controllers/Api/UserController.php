@@ -212,11 +212,15 @@ class UserController extends Controller
             'attachments' => 'nullable|array',
         ]);
 
+        if (isset($data['html'])) {
+            $data['html'] = html_entity_decode($data['html'], ENT_QUOTES, 'UTF-8');
+        }
         SendUserMailJob::dispatch($user, $data['to'], $data['subject'], $data['body'] ?? null, $data['html'] ?? null, $data['cc'] ?? [], $data['bcc'] ?? [], $data['attachments'] ?? []);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Mail đã được đưa vào queue, worker sẽ gửi.'
+            'message' => 'Mail đã được đưa vào queue, worker sẽ gửi.',
+            'html' => $data['html'] 
         ]);
     }
 }

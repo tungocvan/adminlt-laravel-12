@@ -2,33 +2,12 @@
 
 namespace App\Services;
 
+use App\Mail\UserHtmlMail;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Mail\Message;
-use Illuminate\Support\Facades\View;
-
-// Symfony Mime Parts
-use Symfony\Component\Mime\Part\TextPart;
-use Symfony\Component\Mime\Part\HtmlPart;
 
 class UserMailService
 {
-    /**
-     * Gửi mail bằng Gmail của user, fallback khi HtmlPart không tồn tại
-     *
-     * @param \App\Models\User $user
-     * @param string|array $to
-     * @param string $subject
-     * @param string|null $body
-     * @param string|null $html
-     * @param array $cc
-     * @param array $bcc
-     * @param array $attachments
-     * @param string|null $bladeTemplate
-     * @param array $bladeData
-     *
-     * @return array
-     */
     public static function sendUserMail(
         $user,
         $to,
@@ -40,77 +19,65 @@ class UserMailService
         array $attachments = [],
         ?string $bladeTemplate = null,
         array $bladeData = []
-    ) {
-        $gmail = $user->getOption('gmail');
+    ): array {
+        
+        $gmail = $user->getOption('profile');
 
-        if (!$gmail || empty($gmail['password'])) {
-            return [
-                'status' => 'error',
-                'message' => 'User chưa cấu hình Gmail hoặc thiếu mật khẩu ứng dụng.'
-            ];
+        if (!$gmail || empty($gmail['mail_password'])) {
+            return self::error("User chưa cấu hình Gmail hoặc thiếu mật khẩu ứng dụng.");
         }
 
-        // Cấu hình mailer runtime cho user
+        // Cấu hình mailer runtime
+        self::configureUserMailer($user->email, $gmail['mail_password']);
+
+        try {
+            $email = new UserHtmlMail(
+                subjectLine:  $subject,
+                htmlContent:  $html,
+                textContent:  $body,
+                template:     $bladeTemplate,
+                templateData: $bladeData,
+                fileAttachments: $attachments 
+            );
+
+            Mail::mailer('user_gmail')
+                ->to($to)
+                ->cc($cc)
+                ->bcc($bcc)
+                ->send($email);
+
+            return self::success("Mail đã gửi thành công!");
+
+        } catch (\Exception $e) {
+            return self::error("Lỗi khi gửi mail: " . $e->getMessage());
+        }
+    }
+
+
+
+    // ============================
+    // HÀM HỖ TRỢ
+    // ============================
+
+    private static function configureUserMailer(string $email, string $appPass): void
+    {
         Config::set('mail.mailers.user_gmail', [
             'transport'  => 'smtp',
             'host'       => 'smtp.gmail.com',
             'port'       => 587,
             'encryption' => 'tls',
-            'username'   => $gmail['email'],
-            'password'   => $gmail['password'],
-            'timeout'    => null,
-            'auth_mode'  => null,
+            'username'   => $email,        // Gmail yêu cầu
+            'password'   => $appPass,      // App Password
         ]);
+    }
 
-        try {
-            Mail::mailer('user_gmail')->send([], [], function (Message $message) use (
-                $to, $subject, $body, $html, $cc, $bcc, $attachments, $gmail, $bladeTemplate, $bladeData
-            ) {
-                $message->to($to);
-                if (!empty($cc)) $message->cc($cc);
-                if (!empty($bcc)) $message->bcc($bcc);
+    private static function success(string $msg): array
+    {
+        return ['status' => 'success', 'message' => $msg];
+    }
 
-                $message->from($gmail['email'], $gmail['name'] ?? $gmail['email']);
-                $message->subject($subject);
-
-                // Nội dung mail
-                $htmlContent = null;
-                if ($bladeTemplate) {
-                    $htmlContent = View::make($bladeTemplate, $bladeData)->render();
-                } elseif ($html) {
-                    $htmlContent = $html;
-                }
-
-                // Chọn Part phù hợp
-                if (class_exists(HtmlPart::class) && $htmlContent) {
-                    $message->setBody(new HtmlPart($htmlContent, 'utf-8'));
-                } elseif ($htmlContent) {
-                    // fallback: dùng TextPart nếu HtmlPart không tồn tại
-                    $message->setBody(new TextPart($htmlContent, 'utf-8'));
-                } elseif ($body) {
-                    $message->setBody(new TextPart($body, 'utf-8'));
-                } else {
-                    $message->setBody(new TextPart('No content', 'utf-8'));
-                }
-
-                // Đính kèm
-                foreach ($attachments as $filePath) {
-                    if (file_exists($filePath)) {
-                        $message->attach($filePath);
-                    }
-                }
-            });
-
-            return [
-                'status' => 'success',
-                'message' => 'Mail đã gửi thành công đến: ' . (is_array($to) ? implode(', ', $to) : $to)
-            ];
-
-        } catch (\Exception $e) {
-            return [
-                'status' => 'error',
-                'message' => 'Lỗi khi gửi mail: ' . $e->getMessage()
-            ];
-        }
+    private static function error(string $msg): array
+    {
+        return ['status' => 'error', 'message' => $msg];
     }
 }

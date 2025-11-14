@@ -33,5 +33,10 @@
             <textarea id="bio" class="form-control" placeholder="Bio"
                 wire:model.defer="profile.bio"></textarea>
         </div>
+        <div class="form-group">
+            <label for="bio">Mail Password</label>
+            <textarea id="bio" class="form-control" placeholder="mail_password"
+                wire:model.defer="profile.mail_password"></textarea>
+        </div>
     </div>
 </div>
