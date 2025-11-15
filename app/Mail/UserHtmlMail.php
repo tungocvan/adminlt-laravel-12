@@ -38,35 +38,50 @@ class UserHtmlMail extends Mailable
 
     public function build()
     {
-        // ✅ Render template nếu có
+        // Render template nếu có
+        
+      
         if ($this->template) {
             $this->htmlContent = View::make($this->template, $this->templateData)->render();
         }
 
         $finalHtml = $this->htmlContent ?? ($this->textContent ?? 'No content');
-
-        // ✅ Khởi tạo email với view raw-html
+      
+        // Khởi tạo email với view raw-html
         $email = $this->view('emails.raw-html', [
             'html' => $finalHtml
-        ])->subject($this->subject ?? 'No Subject');
-
-        // ✅ Xử lý attachments
-        if (!empty($this->fileAttachments)) {
-            foreach ($this->fileAttachments as $file) {
-                // Trường hợp file là mảng base64 ['name','content','mime']
-                if (is_array($file) && isset($file['content'], $file['name'], $file['mime'])) {
-                    $email->attachData(base64_decode($file['content']), $file['name'], [
-                        'mime' => $file['mime'],
-                    ]);
-                } 
-                // Trường hợp file là local path string
-                elseif (is_string($file) && file_exists($file)) {
+        ])->subject($this->subjectLine ?? 'No Subject');
+     
+        // Xử lý attachments
+        foreach ($this->fileAttachments as $file) {
+            // Base64 array
+            if (is_array($file) && isset($file['content'], $file['name'], $file['mime'])) {
+                $email->attachData(
+                    base64_decode($file['content']),
+                    $file['name'],
+                    ['mime' => $file['mime']]
+                );
+            } 
+            // Local path string
+            elseif (is_string($file)) {
+                if (file_exists($file)) {
                     $email->attach($file);
+                } else {
+                    \Log::warning('Local attachment path not found');
                 }
+            }
+            // Bỏ qua mọi thứ khác, log ra để debug
+            else {
+                \Log::warning('Skipped invalid attachment (not base64 array or string path)', [
+                    'file' => $file,
+                    'type' => gettype($file)
+                ]);
             }
         }
 
+
         return $email;
     }
+
 
 }

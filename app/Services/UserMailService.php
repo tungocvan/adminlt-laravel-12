@@ -26,7 +26,7 @@ class UserMailService
         if (!$gmail || empty($gmail['mail_password'])) {
             return self::error("User chưa cấu hình Gmail hoặc thiếu mật khẩu ứng dụng.");
         }
-
+  
         // Cấu hình mailer runtime
         self::configureUserMailer($user->email, $gmail['mail_password']);
 

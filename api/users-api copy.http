@@ -49,7 +49,7 @@
 # Accept: application/json
 # Content-Type: application/json
 
-POST https://adminlt.laravel.tk/api/user/send-mail
+POST https://adminlt.tungocvan.com/api/user/send-mail
 Headers: 
 Authorization: Bearer 70|6LFThkgkCwYKWeiO5kLT7ru6Wi95rsP4yn8UFRUG941aec98
 Accept: application/json
@@ -58,7 +58,8 @@ Content-Type: application/json
 {  
   "to": "hamadaqc01@gmail.com",
   "subject": "Test Queue Mail",
-  "html": "<h1>Hello</h1><p>This is a test</p>"
+  "html": "<h1>Hello</h1><p>This is a test</p>",
+  "attachments": ["https://adminlt.tungocvan.com/baogia/pdf/BangBaoGia_30.pdf"]
 }
 
 # php artisan user:sendmail 2 --to="hamadaqc01@gmail.com" --subject="Test Queue Mail" --html="<b>Hello HTML</b>"

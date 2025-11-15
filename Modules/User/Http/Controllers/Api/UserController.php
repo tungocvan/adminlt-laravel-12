@@ -238,6 +238,7 @@ class UserController extends Controller
             'status' => 'success',
             'message' => 'Mail đã được đưa vào queue, worker sẽ gửi.',
             'user' => $user ?? null,
+            'attachments' => $attachments,
             'attachments_count' => count($attachments),
         ]);
     }
