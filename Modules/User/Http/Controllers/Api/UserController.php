@@ -236,7 +236,7 @@ class UserController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Mail đã được đưa vào queue, worker sẽ gửi.',
-            'html' => $data['html'] ?? null,
+            'user' => $user ?? null,
             'attachments_count' => count($attachments),
         ]);
     }

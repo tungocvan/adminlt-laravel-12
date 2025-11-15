@@ -1,0 +1,64 @@
+# POST https://adminlt.tungocvan.com/api/login
+# Accept: application/json
+# Content-Type: application/json
+
+# {
+#     "email" : "tungocvan1@gmail.com",
+#     "password" : "123456"
+# }
+
+# POST https://adminlt.laravel.tk/api/users
+# Accept: application/json
+# Content-Type: application/json
+
+# {
+#   "id":1
+# }
+
+# GET https://adminlt.laravel.tk/api/users/3
+# Accept: application/json
+# Content-Type: application/json
+
+# PUT https://adminlt.laravel.tk/api/users/1
+# Accept: application/json
+# Content-Type: application/json
+
+# {
+#   "birthdate": "25/09/1978"
+# }
+
+# POST https://adminlt.laravel.tk/api/bang-gia
+# Accept: application/json
+# Content-Type: application/json
+
+# {
+#     "user_id" : 1,
+#     "product_ids" : [4,5,6],
+#     "ten_khach_hang" : "Quý Bệnh Viện",
+#     "ghi_chu"        : "",
+#     "company":  [
+#         {
+#             "title" : "Bảng Báo giá",
+#             "date":"11/11/2025",
+#             "departments":"Từ Ngọc Vân"
+#         }
+#     ]
+# }
+
+# GET https://adminlt.laravel.tk/api/bang-bao-gia
+# Accept: application/json
+# Content-Type: application/json
+
+POST https://adminlt.laravel.tk/api/user/send-mail
+Headers: 
+Authorization: Bearer 70|6LFThkgkCwYKWeiO5kLT7ru6Wi95rsP4yn8UFRUG941aec98
+Accept: application/json
+Content-Type: application/json
+
+{  
+  "to": "hamadaqc01@gmail.com",
+  "subject": "Test Queue Mail",
+  "html": "<h1>Hello</h1><p>This is a test</p>"
+}
+
+# php artisan user:sendmail 2 --to="hamadaqc01@gmail.com" --subject="Test Queue Mail" --html="<b>Hello HTML</b>"
