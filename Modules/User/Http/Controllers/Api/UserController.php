@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Helpers\TnvUserHelper;
 use App\Services\UserService;
 //use App\Services\UserMailService;
+use Illuminate\Support\Facades\Http;
 use App\Jobs\SendUserMailJob;
 
 class UserController extends Controller
@@ -201,7 +202,7 @@ class UserController extends Controller
     public function send(Request $request)
     {
         $user = $request->user() ?? [];
-        \Log::error("info user:". $user );
+        // \Log::error("info user:". $user );
         // Validate request
         $data = $request->validate([
             'to' => 'required',
@@ -248,6 +249,7 @@ class UserController extends Controller
         foreach ($attachments as $url) {
             try {
                 $response = Http::timeout(10)->get($url); // timeout 10s
+
                 if ($response->ok()) {
                     $content = $response->body();
 
