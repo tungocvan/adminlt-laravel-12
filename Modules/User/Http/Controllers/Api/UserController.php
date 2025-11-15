@@ -9,6 +9,8 @@ use App\Helpers\TnvUserHelper;
 use App\Services\UserService;
 //use App\Services\UserMailService;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use App\Jobs\SendUserMailJob;
 
 class UserController extends Controller
@@ -220,19 +222,10 @@ class UserController extends Controller
         }
 
         // Xử lý attachments URL → base64
-        $attachments = $this->processAttachments($data['attachments'] ?? []);
-
+       $attachments = $this->processAttachments($data['attachments'] ?? []);
+    
         // Dispatch mail job
-        SendUserMailJob::dispatch(
-            $user,
-            $data['to'],
-            $data['subject'],
-            $data['body'] ?? null,
-            $data['html'] ?? null,
-            $data['cc'] ?? [],
-            $data['bcc'] ?? [],
-            $attachments
-        );
+       SendUserMailJob::dispatch($user, $data['to'], $data['subject'], $data['body'] ?? null, $data['html'] ?? null, $data['cc'] ?? [], $data['bcc'] ?? [], $attachments);
 
         return response()->json([
             'status' => 'success',
@@ -243,36 +236,76 @@ class UserController extends Controller
         ]);
     }
 
-    private function processAttachments(array $attachments): array
-    {
-        $result = [];
 
-        foreach ($attachments as $url) {
-            try {
-                $response = Http::timeout(30)->get($url); // tăng timeout
-                if ($response->ok()) {
-                    $content = $response->body();
+private function processAttachments(array $attachments): array
+{
+    $result = [];
 
-                    $extension = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
-                    $mime = match(strtolower($extension)) {
-                        'pdf' => 'application/pdf',
-                        default => 'application/octet-stream',
-                    };
+    foreach ($attachments as $file) {
+        try {
+            // Nếu là URL
+            if (filter_var($file, FILTER_VALIDATE_URL)) {
+                // Check nếu URL nằm trên cùng server và trỏ tới storage/public
+                $parsedUrl = parse_url($file, PHP_URL_PATH);
+                $storagePath = str_replace('/storage/', '', $parsedUrl); // giả sử dùng storage symlink
+                $localDiskPath = storage_path("app/public/$storagePath");
 
-                    $result[] = [
-                        'name' => basename(parse_url($url, PHP_URL_PATH)) ?: Str::random(8),
-                        'content' => base64_encode($content),
-                        'mime' => $mime,
-                    ];
+                if (file_exists($localDiskPath)) {
+                    $content = file_get_contents($localDiskPath);
+                    $name = basename($localDiskPath);
                 } else {
-                    \Log::error("Failed to download attachment: $url. HTTP status: ".$response->status());
-                }
-            } catch (\Exception $e) {
-                \Log::error("Failed to download attachment: $url. Error: ".$e->getMessage());
-            }
-        }
+                    // Fetch remote file qua HTTP
+                    $tempPath = storage_path('app/temp_' . Str::random(8));
+                    $response = Http::timeout(120)->sink($tempPath)->get($file);
 
-        return $result;
+                    if (!$response->ok() || !file_exists($tempPath)) {
+                        \Log::error("Failed to download attachment: $file");
+                        continue;
+                    }
+
+                    $content = file_get_contents($tempPath);
+                    $name = basename(parse_url($file, PHP_URL_PATH)) ?: Str::random(8);
+                    @unlink($tempPath);
+                }
+            }
+            // Nếu là local path
+            elseif (is_string($file) && file_exists($file)) {
+                $content = file_get_contents($file);
+                $name = basename($file);
+            } 
+            // Nếu đã là mảng base64 ['content','name','mime']
+            elseif (is_array($file) && isset($file['content'], $file['name'], $file['mime'])) {
+                $result[] = $file;
+                continue;
+            } else {
+                \Log::warning("Skipped attachment: invalid type or file not exists: " . json_encode($file));
+                continue;
+            }
+
+            // Xác định MIME type
+            $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+            $mime = match($extension) {
+                'pdf' => 'application/pdf',
+                'xlsx', 'xls' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'jpg', 'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                default => 'application/octet-stream'
+            };
+
+            $result[] = [
+                'name' => $name,
+                'content' => base64_encode($content),
+                'mime' => $mime
+            ];
+
+        } catch (\Exception $e) {
+            \Log::error("Attachment processing error: $file. Message: " . $e->getMessage());
+            continue;
+        }
     }
+
+    return $result;
+}
 
 }

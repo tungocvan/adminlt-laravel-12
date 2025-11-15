@@ -59,7 +59,7 @@ Content-Type: application/json
   "to": "hamadaqc01@gmail.com",
   "subject": "Test Queue Mail",
   "html": "<h1>Hello</h1><p>This is a test</p>",
-  "attachments": ["https://adminlt.laravel.tk/baogia/pdf/BangBaoGia_59.pdf"]
+  "attachments": ["https://adminlt.laravel.tk/baogia/Bao_gia_20251115_135702.xlsx"]
 }
 
 # php artisan user:sendmail 2 --to="hamadaqc01@gmail.com" --subject="Test Queue Mail" --html="<b>Hello HTML</b>"
