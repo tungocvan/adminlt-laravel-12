@@ -248,21 +248,13 @@ class UserController extends Controller
 
         foreach ($attachments as $url) {
             try {
-                $response = Http::timeout(10)->get($url); // timeout 10s
-
+                $response = Http::timeout(30)->get($url); // tăng timeout
                 if ($response->ok()) {
                     $content = $response->body();
 
-                    // Detect mime type từ extension
                     $extension = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
                     $mime = match(strtolower($extension)) {
                         'pdf' => 'application/pdf',
-                        'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'xls' => 'application/vnd.ms-excel',
-                        'doc' => 'application/msword',
-                        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        'jpg', 'jpeg' => 'image/jpeg',
-                        'png' => 'image/png',
                         default => 'application/octet-stream',
                     };
 
@@ -271,13 +263,15 @@ class UserController extends Controller
                         'content' => base64_encode($content),
                         'mime' => $mime,
                     ];
+                } else {
+                    \Log::error("Failed to download attachment: $url. HTTP status: ".$response->status());
                 }
             } catch (\Exception $e) {
                 \Log::error("Failed to download attachment: $url. Error: ".$e->getMessage());
-                // Optional: bạn có thể thêm record lỗi để trả về client
             }
         }
 
         return $result;
     }
+
 }
