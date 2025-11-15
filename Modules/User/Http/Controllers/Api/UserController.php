@@ -202,6 +202,7 @@ class UserController extends Controller
     {
         $user = $request->user();
 
+        // Validate request
         $data = $request->validate([
             'to' => 'required',
             'subject' => 'required|string|max:255',
@@ -209,18 +210,72 @@ class UserController extends Controller
             'html' => 'nullable|string',
             'cc' => 'nullable|array',
             'bcc' => 'nullable|array',
-            'attachments' => 'nullable|array',
+            'attachments' => 'nullable|array', // ['https://example.com/file.pdf', ...]
         ]);
 
+        // Decode HTML nếu có
         if (isset($data['html'])) {
             $data['html'] = html_entity_decode($data['html'], ENT_QUOTES, 'UTF-8');
         }
-        SendUserMailJob::dispatch($user, $data['to'], $data['subject'], $data['body'] ?? null, $data['html'] ?? null, $data['cc'] ?? [], $data['bcc'] ?? [], $data['attachments'] ?? []);
+
+        // Xử lý attachments URL → base64
+        $attachments = $this->processAttachments($data['attachments'] ?? []);
+
+        // Dispatch mail job
+        SendUserMailJob::dispatch(
+            $user,
+            $data['to'],
+            $data['subject'],
+            $data['body'] ?? null,
+            $data['html'] ?? null,
+            $data['cc'] ?? [],
+            $data['bcc'] ?? [],
+            $attachments
+        );
 
         return response()->json([
             'status' => 'success',
             'message' => 'Mail đã được đưa vào queue, worker sẽ gửi.',
-            'html' => $data['html'] 
+            'html' => $data['html'] ?? null,
+            'attachments_count' => count($attachments),
         ]);
+    }
+
+    private function processAttachments(array $attachments): array
+    {
+        $result = [];
+
+        foreach ($attachments as $url) {
+            try {
+                $response = Http::timeout(10)->get($url); // timeout 10s
+                if ($response->ok()) {
+                    $content = $response->body();
+
+                    // Detect mime type từ extension
+                    $extension = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
+                    $mime = match(strtolower($extension)) {
+                        'pdf' => 'application/pdf',
+                        'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'xls' => 'application/vnd.ms-excel',
+                        'doc' => 'application/msword',
+                        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'jpg', 'jpeg' => 'image/jpeg',
+                        'png' => 'image/png',
+                        default => 'application/octet-stream',
+                    };
+
+                    $result[] = [
+                        'name' => basename(parse_url($url, PHP_URL_PATH)) ?: Str::random(8),
+                        'content' => base64_encode($content),
+                        'mime' => $mime,
+                    ];
+                }
+            } catch (\Exception $e) {
+                \Log::error("Failed to download attachment: $url. Error: ".$e->getMessage());
+                // Optional: bạn có thể thêm record lỗi để trả về client
+            }
+        }
+
+        return $result;
     }
 }

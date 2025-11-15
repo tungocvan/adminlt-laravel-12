@@ -51,7 +51,7 @@
 
 POST https://adminlt.laravel.tk/api/user/send-mail
 Headers: 
-Authorization: Bearer 3|5sHiyaN17MvWirXuo0GH5h0XnJIyugvtyKv37DIkad1cc607
+Authorization: Bearer 11|umwEptnOhWX44yG4zRi0g9suNU9gdUJf3kHhqAD975cbbf19
 Accept: application/json
 Content-Type: application/json
 
