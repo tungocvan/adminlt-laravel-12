@@ -32,7 +32,7 @@
               </div>
             </form>
             <p class="mt-3 mb-1">
-              <a href="{{route('auth.login')}}">Login</a>
+              <a href="{{route('login')}}">Login</a>
             </p>
           </div>
           <!-- /.login-card-body -->

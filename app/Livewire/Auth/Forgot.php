@@ -28,6 +28,7 @@ class Forgot extends Component
 
     public function save(): void
     {
+      
         $this->validate();
 
         // Kiểm tra email đã yêu cầu reset trong 5 phút qua chưa

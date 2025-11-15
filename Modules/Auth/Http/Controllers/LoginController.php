@@ -45,7 +45,7 @@ class LoginController extends Controller
     {
         // Ghi đè view login
         
-        return view('auth.login'); // resources/views/login.blade.php
+        return view('Auth::auth'); // resources/views/login.blade.php
     }
 
     public function login(Request $request){

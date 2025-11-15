@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="container-fluid" wire:ignore.self>
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="name">Tên</label>
@@ -14,19 +14,22 @@
             <input type="date" id="birthdate" class="form-control"
                 wire:model.defer="birthdate">
         </div>
-    </div>
+    </div> 
 
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="username">Tên đăng nhập</label>
             <input type="text" id="username" name="username" class="form-control" placeholder="Nhập username"
-                wire:model="username">
+            {{ $isEdit ? 'wire:model=username' : 'wire:model.blur=username' }}> 
+            @error('username') <span class="error w-100" style="color:red;font-size:12px"> {{ $message }}</span> @enderror
+            
         </div>
         <div class="form-group col-md-6">
             <label for="password">Mật khẩu</label>
             <input type="password" id="password" name="password" class="form-control" 
-                placeholder="{{ $isEdit ? 'Để trống nếu không đổi' : 'Nhập mật khẩu' }}" wire:model="password"
+                placeholder="{{ $isEdit ? 'Để trống nếu không đổi' : 'Nhập mật khẩu' }}" {{ $isEdit ? 'wire:model=password' : 'wire:model.blur=password' }} 
                 {{ $isEdit ? '' : 'required' }}>
+             @error('password') <span class="error w-100" style="color:red;font-size:12px"> {{ $message }}</span> @enderror
         </div>
     </div>
 
@@ -34,8 +37,8 @@
         <div class="form-group col-md-6">
             <label for="email">Email</label>
             <input type="email" id="email" name="email" class="form-control" placeholder="Nhập email"
-                wire:model="email" required>
-
+            {{ $isEdit ? 'wire:model=email' : 'wire:model.blur=email' }} required>
+                @error('email') <span class="error w-100" style="color:red;font-size:12px"> {{ $message }}</span> @enderror
         </div>
 
         <div class="form-group col-md-6">

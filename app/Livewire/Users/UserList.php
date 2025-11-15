@@ -14,6 +14,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Livewire\Attributes\On;
 use Illuminate\Support\Facades\View;
+use Livewire\Attributes\Validate;
 
 class UserList extends Component
 {
@@ -35,8 +36,12 @@ class UserList extends Component
     // User fields
     public $userId = null; 
     public $name;
+    #[Validate()]
     public $username;
+
+    #[Validate()]
     public $email;
+    #[Validate()]
     public $password;
     public $birthdate;
     public $google_id;
@@ -73,22 +78,34 @@ class UserList extends Component
 
     protected $queryString = ['search', 'sortField', 'sortDirection', 'perPage'];
 
-    protected $rulesCreate = [
+    protected $rules = [
         'name' => 'nullable|string',
         'email' => 'required|string|email|max:255|unique:users,email',
-        'username' => 'nullable|string',
+        'username' => 'nullable|string|unique:users,username',
         'password' => 'required|string|min:6',
     ];
 
+    protected $messages = [
+        'email.required'       => 'Email đăng nhập không được bỏ trống',
+        'email.email'          => 'Email không đúng định dạng',
+        'email.unique'         => 'Email này đã tồn tại',
+        'password.required'    => 'Mật khẩu không được bỏ trống',
+        'password.min'         => 'Mật khẩu phải có ít nhất 6 ký tự',
+        'username.unique'         => 'Username này đã tồn tại',
+    ];
+    
     protected $rulesUpdate = [
         'name' => 'required|string|max:255',
+        'username' => 'nullable|string|unique:users,username',
         'email' => 'required|string|email|max:255',
         'password' => 'nullable|string|min:6',
     ];
 
+   
     // -------- Computed properties --------
     public function getUsersProperty()
     {
+        
         $query = User::query();
 
         if ($this->search) {
@@ -238,12 +255,12 @@ class UserList extends Component
     public function createUser()
     {
         // chỉ validate các field cần thiết $this->rulesCreate
-        $validated = $this->validate($this->rulesCreate);
+        //$validated = $this->validate($this->rulesCreate);
 
         // dữ liệu cần đưa vào table khi tạo mới
         $data = [
-            'email' => $validated['email'],
-            'password' => $validated['password'],
+            'email' => $this->email,
+            'password' => $this->password,
             'name' => $this->name ?? null,
             'username' => $this->username ?? null,
             'is_admin' => $this->is_admin ?? 0,

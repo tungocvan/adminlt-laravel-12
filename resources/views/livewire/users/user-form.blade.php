@@ -3,9 +3,9 @@
     @else
         <form wire:submit="createUser">
 @endif
-    <x-components::tnv-modal id="modalUser" title="{{ $isEdit ? 'Cập nhật User' : 'Tạo mới User' }}">        
+    <x-components::tnv-modal id="modalUser" title="{{ $isEdit ? 'Cập nhật User' : 'Tạo mới User' }}" >        
         <div class="card-body">
-            <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <ul class="nav nav-tabs" id="myTab" role="tablist" wire:ignore>
               <li class="nav-item" role="presentation">
                 <button class="nav-link {{ @when(!request()->tab, 'active') }}" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
               </li>

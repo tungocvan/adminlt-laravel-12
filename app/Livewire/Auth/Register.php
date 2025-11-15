@@ -8,13 +8,17 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Livewire\Attributes\Validate;
 
 class Register extends Component
 {
     public $name;
     public $username;
+    #[Validate]
     public $email;
+    #[Validate]
     public $password;
+    #[Validate]
     public $confirmPassword;
     public $agree = false;
 
@@ -40,6 +44,7 @@ class Register extends Component
 
     public function register()
     {
+        
         $this->generateUsername();
         $this->validate();
 
@@ -51,7 +56,7 @@ class Register extends Component
             'is_admin' => 0,
             'email_verified_at' => now()
         ];
-        
+       
 
         $user = User::create($userNew);
         $userRole  = Role::firstOrCreate(['name' => 'User']);

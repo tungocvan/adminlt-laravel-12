@@ -10,7 +10,7 @@
       
             <form wire:submit="save">
               <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Email or Username" wire:model.live="email">
+                <input type="text" class="form-control" placeholder="Email or Username" wire:model="email">
                 <div class="input-group-append">
                   <div class="input-group-text">
                     <span class="fas fa-envelope"></span>
@@ -20,7 +20,7 @@
                 
               </div>
               <div class="input-group mb-3">
-                <input type="password" class="form-control" placeholder="Password" wire:model.live="password">
+                <input type="password" class="form-control" placeholder="Password" wire:model="password">
                 <div class="input-group-append">
                   <div class="input-group-text">
                     <span class="fas fa-lock"></span>
@@ -31,7 +31,7 @@
               <div class="row">
                 <div class="col-8">
                   <div class="icheck-primary">
-                    <input type="checkbox" id="remember" wire:model.live="remember">
+                    <input type="checkbox" id="remember" wire:model="remember">
                     <label for="remember">
                       Remember Me
                     </label>
@@ -56,10 +56,10 @@
             <!-- /.social-auth-links -->
       
             <p class="mb-1">
-              <a href="{{route('auth.forgot')}}">I forgot my password</a>
+              <a href="{{route('forgot')}}">I forgot my password</a>
             </p>
             <p class="mb-0">
-              <a href="{{route('auth.register')}}" class="text-center">Register a new membership</a>
+              <a href="{{route('register')}}" class="text-center">Register a new membership</a>
             </p>
           </div>
           <!-- /.card-body -->

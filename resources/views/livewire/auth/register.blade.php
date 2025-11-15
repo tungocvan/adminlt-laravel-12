@@ -8,8 +8,8 @@
             <p class="login-box-msg">Register a new membership</p>
     
             <form wire:submit="register">
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Full name" wire:model.live="name"> 
+            <div class="input-group mb-3"> 
+                <input type="text" class="form-control" placeholder="Full name" wire:model="name"> 
                 <div class="input-group-append">
                 <div class="input-group-text">
                     <span class="fas fa-user"></span>
@@ -18,7 +18,7 @@
                 @error('name') <span class="error w-100" style="color:red;font-size:12px"> {{ $message }}</span> @enderror
             </div>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Email" wire:model.live="email">
+                <input type="text" class="form-control" placeholder="Email" wire:model.blur="email">
                 <div class="input-group-append">
                 <div class="input-group-text">
                     <span class="fas fa-envelope"></span>
@@ -27,7 +27,7 @@
                 @error('email') <span class="error w-100" style="color:red;font-size:12px"> {{ $message }}</span> @enderror
             </div>
             <div class="input-group mb-3">
-                <input type="password" class="form-control" placeholder="Password" wire:model.live="password">
+                <input type="password" class="form-control" placeholder="Password" wire:model.blur="password">
                 <div class="input-group-append">
                 <div class="input-group-text">
                     <span class="fas fa-lock"></span>
@@ -36,7 +36,7 @@
                 @error('password') <span class="error w-100" style="color:red;font-size:12px"> {{ $message }}</span> @enderror
             </div>
             <div class="input-group mb-3">
-                <input type="password" class="form-control" placeholder="Retype password" wire:model.live="confirmPassword">
+                <input type="password" class="form-control" placeholder="Retype password" wire:model.blur="confirmPassword">
                 <div class="input-group-append">
                 <div class="input-group-text">
                     <span class="fas fa-lock"></span>
@@ -63,7 +63,7 @@
     
       
     
-            <a href="{{route('auth.login')}}" class="text-center">I already have a membership</a>
+            <a href="{{route('login')}}" class="text-center">I already have a membership</a>
         </div>
         <!-- /.form-box -->
         </div><!-- /.card -->

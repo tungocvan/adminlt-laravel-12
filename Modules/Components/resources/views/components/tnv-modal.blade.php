@@ -1,4 +1,5 @@
 <x-adminlte-modal
+    wire:ignore.self
     id="{{ $id }}"
     title="{{ $title }}"
     size="{{ $size }}"
