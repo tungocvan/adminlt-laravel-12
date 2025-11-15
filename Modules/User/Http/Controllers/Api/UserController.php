@@ -200,8 +200,8 @@ class UserController extends Controller
 
     public function send(Request $request)
     {
-        $user = $request->user();
-
+        $user = $request->user() ?? [];
+        \Log::error("info user:". $user );
         // Validate request
         $data = $request->validate([
             'to' => 'required',
