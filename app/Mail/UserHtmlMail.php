@@ -38,22 +38,35 @@ class UserHtmlMail extends Mailable
 
     public function build()
     {
+        // ✅ Render template nếu có
         if ($this->template) {
             $this->htmlContent = View::make($this->template, $this->templateData)->render();
         }
 
-        $finalHtml = $this->htmlContent ?? ($this->textContent ?? 'No content'); 
+        $finalHtml = $this->htmlContent ?? ($this->textContent ?? 'No content');
 
+        // ✅ Khởi tạo email với view raw-html
         $email = $this->view('emails.raw-html', [
             'html' => $finalHtml
-        ]);
+        ])->subject($this->subject ?? 'No Subject');
 
-        foreach ($this->fileAttachments as $file) {
-            if (file_exists($file)) {
-                $email->attach($file);
+        // ✅ Xử lý attachments
+        if (!empty($this->fileAttachments)) {
+            foreach ($this->fileAttachments as $file) {
+                // Trường hợp file là mảng base64 ['name','content','mime']
+                if (is_array($file) && isset($file['content'], $file['name'], $file['mime'])) {
+                    $email->attachData(base64_decode($file['content']), $file['name'], [
+                        'mime' => $file['mime'],
+                    ]);
+                } 
+                // Trường hợp file là local path string
+                elseif (is_string($file) && file_exists($file)) {
+                    $email->attach($file);
+                }
             }
         }
 
         return $email;
     }
+
 }
