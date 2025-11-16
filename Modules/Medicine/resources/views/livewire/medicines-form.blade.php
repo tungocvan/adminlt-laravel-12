@@ -74,7 +74,17 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label>Danh mục thuốc</label>                    
-                                {!! renderCategoryTree($categories, $selectedCategories) !!}
+                                {{-- {!! renderCategoryTree($categories, $selectedCategories) !!} --}}
+                                <livewire:categories.categories 
+                                slug="nhom-thuoc"
+                                :selectedCategories="$selectedCategories"
+                                render="tree"              
+                                  />
+
+                                  {{-- <livewire:category-dropdown :categories="$categories"  width="100%"
+                                  wire:model.live="selectedCategories" 
+                                  :selected="$selectedCategories" /> --}}
+
                              </div>
                         </div>
                     </div>

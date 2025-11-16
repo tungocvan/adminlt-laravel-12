@@ -8,14 +8,17 @@ use App\Models\Category;
 class TnvCategories extends Component
 {
     public $name;
+    public $slug;
     public $selected;
     public $filterType;
     public $label;
     public $categories = [];
 
-    public function __construct($name = 'category_id', $selected = null, $filterType = null, $label = 'Chọn danh mục')
+    public function __construct($slug = 'nhom-thuoc',$name = 'category_id', $selected = null, $filterType = null, $label = 'Chọn danh mục')
     {
+     
         $this->name = $name;
+        $this->slug = $slug;
         $this->selected = $selected;
         $this->filterType = $filterType;
         $this->label = $label;
@@ -25,13 +28,16 @@ class TnvCategories extends Component
 
     private function getCategoryTree($parentId = null, $prefix = '')
     {
-        $query = Category::query()->orderBy('sort_order');
-
-        if ($parentId === null) {
+        
+        $query = Category::query()->orderBy('sort_order');     
+        if ($parentId === null) { 
             $query->whereNull('parent_id');
+            $query->where('slug', $this->slug);
         } else {
             $query->where('parent_id', $parentId);
+           
         }
+
 
         if ($this->filterType) {
             $query->where('type', $this->filterType);

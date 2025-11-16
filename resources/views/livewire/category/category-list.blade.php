@@ -105,6 +105,7 @@
                     <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
                 @endforeach
             </select> --}}
+          
             <x-components::tnv-categories wire:model.live="selectedParent" />
 
             {{-- <livewire:components.tnv-categories model="selectedParent"/> --}}

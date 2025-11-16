@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
+    protected $table = 'categories';
     protected $fillable = [
         'name',
         'slug',
@@ -60,6 +61,14 @@ class Category extends Model
     {
         return $this->children()->with('childrenRecursive');
     }
+
+    public function scopeFilter($query, $component)
+    {
+        return $query
+            ->when($component->filterType, fn($q) => $q->where('type', $component->filterType))
+            ->when($component->filterParentOnly, fn($q) => $q->whereNull('parent_id'));
+    }
+
 
 
 }

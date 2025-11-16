@@ -25,7 +25,7 @@ class CategoryDropdown extends Component
         $this->maxHeight = $maxHeight ?? '300px';
     }
 
-    public function updatedSelectedCategories()
+    public function updatedSelectedCategories() 
     {
         // Gửi event khi thay đổi lựa chọn
         $this->dispatch('categoriesUpdated', $this->selectedCategories);

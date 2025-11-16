@@ -13,7 +13,7 @@
 
             {{-- Nhóm filter / search --}}
             <div class="d-flex mb-1">
-                <select wire:model.live="selectedCategory" class="form-control mr-2">
+                {{-- <select wire:model.live="selectedCategory" class="form-control mr-2">
                     <option value="">-- Chọn danh mục --</option>
                     @foreach ($categories as $cat)
                         <option value="{{ $cat->id }}">{{ $cat->name }}</option>
@@ -23,7 +23,8 @@
                             @endforeach
                         @endif
                     @endforeach
-                </select>
+                </select> --}}
+                <x-components::tnv-categories wire:model.live="selectedCategory"  />
                 <div class="input-group">
                     <input type="text" class="form-control" placeholder="Tìm thuốc..." wire:model.live.debounce.300ms="search">
                     @if ($search)
