@@ -3,3 +3,5 @@
 php artisan queue:restart
 php artisan queue:clear
 php artisan optimize:clear
+php artisan migrate
+
