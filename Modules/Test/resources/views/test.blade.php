@@ -13,6 +13,10 @@
 
 @section('content') 
     {{-- @livewire('test.test-list')  --}}
+    @livewire('gdt-login') 
+    <hr>
+    <livewire:gdt-invoice />
+
 @endsection
 
 @section('css')
