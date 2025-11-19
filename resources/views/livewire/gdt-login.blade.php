@@ -23,14 +23,21 @@
             @endif
             <input type="text" wire:model="cvalue" class="form-control" placeholder="Nhập captcha">
         </div>
-        
+         
 
         <button type="submit" class="btn btn-primary mt-2">Đăng nhập</button>
     </form>
 
     @if(isset($token))
         <div class="alert alert-success mt-3">
-            Token: <strong>{{ $token }}</strong>
+            <strong>Đã có token</strong>
+            <button class="btn btn-danger btn-sm" wire:click="deleteToken">Xóa token</button>
+            {{-- Token: <strong>{{ $token }}</strong> --}}
         </div>
+    @else
+    <div class="alert alert-danger mt-3">
+        <strong>Vui lòng đăng nhập</strong>
+        {{-- Token: <strong>{{ $token }}</strong> --}}
+    </div>
     @endif
 </div>

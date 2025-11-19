@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use App\Services\GdtApiService;
 
 class GdtLogin extends Component
 {
@@ -12,62 +13,41 @@ class GdtLogin extends Component
     public $password = 'Inafo2025@';
     public $captchaSvg = ''; // gán mặc định rỗng
 
+
     public $ckey;
     public $cvalue;
-    public $token;
+    public $token = null;
 
     public function mount()
     {
-        
-        $this->loadCaptcha();
-    }
-
-    public function loadCaptcha()
-    {
         // Kiểm tra token trong cache trước
-        if ($cachedToken = Cache::get('gdt_token')) {
+         if ($cachedToken = Cache::get('gdt_token')) {
             $this->token = $cachedToken;
             return; // Token tồn tại, không cần login nữa
         }
-        $response = Http::withOptions([
-            'verify' => false,
-        ])->get('https://hoadondientu.gdt.gov.vn:30000/captcha');
-
-        //dd($response->json());
-        if ($response->successful()) {
-            $data = $response->json();
-            $this->ckey = $data['key'];
-            $this->captchaSvg = $data['content'];
+        $gdt = new GdtApiService;        
+        $captcha = $gdt->loadCaptcha();
+       
+        if(count($captcha) > 0){
+            $this->ckey = $captcha['key'];
+            $this->captchaSvg = $captcha['content'];
         }
     }
 
-    public function login()
+    public function login(GdtApiService $gdt)
     {
-        
-
-        // Thực hiện login nếu chưa có token
-        $response = Http::withOptions([
-            'verify' => false, // bỏ kiểm tra SSL
-        ])->post('https://hoadondientu.gdt.gov.vn:30000/security-taxpayer/authenticate', [
-            'username' => $this->username,
-            'password' => $this->password,
-            'ckey' => $this->ckey,
-            'cvalue' => $this->cvalue,
-        ]);
-
-        if ($response->successful()) {
-            $this->token = $response->json()['token'] ?? $response->json()['accessToken'] ?? null;
-
-            if ($this->token) {
-                Cache::put('gdt_token', $this->token, 1800); // lưu token 30 phút
-            } else {
-                session()->flash('error', 'Login success nhưng token không có.');
-                $this->loadCaptcha(); // load lại captcha
-            }
-        } else {
-            session()->flash('error', $response->json()['message'] ?? 'Login thất bại');
-            $this->loadCaptcha(); // load lại captcha nếu login thất bại
+        // Kiểm tra token trong cache trước
+        if (!$this->token) {           
+            $response = $gdt->login($this->username, $this->password, $this->cvalue, $this->ckey,36000);
+            $this->token = $response['token'] ?? null;      
         }
+         $this->redirect('/test',true);
+    }
+    public function deleteToken()
+    {
+        //dd('deleteToken');
+        Cache::forget('gdt_token');
+        $this->redirect('/test',true);
     }
     public function render()
     {
