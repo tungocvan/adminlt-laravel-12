@@ -50,7 +50,7 @@ class GdtInvoice extends Component
 
     public function searchInvoices()
     {
-        $this->login(); // đảm bảo có token
+       
 
         if (!$this->token) {
             session()->flash('error', 'Chưa có token. Vui lòng kiểm tra thông tin login.');

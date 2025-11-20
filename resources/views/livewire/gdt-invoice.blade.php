@@ -30,10 +30,16 @@
                         <tr>
                             <th>STT</th>
                             <th>Mã tra cứu hóa đơn</th>
+                            <th>Ký hiệu hóa đơn</th>
                             <th>Số hóa đơn</th>
-                            <th>Ngày lập</th>
-                            <th>Người mua</th>
+                            <th>Loại hóa đơn</th>
+                            <th>Ngày lập</th> 
+                            <th>MST Người mua</th>                           
+                            <th>Người mua</th>                            
                             <th>Người bán</th>
+                            <th>Thuế suất</th>
+                            <th>Tiền VAT</th>
+                            <th>Tiền trước VAT</th>
                             <th>Thành tiền</th>
                         </tr>
                     </thead>
@@ -42,11 +48,17 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $item['cttkhac'][16]['dlieu'] ?? '' }}</td>
+                                <td>{{ $item['khmshdon'] ?? '' }}/{{ $item['khhdon'] ?? '' }}</td>
                                 <td>{{ $item['shdon'] ?? '' }}</td>
+                                <td>{{ $item['thdon'] ?? '' }}</td>
                                 <td>{{ $item['tdlap'] ? \Carbon\Carbon::parse($item['tdlap'])->format('d/m/Y') : '' }}</td>
-                                <td>{{ $item['nmten'] ?? '' }}</td>
+                                <td>{{ $item['nmmst'] ?? '' }}</td>
+                                <td>{{ $item['nmten'] ?? '' }}</td>                                
                                 <td>{{ $item['nbten'] ?? '' }}</td>
+                                <td>{{ $item['thttltsuat'][0]['tsuat'] ?? '' }}</td>
+                                <td>{{ number_format($item['tgtthue'] ?? 0) }}</td>
                                 <td>{{ number_format($item['tgtcthue'] ?? 0) }}</td>
+                                <td>{{ number_format($item['tgtttbso'] ?? 0) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
