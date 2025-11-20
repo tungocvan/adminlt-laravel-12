@@ -32,7 +32,7 @@
         <div class="alert alert-success mt-3">
             <strong>Đã có token</strong>
             <button class="btn btn-danger btn-sm" wire:click="deleteToken">Xóa token</button>
-            {{-- Token: <strong>{{ $token }}</strong> --}}
+            Token: <strong>{{ $token }}</strong>
         </div>
     @else
     <div class="alert alert-danger mt-3">

@@ -45,7 +45,8 @@ class GdtApiService
             $token = $res->json('token') ?? ($res->json('accessToken') ?? null);
 
             if ($token) {
-                Cache::put('gdt_token', $token, $time);
+                // Cache::put('gdt_token', $token, $time);
+                Cache::forever('gdt_token', $token);
                 // \Log::info('GDT Token saved to cache', ['token' => $token]);
             } 
 

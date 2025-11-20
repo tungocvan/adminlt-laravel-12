@@ -3,137 +3,106 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
+use App\Jobs\ProcessGdtInvoicesJob;
+use App\Services\GdtInvoiceService;
 use Carbon\Carbon;
-use Rap2hpoutre\FastExcel\FastExcel;
 
 class GetGdtInvoices extends Command
 {
-    protected $signature = 'gdt:invoices 
-                            {from : Từ ngày (d/m/Y hoặc Y-m-d)} 
-                            {to : Đến ngày (d/m/Y hoặc Y-m-d)} 
-                            {--excel : Xuất Excel}';
+    protected $signature = 'gdt:invoices
+                            {start_date : Ngày bắt đầu (d/m/Y hoặc Y-m-d)}
+                            {end_date   : Ngày kết thúc (d/m/Y hoặc Y-m-d)}
+                            {--queue    : Đưa việc xử lý vào queue thay vì chạy trực tiếp}
+                            {--vatIn     : nếu không có tham số là hóa đơn bán ra  và có  là mua vào}';
 
-    protected $description = 'Lấy hóa đơn GDT, phân trang & chia thời gian ≤1 tháng, xuất Excel trực tiếp (streaming), RAM thấp';
+    protected $description = 'Lấy hóa đơn GDT trực tiếp hoặc đưa vào queue nếu dùng --queue';
 
-    public function handle()
+
+    /**
+     * Parse date với nhiều định dạng
+     */
+    private function parseDateFlexible($date)
     {
-        set_time_limit(0); // vô hạn thời gian chạy
-        $startAll = microtime(true);
-        $this->info("⏳ Bắt đầu xử lý...");
+        $formats = ['d/m/Y', 'Y-m-d'];
 
-        // ===== Parse ngày linh hoạt =====
-        $formats = ['d/m/Y', 'Y-m-d', 'd-m-Y', 'Y/m/d'];
-        $tryParse = function ($input) use ($formats) {
-            foreach ($formats as $f) {
-                try {
-                    $d = Carbon::createFromFormat($f, $input);
-                    if ($d && $d->format($f) === $input) return $d;
-                } catch (\Exception $e) {}
+        foreach ($formats as $format) {
+            try {
+                return Carbon::createFromFormat($format, $date);
+            } catch (\Exception $e) {
+                // continue
             }
-            return Carbon::parse($input);
-        };
+        }
 
         try {
-            $fromDate = $tryParse($this->argument('from'));
-            $toDate   = $tryParse($this->argument('to'));
+            return Carbon::parse($date);
         } catch (\Exception $e) {
-            $this->error("❌ Sai định dạng ngày! Hãy nhập d/m/Y hoặc Y-m-d");
-            return;
+            return null;
+        }
+    }
+
+
+    /**
+     * Handle chính của command
+     */
+    public function handle()
+    {
+        $startInput = $this->argument('start_date');
+        $endInput   = $this->argument('end_date');
+
+        $start = $this->parseDateFlexible($startInput);
+        $end   = $this->parseDateFlexible($endInput);
+
+        if (!$start || !$end) {
+            $this->error("❌ Sai định dạng ngày! Hãy nhập: d/m/Y hoặc Y-m-d");
+            return Command::FAILURE;
         }
 
-        // ===== Lấy token =====
-        $token = Cache::get('gdt_token');
-        if (!$token) {
-            $this->error("❌ Chưa có token GDT. Hãy login trước!");
-            return;
+        if ($end->lt($start)) {
+            $this->error("❌ end_date phải lớn hơn hoặc bằng start_date!");
+            return Command::FAILURE;
+        }
+   
+        if ($this->option('vatIn')) {
+            $vatIn=true;
+            $type ="Hóa đơn mua hàng";
+        }else{
+            $vatIn=false;
+            $type ="Hóa đơn bán ra";
+        }
+        // ============================
+        // 1️⃣ XỬ LÝ QUEUE
+        // ============================
+        if ($this->option('queue')) {
+
+            $this->info("📦 Đưa job vào queue...");
+            $this->info("📅 Từ {$start->format('d/m/Y')} → {$end->format('d/m/Y')}");
+
+            ProcessGdtInvoicesJob::dispatch(
+                $start->toDateString(),
+                $end->toDateString()
+            );
+
+            $this->info("✅ Job đã được đưa vào queue!");
+            $this->info("➡ Chạy queue worker: php artisan queue:work --timeout=180");
+
+            return Command::SUCCESS;
         }
 
-        // ===== Tạo các khoảng thời gian ≤1 tháng =====
-        $periods = [];
-        $periodStart = $fromDate->copy();
-        while ($periodStart <= $toDate) {
-            $periodEnd = $periodStart->copy()->addMonth()->subDay();
-            if ($periodEnd > $toDate) $periodEnd = $toDate->copy();
-            $periods[] = [$periodStart->copy(), $periodEnd->copy()];
-            $periodStart = $periodEnd->copy()->addDay();
-        }
 
-        $this->info("🔍 Bắt đầu gọi API theo từng khoảng ≤1 tháng...");
+        // ----------------------------
+        // NGƯỢC LẠI → Chạy trực tiếp không queue
+        // ----------------------------
+        $this->info("⚡ Chạy trực tiếp không dùng queue...");
+        $this->info("⚡ Bạn đang xuất $type ....");
+        $this->info("📅 Khoảng thời gian: {$start->format('d/m/Y')} → {$end->format('d/m/Y')}");
 
-        // ===== Khởi tạo STT =====
-        $counter = 1;
+        $service = new GdtInvoiceService();
+        $service->processRange($start->format('Y-m-d'), $end->format('Y-m-d'), function($msg){
+            $this->info($msg); // sẽ hiển thị trực tiếp trên CLI
+        },$vatIn);
 
-        // ===== Generator trực tiếp streaming Excel =====
-        $generator = function() use ($periods, $token, &$counter) {
-            foreach ($periods as [$pFrom, $pTo]) {
-                $this->info("📅 Khoảng " . $pFrom->format('d/m/Y') . " → " . $pTo->format('d/m/Y'));
-                $search = "tdlap=ge={$pFrom->format('d/m/Y')}T00:00:00;tdlap=le={$pTo->format('d/m/Y')}T23:59:59";
+        $this->info("✅ Hoàn tất xử lý trực tiếp!");
+        return Command::SUCCESS;
 
-                $page = 1;
-                $size = 50;
-
-                while (true) {
-                    $url = "https://hoadondientu.gdt.gov.vn:30000/query/invoices/sold"
-                        . "?sort=tdlap:desc,khmshdon:asc,shdon:desc&size={$size}&page={$page}&search={$search}";
-
-                    $response = Http::withOptions(['verify'=>false])
-                        ->withHeaders(['Authorization'=>"Bearer {$token}"])
-                        ->get($url);
-
-                    if (!$response->successful()) {
-                        $msg = $response->json()['message'] ?? 'Không rõ lỗi';
-                        $this->error("❌ Lấy hóa đơn thất bại: {$msg}");
-                        return;
-                    }
-
-                    $data = $response->json();
-                    $invoices = $data['datas'] ?? [];
-
-                    if (empty($invoices)) break;
-
-                    foreach ($invoices as $item) {
-                        yield [
-                            'STT' => $counter++,
-                            'Mã tra cứu' => $item['cttkhac'][16]['dlieu'] ?? '',
-                            'Ký hiệu' => ($item['khmshdon'] ?? '') . '/' . ($item['khhdon'] ?? ''),
-                            'Số HĐ' => $item['shdon'] ?? '',
-                            'Loại' => $item['thdon'] ?? '',
-                            'Ngày lập' => isset($item['tdlap']) ? Carbon::parse($item['tdlap'])->format('d/m/Y') : '',
-                            'MST Người mua' => $item['nmmst'] ?? '',
-                            'Người mua' => $item['nmten'] ?? '',
-                            'Email người mua' => $item['nmdctdtu'] ?? '',
-                            'Người bán' => $item['nbten'] ?? '',
-                            'Thuế suất' => $item['thttltsuat'][0]['tsuat'] ?? '',
-                            'VAT' => $item['tgtthue'] ?? 0,
-                            'Trước VAT' => $item['tgtcthue'] ?? 0,
-                            'Thành tiền' => $item['tgtttbso'] ?? 0,
-                        ];
-                    }
-
-                    if (count($invoices) < $size) break;
-                    $page++;
-                }
-            }
-        };
-
-        // ===== Xuất Excel nếu có option =====
-        if ($this->option('excel')) {
-            $startExcel = microtime(true);
-            $file = 'invoices-gdt-' . date('Ymd_His') . '.xlsx';
-            (new FastExcel($generator()))->export(storage_path("app/{$file}"));
-            $excelTime = microtime(true) - $startExcel;
-            $this->info("📁 Excel đã lưu: storage/app/{$file}");
-            $this->info("✔ Thời gian xuất Excel: " . number_format($excelTime, 3) . " giây");
-        } else {
-            // Nếu không xuất Excel, chỉ đếm số hóa đơn
-            $total = iterator_count($generator());
-            $this->info("✔ Tổng số hóa đơn: {$total}");
-        }
-
-        $totalTime = microtime(true) - $startAll;
-        $this->info("⏲ Tổng thời gian thực thi: " . number_format($totalTime, 3) . " giây");
-        $this->info("🎉 Hoàn thành!");
     }
 }

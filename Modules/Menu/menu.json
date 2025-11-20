@@ -246,5 +246,19 @@
         "url": "\/help",
         "icon": "fas fa-fw fa-user-shield",
         "can": "help-list"
+    },
+    {
+        "text": "Quản lý Hóa đơn",
+        "url": "#",
+        "icon": "far fa-caret-square-right",
+        "can": "invoices-list",
+        "submenu": [
+            {
+                "text": "Danh sách Hóa đơn",
+                "url": "\/invoices",
+                "icon": "far fa-caret-square-right",
+                "can": "invoices-list"
+            }
+        ]
     }
 ]

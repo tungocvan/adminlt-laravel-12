@@ -41,13 +41,13 @@ class GdtLogin extends Component
             $response = $gdt->login($this->username, $this->password, $this->cvalue, $this->ckey,36000);
             $this->token = $response['token'] ?? null;      
         }
-         $this->redirect('/test',true);
+         $this->redirect('/invoices');
     }
     public function deleteToken()
     {
         //dd('deleteToken');
         Cache::forget('gdt_token');
-        $this->redirect('/test',true);
+        $this->redirect('/invoices');
     }
     public function render()
     {
