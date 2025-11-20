@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Rap2hpoutre\FastExcel\FastExcel;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Modules\Invoices\Models\Invoices;
 
 class GdtInvoiceService
 {
@@ -197,4 +198,91 @@ class GdtInvoiceService
 
         return $filePath;
     }
+
+    public function importExcel(string $filePath, string $invoiceType = 'sold', callable $callback = null)
+    {
+        if (!file_exists($filePath)) {
+            throw new \Exception("File không tồn tại: $filePath");
+        }
+
+        if ($callback) {
+            $callback("📂 Đang đọc file Excel: $filePath");
+        }
+
+        $collection = (new FastExcel)->import($filePath);
+        $count = 0;
+
+        foreach ($collection as $row) {
+
+            // Xử lý ngày lập
+            $issuedDate = null;
+            if (!empty($row['Ngày lập'])) {
+                try {
+                    $issuedDate = Carbon::createFromFormat('d/m/Y', $row['Ngày lập']);
+                } catch (\Exception $e) {
+                    $issuedDate = null;
+                }
+            }
+
+            // Xử lý thuế suất
+            $taxRate = null;
+            if (!empty($row['Thuế suất'])) {
+                $cleanTax = preg_replace('/[^0-9.]/', '', $row['Thuế suất']); // loại bỏ chữ cái
+                $taxRate = is_numeric($cleanTax) ? floatval($cleanTax) : 0;
+            } else {
+                $taxRate = 0;
+            }
+
+            // Xử lý các cột số tiền
+            $amountBeforeVat = $this->parseDecimal($row['Tiền trước VAT'] ?? 0);
+            $vatAmount       = $this->parseDecimal($row['Tiền VAT'] ?? 0);
+            $totalAmount     = $this->parseDecimal($row['Thành tiền'] ?? 0);
+
+            $mapped = [
+                'lookup_code'        => $row['Mã tra cứu hóa đơn'] ?? null,
+                'symbol'             => $row['Ký hiệu hóa đơn'] ?? null,
+                'invoice_number'     => $row['Số hóa đơn'] ?? null,
+                'type'               => $row['Loại hóa đơn'] ?? null,
+                'issued_date'        => $issuedDate,
+
+                'buyer_tax_code'     => $row['MST Người mua'] ?? null,
+                'buyer_name'         => $row['Người mua'] ?? null,
+                'buyer_email'        => $row['Email người mua'] ?? null,
+
+                'seller_name'        => $row['Người bán'] ?? null,
+
+                'tax_rate'           => $taxRate,
+                'amount_before_vat'  => $amountBeforeVat,
+                'vat_amount'         => $vatAmount,
+                'total_amount'       => $totalAmount,
+
+                'invoice_type'       => $invoiceType,
+            ];
+
+            Invoices::create($mapped);
+            $count++;
+
+            if ($callback && $count % 50 === 0) {
+                $callback("🔄 Đã import {$count} hóa đơn...");
+            }
+        }
+
+        if ($callback) {
+            $callback("✅ Hoàn tất import: {$count} hóa đơn");
+        }
+
+        return $count;
+    }
+
+    /**
+     * Parse decimal từ Excel (loại bỏ dấu phẩy, chữ…)
+     */
+    private function parseDecimal($value)
+    {
+        if (empty($value)) return 0;
+        // Loại bỏ tất cả ký tự không phải số hoặc dấu chấm
+        $clean = preg_replace('/[^0-9.\-]/', '', str_replace(',', '', $value));
+        return is_numeric($clean) ? floatval($clean) : 0;
+    }
+
 }

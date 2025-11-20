@@ -16,8 +16,7 @@ class GdtInvoicesExport implements FromGenerator, WithHeadings
 
     public function headings(): array
     {
-        return [
-            'STT',
+        return [      
             'Mã tra cứu',
             'Ký hiệu',
             'Số HĐ',

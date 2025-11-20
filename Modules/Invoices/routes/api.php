@@ -10,4 +10,5 @@ use Modules\Invoices\Http\Controllers\Api\InvoicesController;
 
 Route::prefix('invoices')->controller(InvoicesController::class)->group(function(){
         Route::get('/', 'index');              
+        Route::post('/', 'filter');              
 });
