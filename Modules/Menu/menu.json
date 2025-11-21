@@ -10,8 +10,8 @@
         "can": "ntd-list"
     },
     {
-        "text": "Quản lý Học sinh",
-        "url": "\/ntd",
+        "text": "Tra cứu thuốc trúng thầu",
+        "url": "\/muasamcong",
         "icon": "fas fa-fw fa-user",
         "can": "ntd-create"
     },
