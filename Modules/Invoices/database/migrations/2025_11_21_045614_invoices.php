@@ -14,17 +14,19 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
 
-            $table->string('lookup_code')->nullable();        // Mã tra cứu
+            $table->string('lookup_code')->nullable();        // Mã tra cứu 
             $table->string('symbol')->nullable();             // Ký hiệu
             $table->string('invoice_number')->nullable();     // Số hóa đơn
             $table->string('type')->nullable();               // Loại
             $table->date('issued_date')->nullable();          // Ngày lập
 
-            $table->string('buyer_tax_code')->nullable();     // MST người mua
-            $table->string('buyer_name')->nullable();         // Người mua
-            $table->string('buyer_email')->nullable();        // Email người mua
+            $table->string('tax_code')->nullable();      
+            $table->string('name')->nullable();                           
+            $table->string('address')->nullable();      
+            $table->string('email')->nullable();   
+            $table->string('phone')->nullable();        
 
-            $table->string('seller_name')->nullable();        // Người bán
+           
 
             $table->decimal('tax_rate', 5, 2)->nullable();             // Thuế suất (%)
             $table->decimal('vat_amount', 18, 2)->nullable();          // VAT
@@ -32,7 +34,7 @@ return new class extends Migration
             $table->decimal('total_amount', 18, 2)->nullable();        // Thành tiền
 
             $table->enum('invoice_type', ['sold', 'purchase'])->default('sold'); // sold: hóa đơn đầu bán ra, purchase: hóa đơn mua vào
- 
+  
 
 
             $table->timestamps();

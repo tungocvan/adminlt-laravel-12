@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 
 class MuasamcongController extends Controller
 {
-   public function index()
+    public $keyword='';
+    public function index()
     {
         return response()->json([
             'status' => 'Api Muasamcong success',            
@@ -18,10 +19,33 @@ class MuasamcongController extends Controller
         // $validated = $request->validate([            
         //     'payload' => 'required|array',
         // ]);
-        $payload = $request->all();      
+       // $payload = $request->all();    
+        $this->keyword = $request->keyword;
+        $payload = [
+            [
+                "pageSize" => 20,
+                "pageNumber" => 0,
+                "query" => [
+                    [
+                        "index" => "es-smart-pricing",
+                        "keyWord" => $this->keyword,
+                        "keyWordNotMatch" => "",
+                        "matchType" => "exact",
+                        "matchFields" => ["ten_thuoc","ten_hoat_chat","ma_tbmt"],
+                        "filters" => [
+                            ["fieldName"=>"medicines","searchType"=>"in","fieldValues"=>["0"]],
+                            ["fieldName"=>"type","searchType"=>"in","fieldValues"=>["HANG_HOA"]],
+                            ["fieldName"=>"tab","searchType"=>"in","fieldValues"=>["THUOC_TAN_DUOC"]]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+    
+      
         return $service->searchPricing(            
             $payload
         );
     }
 }
- 
+  

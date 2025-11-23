@@ -16,6 +16,24 @@
         "can": "ntd-create"
     },
     {
+        "text": "Theo dõi HSMT",
+        "url": "\/muasamcong\/hsmt",
+        "icon": "fas fa-fw fa-user",
+        "can": "ntd-create"
+    },
+    {
+        "text": "Danh sách Hóa đơn",
+        "url": "\/invoices\/hoadon-list",
+        "icon": "fas fa-fw fa-user",
+        "can": "invoices-list"
+    },
+    {
+        "text": "Lấy Hóa đơn điện tử",
+        "url": "\/invoices\/hoadon",
+        "icon": "fas fa-fw fa-user",
+        "can": "invoices-list"
+    },
+    {
         "header": "MANAGER  WEBSITES",
         "can": "admin-create"
     },
@@ -255,8 +273,8 @@
         "submenu": [
             {
                 "text": "Danh sách Hóa đơn",
-                "url": "\/invoices",
-                "icon": "far fa-caret-square-right",
+                "url": "\/invoices\/hoadon-list",
+                "icon": "fas fa-fw fa-user",
                 "can": "invoices-list"
             }
         ]

@@ -26,6 +26,7 @@
                         <th>Số lượng</th>
                         <th>Số Quyết định</th>
                         <th>Ngày ban hành</th>
+                        <th>Đơn vị trúng thầu</th>
                         <th>Mã TBMT</th>
                     </tr>
                 </thead>
@@ -41,6 +42,7 @@
                             <td>{{ $item['soLuong'] ?? '-' }}</td>
                             <td>{{ $item['soQuyetDinh'] ?? '-' }}</td>
                             <td>{{ $item['ngayBanHanhQuyetDinh'] ?? '-' }}</td>
+                            <td>{{ $item['tenCdtBmt'] ?? '-' }}</td>
                             <td>{{ $item['maTbmt'] ?? '-' }}</td>
                         </tr>
                     @endforeach

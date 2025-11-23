@@ -1,0 +1,46 @@
+[
+    {
+        "Name": "COOKIE_SUPPORT",
+        "Value": "true",
+        "Domain": "muasamcong.mpi.gov.vn",
+        "Path": "\/",
+        "Max-Age": null,
+        "Expires": null,
+        "Secure": false,
+        "Discard": true,
+        "HttpOnly": false
+    },
+    {
+        "Name": "GUEST_LANGUAGE_ID",
+        "Value": "vi_VN",
+        "Domain": "muasamcong.mpi.gov.vn",
+        "Path": "\/",
+        "Max-Age": null,
+        "Expires": null,
+        "Secure": false,
+        "Discard": true,
+        "HttpOnly": false
+    },
+    {
+        "Name": "JSESSIONID",
+        "Value": "xuTaIn3gQg7VIAKvAymMDYlq7HfJ2hqf2pnb0UV5.dc_app1_02",
+        "Domain": "muasamcong.mpi.gov.vn",
+        "Path": "\/",
+        "Max-Age": null,
+        "Expires": null,
+        "Secure": false,
+        "Discard": true,
+        "HttpOnly": false
+    },
+    {
+        "Name": "NSC_WT_QSE_QPSUBM_NTD_NQJ",
+        "Value": "ffffffffaf183e2245525d5f4f58455e445a4a4217de",
+        "Domain": "muasamcong.mpi.gov.vn",
+        "Path": "\/",
+        "Max-Age": null,
+        "Expires": 1763766291,
+        "Secure": true,
+        "Discard": false,
+        "HttpOnly": true
+    }
+]

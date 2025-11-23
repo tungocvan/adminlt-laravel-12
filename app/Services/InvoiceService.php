@@ -36,10 +36,16 @@ class InvoiceService
             'symbol',
             'invoice_number',
             'type',
-            'buyer_tax_code',
-            'buyer_name',
-            'buyer_email',
-            'seller_name',
+            'issued_date',
+            'tax_code',
+            'name',        
+            'address',
+            'email',
+            'phone',
+            'tax_rate',
+            'vat_amount',
+            'amount_before_vat',
+            'total_amount',
             'invoice_type'
         ] as $field) {
             if (!empty($filters[$field])) {

@@ -28,6 +28,18 @@ app.post("/post-create", (req, res) => {
     res.json({ success: true });
 });
 
+// NEW: Endpoint nhận log từ Laravel GDT
+app.post("/gdt-log", (req, res) => {
+    const { message } = req.body;
+    if (message) {
+        console.log("📤 GDT Log:", message);
+
+        // Gửi log tới tất cả client đang lắng nghe event 'gdt_log'
+        io.emit("gdt_log", message);
+    }
+    res.json({ success: true });
+});
+
 
 // Danh sách user online
 let onlineUsers = {};

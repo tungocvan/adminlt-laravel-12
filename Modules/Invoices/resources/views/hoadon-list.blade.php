@@ -8,14 +8,12 @@
             tiếng anh: resources/lang/en
             tiếng việt: resources/lang/vi 
         --}}
-        <h3>{{ __('messages.language') }}</h3>
+        {{-- <h3>{{ __('messages.language') }}</h3> --}}
 @stop
 
 @section('content') 
-<div class="container">
-    @livewire('gdt-login') 
-    <hr>
-    @livewire('invoices.invoice-list')
+<div class="container-fluid p-2">
+    @livewire('invoices.hoadon-list')
 </div>
 
 @endsection
@@ -30,5 +28,5 @@
 
 @section('js')
 @stack('scripts')
- 
+
 @stop

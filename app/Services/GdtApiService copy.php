@@ -11,29 +11,25 @@ class GdtApiService
 
     public function loadCaptcha()
     {
+        
         $response = Http::withOptions([
             'verify' => false,
         ])->get($this->baseUrl . '/captcha');
 
-        if ($response->successful()) {
-            //dd($response->json());
-            $data = $response->json();
-            // $svg = $data['content'] ?? null;
-            // if ($svg) {
-            //     // Lưu SVG ra file để xem hoặc dùng OCR
-            //     \Storage::disk('local')->put('captcha.svg', $svg);
-      
-            // }
-            return $data;
+       if ($response->successful()) {
+            return $response->json();            
         }
         return null;
     }
 
+
+
     /**
      * Authenticate & lấy token
      */
-    public function login($username, $password, $cvalue, $ckey, $time = 1800)
+    public function login($username, $password, $cvalue, $ckey,$time=1800)
     {
+        
         $res = Http::withOptions([
             'verify' => false, // bỏ kiểm tra SSL
         ])->post($this->baseUrl . '/security-taxpayer/authenticate', [
@@ -43,6 +39,7 @@ class GdtApiService
             'cvalue' => $cvalue,
         ]);
 
+
         if ($res->successful()) {
             // kiểm tra key token đúng chưa
             $token = $res->json('token') ?? ($res->json('accessToken') ?? null);
@@ -51,17 +48,17 @@ class GdtApiService
                 // Cache::put('gdt_token', $token, $time);
                 Cache::forever('gdt_token', $token);
                 // \Log::info('GDT Token saved to cache', ['token' => $token]);
-            }
+            } 
 
             return [
                 'status' => 'success',
-                'token' => $token,
+                'token'  =>  $token
             ];
         }
 
         return [
-            'status' => 'error',
-            'token' => null,
-        ];
+                'status' => 'error',
+                'token'  =>  null
+            ];
     }
 }

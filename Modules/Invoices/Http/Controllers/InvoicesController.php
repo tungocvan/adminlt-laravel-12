@@ -20,6 +20,14 @@ class InvoicesController extends Controller
     {
         return view('Invoices::invoices');
     }
+    public function hoadon()
+    {
+        return view('Invoices::hoadon');
+    }
+    public function hoadonList()
+    {
+        return view('Invoices::hoadon-list');
+    }
 
     /**
      * Show the form for creating a new resource.

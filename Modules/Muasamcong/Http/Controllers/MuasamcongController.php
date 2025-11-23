@@ -20,6 +20,10 @@ class MuasamcongController extends Controller
     {
         return view('Muasamcong::muasamcong');
     }
+    public function hsmt()
+    {
+        return view('Muasamcong::hsmt');
+    }
 
     /**
      * Show the form for creating a new resource.

@@ -11,278 +11,231 @@ use Modules\Invoices\Models\Invoices;
 
 class GdtInvoiceService
 {
-    public function processRange($startDate, $endDate, callable $progressCallback = null,$vatIn)
+    /**
+     * Xử lý dữ liệu theo khoảng thời gian
+     */
+    public function processRange($startDate, $endDate, callable $cb = null, $vatIn)
     {
-        // Helper hiển thị
-        $show = function($msg) use ($progressCallback) {
-            if ($progressCallback) {
-                $progressCallback($msg); // hiện trên CLI
-            } else {
-                echo $msg . PHP_EOL; // fallback nếu không có callback
-            }
-        };
+        $show = fn($m) => $cb ? $cb($m) : null;
 
-        $show("[GDT] BẮT ĐẦU processRange...");
+        $show('[GDT] Bắt đầu processRange...');
+        $vatIn = (bool) $vatIn;
+
+        $show($vatIn ? '[GDT] Hóa đơn đầu vào' : '[GDT] Hóa đơn đầu ra');
 
         $token = Cache::get('gdt_token');
-        if (!$token) {
-            $show('[GDT] ❌ Không có token trong cache');
-            return null;
-        }
+        if (!$token) return $show('[GDT] ❌ Không có token trong cache');
 
         $start = Carbon::parse($startDate);
         $end   = Carbon::parse($endDate);
 
         $show("[GDT] Khoảng thời gian: {$start->format('d/m/Y')} → {$end->format('d/m/Y')}");
 
-        $allInvoices = [];
+        $all = [];
 
         while ($start->lte($end)) {
-
             $chunkStart = $start->copy()->startOfMonth();
-            $chunkEnd   = $start->copy()->endOfMonth();
-            if ($chunkEnd->gt($end)) $chunkEnd = $end;
+            $chunkEnd   = min($start->copy()->endOfMonth(), $end);
 
             $show("[GDT] Gọi API tháng: {$chunkStart->format('d/m/Y')} → {$chunkEnd->format('d/m/Y')}");
 
-            $invoices = $this->fetchInvoicesByMonth(
-                $token,
-                $chunkStart,
-                $chunkEnd,
-                function($msg) use ($show) {
-                    $show($msg); // hiện tiến độ từng 50 hóa đơn
-                },
-                $vatIn
-            );
+            $invoices = $this->fetchInvoicesByMonth($token, $chunkStart, $chunkEnd, $show, $vatIn);
 
-            $show("[GDT] Thu được " . count($invoices) . " hóa đơn của tháng này");
+            $show('[GDT] Thu được ' . count($invoices) . ' hóa đơn tháng này');
 
-            $allInvoices = array_merge($allInvoices, $invoices);
-
+            $all = array_merge($all, $invoices);
             $start->addMonth();
+            $this->appendLog('[GDT] Thu được ' . count($invoices) . ' hóa đơn tháng này');
         }
 
-        $show("[GDT] Tổng cộng: " . count($allInvoices) . " hóa đơn");
+        $show('[GDT] Tổng cộng: ' . count($all) . ' hóa đơn');
 
-        $file = $this->exportExcel($allInvoices, $show,$vatIn); // truyền callback để exportExcel cũng hiển thị trên CLI
+        $file = $this->exportExcel($all, $vatIn);
 
-        $show("[GDT] File Excel sau khi export: " . ($file ?: 'NULL'));
+        $show('[GDT] File Excel tạo ra: ' . $file);
 
         return $file;
     }
 
-
-
-    private function fetchInvoicesByMonth($token, $from, $to, callable $progressCallback = null,$vatIn)
+    // Phương thức appendLog:
+    private function appendLog($msg)
     {
-        if($vatIn === true){
-            $out="purchase";
-        }else{
-            $out="sold";
-        }
-        $results = [];
-        $pageSize = 50;
-        $processed = 0;
+        $logs = Cache::get('gdt_log', []);
+        $logs[] = "[" . now()->format('H:i:s') . "] " . $msg;
+        Cache::put('gdt_log', $logs, 3600);        
+    }
+    /**
+     * Lấy hóa đơn theo từng tháng
+     */
+    private function fetchInvoicesByMonth($token, $from, $to, callable $show, $vatIn)
+    {
+        $action = $vatIn ? 'purchase' : 'sold';
 
         $search = "tdlap=ge={$from->format('d/m/Y')}T00:00:00;tdlap=le={$to->format('d/m/Y')}T23:59:59";
+        $pageSize = 50;
 
-        // Lấy tổng số hóa đơn trước để tính số page
-        $urlTotal = "https://hoadondientu.gdt.gov.vn:30000/query/invoices/$out?sort=tdlap:desc&size=1&page=1&search={$search}";
-        $responseTotal = Http::withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => "Bearer $token"])
-            ->get($urlTotal);
-
-        if (!$responseTotal->successful()) {
-            if ($progressCallback) {
-                $progressCallback("❌ API lỗi khi lấy tổng hóa đơn: " . json_encode($responseTotal->json()));
-            }
-            return $results;
-        }
-
-        $total = $responseTotal->json()['total'] ?? 0;
+        // Lấy tổng số
+        $total = $this->getTotalInvoices($token, $action, $search);
         if ($total === 0) {
-            if ($progressCallback) {
-                $progressCallback("ℹ Tháng này không có hóa đơn.");
-            }
-            return $results;
+            $show("ℹ Không có hóa đơn tháng này.");
+            return [];
         }
 
         $totalPages = ceil($total / $pageSize);
-        if ($progressCallback) {
-            $progressCallback("📄 Tổng hóa đơn: {$total}, chia ra {$totalPages} page(s).");
-        }
+        $show("📄 Tổng: {$total}, Số trang: {$totalPages}");
 
-        // Bắt đầu loop theo page
+        $result = [];
+        $processed = 0;
+
         for ($page = 1; $page <= $totalPages; $page++) {
-            $url = "https://hoadondientu.gdt.gov.vn:30000/query/invoices/$out?sort=tdlap:desc&size={$pageSize}&page={$page}&search={$search}";
-            if ($progressCallback) {
-                $progressCallback("📄 Gọi Page {$page}...");
-            }
+            $url = "https://hoadondientu.gdt.gov.vn:30000/query/invoices/$action"
+                 . "?sort=tdlap:desc&size=$pageSize&page=$page&search=$search";
 
-            $response = Http::withOptions(['verify' => false])
+            $show("📄 Gọi Page {$page}...");
+
+            $res = Http::withOptions(['verify' => false])
                 ->withHeaders(['Authorization' => "Bearer $token"])
                 ->get($url);
 
-            if (!$response->successful()) {
-                if ($progressCallback) {
-                    $progressCallback("❌ API lỗi Page {$page}: " . json_encode($response->json()));
-                }
+            if (!$res->successful()) {
+                $show("❌ API lỗi Page {$page}: " . json_encode($res->json()));
                 break;
             }
 
-            $items = $response->json()['datas'] ?? [];
-
-            foreach ($items as $item) {
-                $results[] = $this->mapInvoice($item);
+            foreach ($res->json()['datas'] ?? [] as $item) {
+                $result[] = $this->mapInvoice($item, $vatIn);
                 $processed++;
 
-                if ($progressCallback && $processed % 50 === 0) {
-                    $progressCallback("🔔 Đã xử lý {$processed} hóa đơn...");
-                }
+                if ($processed % 50 == 0) $show("🔔 Đã xử lý {$processed} hóa đơn");
             }
         }
 
-        // Hiển thị tổng số hóa đơn nếu chưa chia hết 50
-        if ($progressCallback && $processed % 50 !== 0) {
-            $progressCallback("✅ Tổng số hóa đơn xử lý: {$processed}");
-        }
+        if ($processed % 50 !== 0) $show("✅ Tổng xử lý: {$processed}");
 
-        return $results;
+        return $result;
     }
 
-
-
-
-    private function mapInvoice($item)
+    /**
+     * Lấy tổng hóa đơn nhanh
+     */
+    private function getTotalInvoices($token, $action, $search)
     {
+        $url = "https://hoadondientu.gdt.gov.vn:30000/query/invoices/$action?sort=tdlap:desc&size=1&page=1&search=$search";
+
+        $res = Http::withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => "Bearer $token"])
+            ->get($url);
+
+        return $res->successful() ? ($res->json()['total'] ?? 0) : 0;
+    }
+
+    /**
+     * Map hóa đơn về dạng Excel
+     */
+    private function mapInvoice($item, $vatIn)
+    {
+        $isIn = !$vatIn;
+
         return [
-            'Mã tra cứu hóa đơn' => $item['cttkhac'][16]['dlieu'] ?? '',
-            'Ký hiệu hóa đơn'    => ($item['khmshdon'] ?? '') . '/' . ($item['khhdon'] ?? ''),
+            'Mã tra cứu'         => $item['cttkhac'][16]['dlieu'] ?? '',
+            'Ký hiệu'            => ($item['khmshdon'] ?? '') . '/' . ($item['khhdon'] ?? ''),
             'Số hóa đơn'         => $item['shdon'] ?? '',
             'Loại hóa đơn'       => $item['thdon'] ?? '',
             'Ngày lập'           => isset($item['tdlap']) ? Carbon::parse($item['tdlap'])->format('d/m/Y') : '',
-            'MST Người mua'      => $item['nmmst'] ?? '',
-            'Người mua'          => $item['nmten'] ?? '',
-            'Email người mua'    => $item['nmdctdtu'] ?? '',
-            'Người bán'          => $item['nbten'] ?? '',
+
+            'Mã số thuế'         => $isIn ? $item['nmmst'] : $item['nbmst'],
+            'Đơn vị'             => $isIn ? $item['nmten'] : $item['nbten'],
+            'Địa chỉ'            => $isIn ? $item['nmdchi'] : $item['nbdchi'],
+            'Email'              => $isIn ? $item['nmdctdtu'] : $item['nbdctdtu'],
+            'Phone'              => $isIn ? $item['nmsdthoai'] : $item['nbsdthoai'],
+
             'Thuế suất'          => $item['thttltsuat'][0]['tsuat'] ?? '',
             'Tiền VAT'           => $item['tgtthue'] ?? 0,
-            'Tiền trước VAT'     => $item['tgtcthue'] ?? 0,
+            'Trước VAT'          => $item['tgtcthue'] ?? 0,
             'Thành tiền'         => $item['tgtttbso'] ?? 0,
         ];
     }
 
-    private function exportExcel($data,$show,$vatIn)
+    /**
+     * Xuất Excel
+     */
+    private function exportExcel(array $data, bool $vatIn)
     {
-        if($vatIn === true){
-            $folder = storage_path('app/gdt/vat_in');
-            if (!is_dir($folder)) {
-                mkdir($folder, 0777, true);
-            }
-            $filePath = $folder . '/inafo_vat_in_' . date('Ymd_His') . '.xlsx';
-        }else{
-            
-            $folder = storage_path('app/gdt/vat_out');
-            if (!is_dir($folder)) {
-                mkdir($folder, 0777, true);
-            }
-            $filePath = $folder . '/inafo_vat_out_' . date('Ymd_His') . '.xlsx';
-        }
-        
+        $folder = $vatIn
+            ? storage_path('app/gdt/vat_in')
+            : storage_path('app/gdt/vat_out');
 
-        //Log::info("[GDT] Bắt đầu xuất Excel: {$filePath}");
+        if (!is_dir($folder)) mkdir($folder, 0777, true);
 
-        (new FastExcel($data))->export($filePath);
+        $file = $folder . '/' . ($vatIn ? 'vat_in_' : 'vat_out_') . date('Ymd_His') . '.xlsx';
 
-        //Log::info("[GDT] Xuất Excel thành công: {$filePath}");
+        (new FastExcel($data))->export($file);
 
-        return $filePath;
+        return $file;
     }
 
-    public function importExcel(string $filePath, string $invoiceType = 'sold', callable $callback = null)
+    /**
+     * Import Excel vào DB
+     */
+    public function importExcel(string $filePath, string $invoiceType = 'sold', callable $cb = null)
     {
         if (!file_exists($filePath)) {
             throw new \Exception("File không tồn tại: $filePath");
         }
 
-        if ($callback) {
-            $callback("📂 Đang đọc file Excel: $filePath");
-        }
+        $cb? $cb("📂 Import file: $filePath") : null;
 
-        $collection = (new FastExcel)->import($filePath);
+        $rows = (new FastExcel())->import($filePath);
         $count = 0;
 
-        foreach ($collection as $row) {
-
-            // Xử lý ngày lập
-            $issuedDate = null;
-            if (!empty($row['Ngày lập'])) {
-                try {
-                    $issuedDate = Carbon::createFromFormat('d/m/Y', $row['Ngày lập']);
-                } catch (\Exception $e) {
-                    $issuedDate = null;
-                }
-            }
-
-            // Xử lý thuế suất
-            $taxRate = null;
-            if (!empty($row['Thuế suất'])) {
-                $cleanTax = preg_replace('/[^0-9.]/', '', $row['Thuế suất']); // loại bỏ chữ cái
-                $taxRate = is_numeric($cleanTax) ? floatval($cleanTax) : 0;
-            } else {
-                $taxRate = 0;
-            }
-
-            // Xử lý các cột số tiền
-            $amountBeforeVat = $this->parseDecimal($row['Tiền trước VAT'] ?? 0);
-            $vatAmount       = $this->parseDecimal($row['Tiền VAT'] ?? 0);
-            $totalAmount     = $this->parseDecimal($row['Thành tiền'] ?? 0);
-
-            $mapped = [
-                'lookup_code'        => $row['Mã tra cứu hóa đơn'] ?? null,
-                'symbol'             => $row['Ký hiệu hóa đơn'] ?? null,
-                'invoice_number'     => $row['Số hóa đơn'] ?? null,
-                'type'               => $row['Loại hóa đơn'] ?? null,
-                'issued_date'        => $issuedDate,
-
-                'buyer_tax_code'     => $row['MST Người mua'] ?? null,
-                'buyer_name'         => $row['Người mua'] ?? null,
-                'buyer_email'        => $row['Email người mua'] ?? null,
-
-                'seller_name'        => $row['Người bán'] ?? null,
-
-                'tax_rate'           => $taxRate,
-                'amount_before_vat'  => $amountBeforeVat,
-                'vat_amount'         => $vatAmount,
-                'total_amount'       => $totalAmount,
-
-                'invoice_type'       => $invoiceType,
-            ];
-
-            Invoices::create($mapped);
+        foreach ($rows as $row) {
+            Invoices::create($this->mapImportRow($row, $invoiceType));
             $count++;
 
-            if ($callback && $count % 50 === 0) {
-                $callback("🔄 Đã import {$count} hóa đơn...");
-            }
+            if ($cb && $count % 50 === 0) $cb("🔄 Imported: $count");
         }
 
-        if ($callback) {
-            $callback("✅ Hoàn tất import: {$count} hóa đơn");
-        }
+        $cb? $cb("✅ Import xong: $count") : null;
 
         return $count;
     }
 
-    /**
-     * Parse decimal từ Excel (loại bỏ dấu phẩy, chữ…)
-     */
-    private function parseDecimal($value)
+    private function mapImportRow($row, $invoiceType)
     {
-        if (empty($value)) return 0;
-        // Loại bỏ tất cả ký tự không phải số hoặc dấu chấm
+        $issuedDate = $this->safeDate($row['Ngày lập'] ?? null);
+
+        return [
+            'lookup_code'     => $row['Mã tra cứu'] ?? null,
+            'symbol'          => $row['Ký hiệu'] ?? null,
+            'invoice_number'  => $row['Số hóa đơn'] ?? null,
+            'type'            => $row['Loại hóa đơn'] ?? null,
+            'issued_date'     => $issuedDate,
+
+            'buyer_tax_code'  => $row['Mã số thuế'] ?? null,
+            'buyer_name'      => $row['Đơn vị'] ?? null,
+            'buyer_email'     => $row['Email'] ?? null,
+
+            'tax_rate'        => $this->cleanDecimal($row['Thuế suất'] ?? 0),
+            'amount_before_vat' => $this->cleanDecimal($row['Trước VAT'] ?? 0),
+            'vat_amount'      => $this->cleanDecimal($row['Tiền VAT'] ?? 0),
+            'total_amount'    => $this->cleanDecimal($row['Thành tiền'] ?? 0),
+
+            'invoice_type'    => $invoiceType,
+        ];
+    }
+
+    private function safeDate($value)
+    {
+        try {
+            return Carbon::createFromFormat('d/m/Y', $value);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    private function cleanDecimal($value)
+    {
         $clean = preg_replace('/[^0-9.\-]/', '', str_replace(',', '', $value));
         return is_numeric($clean) ? floatval($clean) : 0;
     }
-
 }
