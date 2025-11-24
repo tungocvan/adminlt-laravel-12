@@ -55,7 +55,10 @@
                     <!-- Mã số thuế -->
                     <div class="col-md-4">
                         <label>MST</label>
-                        <select x-init="new TomSelect($el, { create: false, placeholder: '-- Tất cả --', onDropdownOpen: () => @this.set('tax_code', '') })" class="form-control" wire:model.live="tax_code">
+                        <select x-init="ts = new TomSelect($el, {
+                            create: false,
+                            placeholder: '-- Tất cả --'
+                        });" class="form-control" wire:model.live="tax_code">
                             <option value="">-- Tất cả --</option>
                             @foreach ($taxCodeList as $item)
                                 <option value="{{ $item }}">{{ $item }}</option>
