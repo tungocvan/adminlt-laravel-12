@@ -53,7 +53,27 @@
               </form>
           </div>
       </div>
-      <div class="col-md-6"></div>
+      <div class="col-md-6">
+        <livewire:select-option-table 
+                placeholder="Chọn tỉnh thành" 
+                model="Area" 
+                title="name" 
+                id="code" 
+                wire:model.live="code"
+                :filters="['status' => 1,'area_type' =>'1']"
+                {{-- wire:key="code-{{ $code }}" --}}
+        />
+        <livewire:select-option-table 
+                placeholder="Chọn phường xã" 
+                model="Area" 
+                title="name" 
+                id="code" 
+                wire:model.live="ward"
+                :filters="['status' => 1,'area_type' =>'2','parent_code' => $ward]"
+                wire:key="ward-{{ $ward }}"
+        />
+            {{ $ward}}
+      </div>
   </div>
 
 </div>

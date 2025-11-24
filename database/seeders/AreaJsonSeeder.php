@@ -9,12 +9,13 @@ class AreaJsonSeeder extends Seeder
 {
     public function run(): void
     {
-        // if (!Storage::exists('areas.json')) {
-        //     dd('File không tồn tại!');
-        // }
-
-        $json = Storage::get('areas.json');      // đọc file JSON
-        
+        $path = base_path("storage/app/areas.json");
+       
+        if (!file_exists($path)) {
+            dd('File không tồn tại!');
+        }
+        $json = file_get_contents($path);
+     
         $items = json_decode($json, true);       // convert thành array
 
         // Chunk để tránh insert quá nặng

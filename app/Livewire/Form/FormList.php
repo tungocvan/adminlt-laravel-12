@@ -8,6 +8,8 @@ use Livewire\WithFileUploads;
 class FormList extends Component
 {
     use WithFileUploads; 
+    public $code ;   // lấy từ select-options-table (multiple)
+    public $ward; 
     public $products = [];   // lấy từ select-options-table (multiple)
     public $start_date;
     public $end_date;
@@ -30,6 +32,12 @@ class FormList extends Component
         ]);
     }
 
+
+
+    public function updatedCode(){
+        //dd($this->products);
+        $this->ward = (string)$this->code;
+    }
     public function updatedProducts(){
         //dd($this->products);
     }

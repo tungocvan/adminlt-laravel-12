@@ -8,48 +8,76 @@ use Livewire\Attributes\Modelable;
 class SelectOptionTable extends Component
 {
     public $options = [];
-    #[Modelable] // Cho phép wire:model từ cha
+
+    #[Modelable]
     public $selected = null;
+
     public $placeholder = 'Chọn mục';
 
-    // tham số truyền từ blade
+    // props truyền từ Blade
     public $model;
     public $title = 'name';
     public $id = 'id';
+    public $filters = [];
 
-    public function mount($selected = null, $placeholder = 'Chọn mục', $model = 'User', $title = 'name', $id = 'id')
-    {
-        if (!$model) {
-            throw new \Exception("Model không được để trống");
-        }
-
+    public function mount(
+        $selected = null,
+        $placeholder = 'Chọn mục',
+        $model = 'User',
+        $title = 'name',
+        $id = 'id',
+        $filters = []
+    ) {
+        $this->selected = $selected;
+        $this->placeholder = $placeholder;
         $this->model = $model;
         $this->title = $title;
         $this->id = $id;
-        $this->selected = $selected;
+        $this->filters = $filters;
 
-        // Tạo full namespace model
+        $this->loadOptions();
+    }
+
+    public function loadOptions()
+    {
         $class = "App\\Models\\" . $this->model;
 
         if (!class_exists($class)) {
             throw new \Exception("Model $class không tồn tại");
         }
 
-        // Lấy dữ liệu
-        $this->options = $class::pluck($this->title, $this->id)->toArray();
+        $query = $class::query();
 
-        if ($placeholder) {
-            $this->placeholder = $placeholder;
+        // Áp dụng filters dạng ['status' => 1, 'type' => 'customer']
+        foreach ($this->filters as $column => $value) {
+            if ($value !== null && $value !== '') {
+                $query->where($column, $value);
+            }else{
+                $this->options = [];
+                return ;
+            }
         }
+
+        $this->options = $query->pluck($this->title, $this->id)->toArray();
+    }
+
+    public function updatedFilters()
+    {
+        $this->loadOptions();
+       
     }
 
     public function updatedSelected()
     {
-        // bạn có thể emit event nếu cần
-        // $this->dispatch('product-selected', $this->selected);
-        // hoặc xử lý trực tiếp
-        // logger()->info('Selected:', ['id' => $this->selected]);
+        // sync UI → Livewire
+        \Log::info('updatedSelected:'. $this->id);
+        $this->loadOptions();
+       
+      
     }
+  
+
+
     public function render()
     {
         return view('livewire.select-option-table');
