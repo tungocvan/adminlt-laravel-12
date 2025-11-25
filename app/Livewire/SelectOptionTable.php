@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\Attributes\Modelable;
+use Illuminate\Support\Str;
 
 class SelectOptionTable extends Component
 {
@@ -18,6 +19,7 @@ class SelectOptionTable extends Component
     public $model;
     public $title = 'name';
     public $id = 'id';
+    public $class = 'tnv-option';
     public $filters = [];
 
     public function mount(
@@ -34,7 +36,7 @@ class SelectOptionTable extends Component
         $this->title = $title;
         $this->id = $id;
         $this->filters = $filters;
-
+        $this->class = 'tnv-option-'.Str::random(4);
         $this->loadOptions();
     }
 
@@ -70,9 +72,8 @@ class SelectOptionTable extends Component
     public function updatedSelected()
     {
         // sync UI → Livewire
-        \Log::info('updatedSelected:'. $this->id);
-        $this->loadOptions();
-       
+
+        $this->loadOptions();       
       
     }
   

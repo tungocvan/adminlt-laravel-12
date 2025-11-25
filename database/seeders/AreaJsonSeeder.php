@@ -19,7 +19,8 @@ class AreaJsonSeeder extends Seeder
         $items = json_decode($json, true);       // convert thành array
 
         // Chunk để tránh insert quá nặng
-        $chunks = array_chunk($items, 500); // mỗi chunk 500 record
+        $chunks = array_chunk($items, 100);
+
 
         foreach ($chunks as $chunk) {
             $insertData = [];

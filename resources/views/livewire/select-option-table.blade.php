@@ -2,16 +2,20 @@
     <div wire:ignore>
         <label class="form-label">{{ $placeholder }}</label>
 
-        <select class="form-control tnv-option" style="width:100%">
-            <option value="">{{ $placeholder }}</option>
+        <select class="form-control {{ $class }}" style="width:100%">
+            <option wire:key="{{ $class }}-0"  value="">{{ $placeholder }}</option>
             @foreach ($options as $key => $val)
-                <option value="{{ $key }}">{{ $val }}</option>
+                <option  wire:key="{{ $class }}-{{ $key }}" value="{{ $key }}">{{ $val }}</option>
             @endforeach
         </select>
     </div>
     <script>
         document.addEventListener('livewire:navigated', () => {
-            let el = $('.tnv-option');
+    
+            const el = $('.{{ $class }}');
+            if (el.hasClass("select2-hidden-accessible")) {
+                    el.select2('destroy');
+                }
             el.select2({
                 theme: "classic"
             });
@@ -20,7 +24,10 @@
                 let value = $(this).val();
                 @this.set('selected', value);
             });
+
+            
         });
     </script>
 
 </div>
+ 

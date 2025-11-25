@@ -61,7 +61,7 @@
                 id="code" 
                 wire:model.live="code"
                 :filters="['status' => 1,'area_type' =>'1']"
-                {{-- wire:key="code-{{ $code }}" --}}
+          
         />
         <livewire:select-option-table 
                 placeholder="Chọn phường xã" 
@@ -70,7 +70,7 @@
                 id="code" 
                 wire:model.live="ward"
                 :filters="['status' => 1,'area_type' =>'2','parent_code' => $ward]"
-                wire:key="ward-{{ $ward }}"
+                wire:key="{{ $ward }}"
         />
             {{ $ward}}
       </div>
