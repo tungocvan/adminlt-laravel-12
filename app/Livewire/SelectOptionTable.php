@@ -8,40 +8,56 @@ use Illuminate\Support\Str;
 
 class SelectOptionTable extends Component
 {
-    public $options = [];
-
     #[Modelable]
     public $selected = null;
 
     public $placeholder = 'Chọn mục';
 
-    // props truyền từ Blade
-    public $model;
+    // 2 chế độ
+    public $model = null;      // null => dùng options array
+    public $options = [];      // nếu truyền options thì không load Model
+
+    // Nếu dùng model
     public $title = 'name';
     public $id = 'id';
-    public $class = 'tnv-option';
     public $filters = [];
+
+    public $class = 'tnv-option';
 
     public function mount(
         $selected = null,
         $placeholder = 'Chọn mục',
-        $model = 'User',
+        $model = null,
         $title = 'name',
         $id = 'id',
-        $filters = []
+        $filters = [],
+        $options = []   // ✨ mới thêm
     ) {
-        $this->selected = $selected;
+        $this->selected    = $selected;
         $this->placeholder = $placeholder;
-        $this->model = $model;
-        $this->title = $title;
-        $this->id = $id;
-        $this->filters = $filters;
-        $this->class = 'tnv-option-'.Str::random(4);
-        $this->loadOptions();
+
+        $this->model       = $model;
+        $this->title       = $title;
+        $this->id          = $id;
+        $this->filters     = $filters;
+
+        $this->options     = $options;
+
+        $this->class       = 'tnv-option-'.Str::random(4);
+
+        // Nếu không truyền options → load từ model
+        if (empty($this->options)) {
+            $this->loadOptions();
+        }
     }
 
     public function loadOptions()
     {
+        // ❗ Nếu đã truyền options → không load từ DB nữa!
+        if (!empty($this->options)) return;
+
+        if (!$this->model) return;
+
         $class = "App\\Models\\" . $this->model;
 
         if (!class_exists($class)) {
@@ -50,13 +66,12 @@ class SelectOptionTable extends Component
 
         $query = $class::query();
 
-        // Áp dụng filters dạng ['status' => 1, 'type' => 'customer']
         foreach ($this->filters as $column => $value) {
             if ($value !== null && $value !== '') {
                 $query->where($column, $value);
-            }else{
+            } else {
                 $this->options = [];
-                return ;
+                return;
             }
         }
 
@@ -65,19 +80,17 @@ class SelectOptionTable extends Component
 
     public function updatedFilters()
     {
-        $this->loadOptions();
-       
+        if (empty($this->options)) {
+            $this->loadOptions();
+        }
     }
 
     public function updatedSelected()
     {
-        // sync UI → Livewire
-
-        $this->loadOptions();       
-      
+        if (empty($this->options)) {
+            $this->loadOptions();
+        }
     }
-  
-
 
     public function render()
     {

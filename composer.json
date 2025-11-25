@@ -22,7 +22,7 @@
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.5",
         "livewire/livewire": "^3.6",
-        "livewire/volt": "^1.7",
+        "livewire/volt": "^1.10",
         "maatwebsite/excel": "^3.1.64",
         "openspout/openspout": "^4.0",
         "predis/predis": "^3.1",

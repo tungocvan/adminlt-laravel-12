@@ -1,11 +1,9 @@
 <div>
     <div wire:ignore>
-        <label class="form-label">{{ $placeholder }}</label>
-
         <select class="form-control {{ $class }}" style="width:100%">
-            <option wire:key="{{ $class }}-0"  value="">{{ $placeholder }}</option>
+            <option value="">{{ $placeholder ?? '-- Tất cả --'}}</option>
             @foreach ($options as $key => $val)
-                <option  wire:key="{{ $class }}-{{ $key }}" value="{{ $key }}">{{ $val }}</option>
+                <option   value="{{ $key }}">{{ $val }}</option>
             @endforeach
         </select>
     </div>

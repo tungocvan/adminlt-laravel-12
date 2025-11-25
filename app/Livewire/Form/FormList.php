@@ -17,7 +17,7 @@ class FormList extends Component
     public $image;
     public $imageUpload;   // file upload chính
 
-    public function submit()
+    public function submit() 
     {
         if ($this->imageUpload) {
             $image = $this->imageUpload->store('products', 'public');
