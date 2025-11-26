@@ -1,4 +1,5 @@
-<div x-data="invoiceTypeData">
+<div x-data="{ type: @js($type) }" x-init="$watch('type', value => @this.set('type', value))">
+
     <!-- Dashboard -->
     <div class="row mb-4" :class="{ 'd-none': type !== null }">
         <div class="col-md-6">
@@ -37,22 +38,24 @@
 
                 <div class="row mb-3">
                     <!-- Người mua / Người bán -->
-                    <div class="col-md-4" x-data="buyerSellerSelect">
-                        <label x-text="type == 'sold' ? 'Người mua' : 'Người bán'"></label>
-                    
-                        <select x-ref="select" class="form-control" wire:model.live="name">
+                    <div class="col-md-4">
+                        <label x-text="type=='sold'?'Người mua':'Người bán'"></label>
+                        <select x-init="ts = new TomSelect($el, {
+                            create: false,
+                            placeholder: '-- Tất cả --'
+                        });" class="form-control" wire:model.live="name">
                             <option value=''>-- Tất cả --</option>
                             @foreach ($nameList as $item)
                                 <option value="{{ $item }}">{{ $item }}</option>
                             @endforeach
                         </select>
+
                     </div>
-                    
 
                     <!-- Mã số thuế -->
                     <div class="col-md-4">
                         <label>MST</label>
-                        <select x-init="initWatcher()" x-init="ts = new TomSelect($el, {
+                        <select x-init="ts = new TomSelect($el, {
                             create: false,
                             placeholder: '-- Tất cả --'
                         });" class="form-control" wire:model.live="tax_code">
@@ -131,36 +134,5 @@
 
     @push('js')
         <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-        <script>
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('invoiceTypeData', () => ({
-                    type: @js($type),
-            
-                    init() {
-                        this.$watch('type', value => {
-                            $wire.set('type', value);
-                        });
-                    }
-                }));
-                Alpine.data('buyerSellerSelect', () => ({
-                    type: @js($type),
-                    ts: null,
-
-                    init() {
-                        // Watch Livewire -> Alpine
-                        this.$watch('type', value => {
-                            $wire.set('type', value);
-                        });
-
-                        // Khởi tạo TomSelect
-                        this.ts = new TomSelect(this.$refs.select, {
-                            create: false,
-                            placeholder: '-- Tất cả --'
-                        });
-                    }
-                }));
-            });
-            </script>
-            
     @endpush
 </div>

@@ -28,6 +28,7 @@ class HoadonList extends Component
     {
         $this->updateNameList();
         $this->updateTaxCodeList();
+        
     }
 
     public function updatedType($value)
@@ -74,7 +75,7 @@ class HoadonList extends Component
             ->groupBy('name')
             ->orderBy('name')
             ->pluck('name')
-            ->toArray();
+            ->toArray();            
     }
 
     /**
