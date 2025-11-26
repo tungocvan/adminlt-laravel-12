@@ -17,8 +17,7 @@
         />
     </div>
     <div class="col-md-4">
-        <label x-text="type=='sold'?'Người mua':'Người bán'"></label>
-    
+        <label x-text="type=='sold'?'Người mua':'Người bán'"></label>    
         <livewire:select-option-table 
             wire:model.live="name"
             placeholder="-- Tất cả --"

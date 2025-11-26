@@ -37,31 +37,28 @@
 
                 <div class="row mb-3">
                     <!-- Người mua / Người bán -->
-                    <div class="col-md-4" x-data="buyerSellerSelect">
+                    <div class="col-md-4">
                         <label x-text="type == 'sold' ? 'Người mua' : 'Người bán'"></label>
-                    
-                        <select x-ref="select" class="form-control" wire:model.live="name">
+
+                        <select x-ref="nameSelect" x-init="initTomSelect('nameSelect')" class="form-control" wire:model.live="name">
                             <option value=''>-- Tất cả --</option>
                             @foreach ($nameList as $item)
                                 <option value="{{ $item }}">{{ $item }}</option>
                             @endforeach
                         </select>
                     </div>
-                    
-
-                    <!-- Mã số thuế -->
                     <div class="col-md-4">
                         <label>MST</label>
-                        <select x-init="initWatcher()" x-init="ts = new TomSelect($el, {
-                            create: false,
-                            placeholder: '-- Tất cả --'
-                        });" class="form-control" wire:model.live="tax_code">
-                            <option value="">-- Tất cả --</option>
+
+                        <select x-ref="taxSelect" x-init="initTomSelect('taxSelect')" class="form-control" wire:model.live="tax_code">
+                            <option value=''>-- Tất cả --</option>
                             @foreach ($taxCodeList as $item)
                                 <option value="{{ $item }}">{{ $item }}</option>
                             @endforeach
                         </select>
                     </div>
+
+     
 
                     <!-- Từ ngày / Đến ngày -->
                     <div class="col-md-4 d-flex">
@@ -133,34 +130,69 @@
         <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
         <script>
             document.addEventListener('alpine:init', () => {
+        
+                // Registry lưu tất cả TomSelect trong trang
+                window.TS_REGISTRY = window.TS_REGISTRY || [];
+        
                 Alpine.data('invoiceTypeData', () => ({
                     type: @js($type),
-            
+                    selects: {},
+        
                     init() {
+        
+                        // Đồng bộ type với Livewire
                         this.$watch('type', value => {
-                            $wire.set('type', value);
+                            this.$wire.set('type', value);
                         });
-                    }
-                }));
-                Alpine.data('buyerSellerSelect', () => ({
-                    type: @js($type),
-                    ts: null,
-
-                    init() {
-                        // Watch Livewire -> Alpine
-                        this.$watch('type', value => {
-                            $wire.set('type', value);
+        
+                        // Re-init giá trị TomSelect nếu Livewire render lại
+                        Livewire.hook('message.processed', () => {
+                            for (let ref in this.selects) {
+                                let el = this.$refs[ref];
+                                if (el) this.selects[ref].setValue(el.value, true);
+                            }
                         });
-
+                    },
+        
+                    initTomSelect(refName) {
+                        let el = this.$refs[refName];
+                        if (!el) return;
+        
+                        // Nếu đã init rồi thì bỏ qua
+                        if (el.tomselect) {
+                            this.selects[refName] = el.tomselect;
+                            return;
+                        }
+        
                         // Khởi tạo TomSelect
-                        this.ts = new TomSelect(this.$refs.select, {
-                            create: false,
-                            placeholder: '-- Tất cả --'
+                        let ts = new TomSelect(el, {});
+        
+                        // Lưu vào registry toàn cục
+                        window.TS_REGISTRY.push(ts);
+        
+                        // Focus → clear tất cả TomSelect khác
+                        ts.on('focus', () => {
+                            window.TS_REGISTRY.forEach(t => {
+                                if (t !== ts) {
+                                    t.clear(true);
+                                }
+                            });
                         });
+        
+                        // Gửi event change về Livewire
+                        ts.on('change', () => {
+                            el.dispatchEvent(
+                                new Event('input', { bubbles: true })
+                            );
+                        });
+                        
+                        // Lưu instance vào Alpine để sync lại sau render
+                        this.selects[refName] = ts;
                     }
+        
                 }));
             });
-            </script>
-            
+        </script>
+        
     @endpush
 </div>
