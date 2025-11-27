@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace Modules\Invoices\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
@@ -84,6 +84,6 @@ class GdtInvoice extends Component
     {
           // xem key chính xác
 
-        return view('livewire.gdt-invoice');
+        return view('Invoices::livewire.gdt-invoice');
     }
 }

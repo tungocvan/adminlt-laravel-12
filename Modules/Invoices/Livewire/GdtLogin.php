@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace Modules\Invoices\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
@@ -41,16 +41,16 @@ class GdtLogin extends Component
             $response = $gdt->login($this->username, $this->password, $this->cvalue, $this->ckey,36000);
             $this->token = $response['token'] ?? null;      
         }
-         $this->redirect('/invoices');
+         $this->redirect('/invoices/create-token');
     }
     public function deleteToken()
     {
         //dd('deleteToken');
         Cache::forget('gdt_token'); 
-        $this->redirect('/invoices');
+        $this->redirect('/invoices/create-token');
     }
     public function render()
     {
-        return view('livewire.gdt-login');
+        return view('Invoices::livewire.gdt-login');
     }
 }

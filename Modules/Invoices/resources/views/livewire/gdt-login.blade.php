@@ -2,7 +2,11 @@
     @if(session()->has('error'))
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
-
+    @if (session('status'))
+        <div class="alert alert-danger">
+            {{ session('status') }}
+        </div>
+    @endif
     <form wire:submit.prevent="login">
         <div class="form-group">
             <label>Username</label>

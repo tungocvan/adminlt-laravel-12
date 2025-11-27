@@ -66,7 +66,10 @@ class SearchHoadon extends Component
         ); 
         $this->log("Hoàn tất xử lý!");
         $token = Cache::get('gdt_token');
-        if (!$token) return $this->redirect('/test')->with('message', 'Token đã hết hạn.');
+        if (!$token){
+            session()->flash('status', 'Token đã hết hạn.');
+            return $this->redirect('/invoices/create-token');
+        }
 
 
     }

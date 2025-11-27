@@ -1,6 +1,6 @@
 @extends('adminlte::page')
-
-@section('title', 'New Module')
+{{-- @section('plugins.Select2', true) --}}
+@section('title', 'CREATETOKEN')
 
 @section('content_header')
         {{-- 
@@ -8,14 +8,14 @@
             tiếng anh: resources/lang/en
             tiếng việt: resources/lang/vi 
         --}}
-        <h3>{{ __('messages.language') }}</h3>
+        {{-- <h3>{{ __('messages.language') }}</h3> --}}
 @stop
 
 @section('content') 
-<div class="container">
-    @livewire('gdt-login') 
+<div class="container-fluid p-2">
+    @livewire('invoices.gdt-login') 
     <hr>
-    @livewire('invoices.invoice-list')
+    @livewire('invoices.gdt-invoice') 
 </div>
 
 @endsection
@@ -30,5 +30,5 @@
 
 @section('js')
 @stack('scripts')
- 
+
 @stop

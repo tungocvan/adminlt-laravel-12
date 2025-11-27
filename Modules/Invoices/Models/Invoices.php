@@ -26,7 +26,7 @@ class Invoices extends Model
 
     protected $casts = [
         'issued_date' => 'date',
-        'tax_rate' => 'decimal:2',
+        'tax_rate' => 'decimal:0',
         'vat_amount' => 'decimal:2',
         'amount_before_vat' => 'decimal:2',
         'total_amount' => 'decimal:2',

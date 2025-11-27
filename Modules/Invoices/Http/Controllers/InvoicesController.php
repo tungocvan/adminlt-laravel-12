@@ -28,6 +28,10 @@ class InvoicesController extends Controller
     {
         return view('Invoices::hoadon-list');
     }
+    public function createToken()
+    {
+        return view('Invoices::create-token');
+    }
 
     /**
      * Show the form for creating a new resource.

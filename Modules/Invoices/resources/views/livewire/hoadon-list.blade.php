@@ -59,28 +59,32 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-1">
-                        <label>Thuế</label>
-                        <select class="form-control" wire:model.live="taxRateFilter">
-                            <option value="all">Tất cả</option>
-                            <option value="5%">5%</option>
-                            <option value="8%">8%</option>
-                            <option value="10%">10%</option>
-                            <option value="other">Khác</option>
-                        </select>
-                    </div>
-                    <div class="col-md-1">
-                        <label>Số dòng / trang:</label>
-                        <select wire:model.live="perPage" class="form-control w-auto d-inline-block">
-                            <option value="all">Tất cả</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                            <option value="200">200</option>
-                        </select>
+                  
+                    <div class="col-md-3 row">
+                        <div class="col-6">
+                            <label>Thuế suất</label>
+                            <select class="form-control" wire:model.live="taxRateFilter">
+                                <option value="all">Tất cả</option>
+                                <option value="5%">5%</option>
+                                <option value="8%">8%</option>
+                                <option value="10%">10%</option>
+                                <option value="other">Khác</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label>Số dòng / trang:</label>
+                            <select wire:model.live="perPage" class="form-control w-auto d-inline-block">
+                                <option value="all">Tất cả</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
+                        </div>
+                        
                     </div>
                     
                     <!-- Từ ngày / Đến ngày -->
-                    <div class="col-md-4 d-flex">
+                    <div class="col-md-3 d-flex">
                         <div class="w-50 mr-2">
                             <label>Từ ngày</label>
                             <input type="date" wire:model.live="from_date" class="form-control">
@@ -167,7 +171,7 @@
                             <td>{{ $invoice->issued_date?->format('d/m/Y') }}</td>
                             <td>{{ $invoice->name }}</td>
                             <td>{{ $invoice->tax_code }}</td>
-                            <td>{{ $invoice->tax_rate }}</td>
+                            <td style="text-align: center">{{ (int) $invoice->tax_rate }}%</td>
                             <td>{{ number_format($invoice->vat_amount) }}</td>
                             <td>{{ number_format($invoice->total_amount) }}</td>
                         </tr>
