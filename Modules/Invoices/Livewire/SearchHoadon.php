@@ -63,8 +63,10 @@ class SearchHoadon extends Component
                 //$this->dispatch('scroll-bottom');   
             },
             $this->vatIn
-        );
+        ); 
         $this->log("Hoàn tất xử lý!");
+        $token = Cache::get('gdt_token');
+        if (!$token) return $this->redirect('/test')->with('message', 'Token đã hết hạn.');
 
 
     }

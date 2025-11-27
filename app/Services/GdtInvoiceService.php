@@ -28,7 +28,7 @@ class GdtInvoiceService
 
         $start = Carbon::parse($startDate);
         $end   = Carbon::parse($endDate);
-
+        $filename = $start->format('Y-m-d') . '_'. $end->format('Y-m-d'). '.xlsx';
         $show("[GDT] Khoảng thời gian: {$start->format('d/m/Y')} → {$end->format('d/m/Y')}");
 
         $all = [];
@@ -49,8 +49,8 @@ class GdtInvoiceService
         }
 
         $show('[GDT] Tổng cộng: ' . count($all) . ' hóa đơn');
-
-        $file = $this->exportExcel($all, $vatIn);
+        
+        $file = $this->exportExcel($all, $vatIn,$filename);
 
         $show('[GDT] File Excel tạo ra: ' . $file);
 
@@ -125,7 +125,10 @@ class GdtInvoiceService
         $res = Http::withOptions(['verify' => false])
             ->withHeaders(['Authorization' => "Bearer $token"])
             ->get($url);
-
+        if($res->getStatusCode() === 401){
+            Cache::forget('gdt_token');
+            
+        }
         return $res->successful() ? ($res->json()['total'] ?? 0) : 0;
     }
 
@@ -159,15 +162,16 @@ class GdtInvoiceService
     /**
      * Xuất Excel
      */
-    private function exportExcel(array $data, bool $vatIn)
+    private function exportExcel(array $data, bool $vatIn,$filename)
     {
         $folder = $vatIn
             ? storage_path('app/gdt/vat_in')
             : storage_path('app/gdt/vat_out');
 
         if (!is_dir($folder)) mkdir($folder, 0777, true);
-
-        $file = $folder . '/' . ($vatIn ? 'vat_in_' : 'vat_out_') . date('Ymd_His') . '.xlsx';
+        // vat_out_2025-11-01_2025-11-27.xlsx
+        // $file = $folder . '/' . ($vatIn ? 'vat_in_' : 'vat_out_') . date('Ymd_His') . '.xlsx';
+        $file = $folder . '/'. ($vatIn ? 'vat_in_' : 'vat_out_'). $filename;
 
         (new FastExcel($data))->export($file);
 

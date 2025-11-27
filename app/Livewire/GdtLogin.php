@@ -27,7 +27,7 @@ class GdtLogin extends Component
         }
         $gdt = new GdtApiService;        
         $captcha = $gdt->loadCaptcha();
-       
+        
         if(count($captcha) > 0){
             $this->ckey = $captcha['key'];
             $this->captchaSvg = $captcha['content'];
@@ -46,7 +46,7 @@ class GdtLogin extends Component
     public function deleteToken()
     {
         //dd('deleteToken');
-        Cache::forget('gdt_token');
+        Cache::forget('gdt_token'); 
         $this->redirect('/invoices');
     }
     public function render()

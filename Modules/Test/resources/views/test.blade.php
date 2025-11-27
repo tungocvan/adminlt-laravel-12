@@ -12,10 +12,10 @@
 @stop
 
 @section('content') 
-    @livewire('test.test-list') 
-    {{-- @livewire('gdt-login') 
+    {{-- @livewire('test.test-list')  --}}
+    @livewire('gdt-login') 
     <hr>
-    <livewire:gdt-invoice /> --}}
+    <livewire:gdt-invoice />
     {{-- <livewire:spin-wheel /> --}}
 
       
