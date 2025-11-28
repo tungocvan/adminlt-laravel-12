@@ -125,7 +125,8 @@ class GdtInvoiceService
         $res = Http::withOptions(['verify' => false])
             ->withHeaders(['Authorization' => "Bearer $token"])
             ->get($url);
-        if($res->getStatusCode() === 401){
+        //dd($res);
+        if($res?->getStatusCode() === 401){
             Cache::forget('gdt_token');
             
         }

@@ -22,7 +22,36 @@
                 <div class="icon"><i class="fas fa-truck"></i></div>
             </div>
         </div>
+        <div class="col-12">
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Doanh thu theo năm</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Năm</th>
+                                <th>Doanh thu bán ra</th>
+                                <th>Chi phí mua vào</th>                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($yearlyRevenue as $row)
+                            <tr>
+                                <td>{{ $row['year'] }}</td>
+                                <td>{{ number_format($row['sold_total']) }} đ</td>
+                                <td>{{ number_format($row['purchase_total']) }} đ</td>                        
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
+
+
 
     <!-- Filter + Table -->
     <div :class="{ 'd-none': type === null }" class="mt-2">
@@ -98,16 +127,37 @@
               
                 
                 <!-- Nút xóa filter -->
-                <div class="row mb-3">
-                    <div class="col-md-6 d-flex align-items-end">
-                        <button wire:click="resetFilters" class="btn btn-secondary btn-block">Xóa lọc</button>
-                        <button wire:click="exportSelected"
-                        class="btn btn-primary btn-block mx-1">
-                            <i class="fas fa-file-excel"></i> Xuất các hóa đơn đã chọn
-                        </button>
+              <!-- Nút thao tác hóa đơn -->
+            <div class="row mb-3">
+                <div class="col-md-6 d-flex align-items-end gap-2">
+                    <!-- Xóa filter -->
+                    <button wire:click="resetFilters" class="btn btn-secondary flex-grow-1">
+                        Xóa lọc
+                    </button>
 
-                    </div>
+                    <!-- Xuất Excel -->
+                    <button wire:click="exportSelected" class="btn btn-primary flex-grow-1 mx-1">
+                        <i class="fas fa-file-excel"></i> Xuất các hóa đơn đã chọn
+                    </button>
+
+                    <!-- Tải PDF -->
+                    <button 
+                    wire:click="downloadSelected" 
+                    class="btn btn-primary flex-grow-1"
+                    wire:loading.attr="disabled"
+                    wire:target="downloadSelected"
+                    >
+                    <span wire:loading wire:target="downloadSelected">
+                        Đang thực hiện...
+                    </span>
+                    <span wire:loading.remove wire:target="downloadSelected">
+                        Tải các hóa đơn đã chọn
+                    </span>
+                    </button>
+
                 </div>
+            </div>
+
 
                 <!-- Tổng hợp hóa đơn -->
                 <div class="row">
@@ -165,7 +215,28 @@
                                        value="{{ $invoice->id }}">
                             </td>
                             <td>{{ $key+1}}</td>
-                            <td>{{ $invoice->lookup_code }}</td>
+                            <td class="d-flex justify-content-between">
+                                <div>
+                                    {{ $invoice->lookup_code }}
+                                </div>
+                            
+                               <div style="text-align: right">
+                                    @php
+                                    // Đường dẫn file PDF trên server
+                                    $filePath = storage_path('app/hoadon_temp/' . $invoice->lookup_code . '.pdf');
+                                    @endphp
+                                
+                                    @if(file_exists($filePath))
+                                        <!-- Icon download -->
+                                        <a href="{{ route('invoices.download', ['lookup_code' => $invoice->lookup_code]) }}" 
+                                        class="ms-2 text-primary mx-1" 
+                                        title="Tải hóa đơn">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    @endif
+                               </div>
+                            </td>
+                            
                             <td>{{ $invoice->symbol }}</td>
                             <td>{{ $invoice->invoice_number }}</td>
                             <td>{{ $invoice->issued_date?->format('d/m/Y') }}</td>
@@ -227,6 +298,9 @@
                     }
 
                 }));
+            });
+            document.addEventListener('download-success', () => {
+                alert('Đã tải các hóa đơn thành công')
             });
         </script>
     @endpush

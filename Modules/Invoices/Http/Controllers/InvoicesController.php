@@ -32,7 +32,16 @@ class InvoicesController extends Controller
     {
         return view('Invoices::create-token');
     }
+    public function download($lookup_code)
+    {
+        $filePath = storage_path('app/hoadon_temp/' . $lookup_code . '.pdf');
 
+        if(!file_exists($filePath)) {
+            abort(404);
+        }
+
+        return response()->download($filePath);
+    }
     /**
      * Show the form for creating a new resource.
      */
