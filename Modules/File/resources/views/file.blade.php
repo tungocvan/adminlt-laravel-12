@@ -22,7 +22,7 @@
         ],
         ['url' => '/file/artisan', 'icon' => 'fas fa-terminal', 'text' => 'THỰC HIỆN ARTISAN', 'color' => 'warning'],
         ['url' => '/file/env', 'icon' => 'fas fa-cog', 'text' => 'MANAGER ENV', 'color' => 'success'],
-        
+        ['url' => '/file/lichvannien', 'icon' => 'fas fa-file-code', 'text' => 'LỊC VẠN NIÊN', 'color' => 'primary'],
     ];
 @endphp
 @section('content')

@@ -10,4 +10,5 @@ Route::middleware(['web','auth'])->prefix('/file')->name('file.')->group(functio
      Route::get('/migrations', [FileController::class,'migrations'])->name('migrations');
      Route::get('/artisan', [FileController::class,'artisan'])->name('artisan');
      Route::get('/env', [FileController::class,'env'])->name('env');
+     Route::get('/lichvannien', [FileController::class,'lichvannien'])->name('lichvannien');
 });

@@ -40,6 +40,10 @@ class FileController extends Controller
     {
         return view('File::env');
     }
+    public function lichvannien()
+    {
+        return view('File::lichvannien');
+    }
 
 
 
