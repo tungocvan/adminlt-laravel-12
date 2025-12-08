@@ -5,7 +5,7 @@
 # {
 #     "email" : "tungocvan1@gmail.com",
 #     "password" : "123456"
-# }
+# } 
 
 # POST https://adminlt.laravel.tk/api/users
 # Accept: application/json
@@ -19,13 +19,15 @@
 # Accept: application/json
 # Content-Type: application/json
 
-# PUT https://adminlt.laravel.tk/api/users/1
-# Accept: application/json
-# Content-Type: application/json
+PUT https://adminlt.laravel.tk/api/users/4
+Accept: application/json
+Content-Type: application/json
 
-# {
-#   "birthdate": "25/09/1978"
-# }
+{
+  "password": "999999",
+  "role_name":"User",
+  "verified":true
+}
 
 # POST https://adminlt.laravel.tk/api/bang-gia
 # Accept: application/json
@@ -63,11 +65,11 @@
 # }
 
 # php artisan user:sendmail 2 --to="hamadaqc01@gmail.com" --subject="Test Queue Mail" --html="<b>Hello HTML</b>"
-POST https://adminlt.laravel.tk/api/invoices
-Headers: 
-Accept: application/json
-Content-Type: application/json
+# POST https://adminlt.laravel.tk/api/invoices
+# Headers: 
+# Accept: application/json
+# Content-Type: application/json
 
-{  
-    "invoice_type": "sold"
-}
+# {  
+#     "invoice_type": "sold"
+# }
