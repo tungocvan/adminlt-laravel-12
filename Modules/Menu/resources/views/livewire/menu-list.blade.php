@@ -161,10 +161,10 @@
     </ul>
 
     {{-- Modal chỉnh sửa Menu --}}
-    @include('livewire.menu.partials.modal-edit')
+    @include('Menu::livewire.partials.modal-edit')
 
     {{-- Modal Backup / Restore --}}
-    @include('livewire.menu.partials.modal-backup')
+    @include('Menu::livewire.partials.modal-backup')
 
     {{-- Modal loading khi đang ghi file --}}
     <div class="modal fade @if ($isSaving) show d-block @endif" tabindex="-1" role="dialog"

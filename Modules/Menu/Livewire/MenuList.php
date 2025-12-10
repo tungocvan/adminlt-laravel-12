@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Livewire\Menu;
+namespace Modules\Menu\Livewire;
+
 
 use Livewire\Component;
 use Symfony\Component\Process\Process;
@@ -59,7 +60,7 @@ class MenuList extends Component
      -----------------------------------*/
     public function render()
     {
-        return view('livewire.menu.menu-list');
+        return view('Menu::livewire.menu-list');
     }
 
     /*-----------------------------------
