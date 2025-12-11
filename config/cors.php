@@ -6,12 +6,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'https://esxv7iq-tungocvan-8081.exp.direct',
-        'https://auth.expo.dev',
-        'http://localhost:8081',
-        'http://127.0.0.1:8081',
-    ],
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
