@@ -1,24 +1,16 @@
 @extends('adminlte::master')
 
-@inject('layoutHelper', 'JeroenNoten\LaravelAdminLte\Helpers\LayoutHelper')
-@inject('preloaderHelper', 'JeroenNoten\LaravelAdminLte\Helpers\PreloaderHelper')
-
 @section('adminlte_css')
     @stack('css')
     @yield('css')
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">     
 @stop
 
-@section('classes_body', $layoutHelper->makeBodyClasses())
-
-@section('body_data', $layoutHelper->makeBodyData())
-
 @section('body')
 <header>
     @yield('header')
 </header> 
-<div class="wrapper">    
-   
+<div class="wrapper">       
     <main class="content">
         @yield('content_header')
         <div class="container-fluid">

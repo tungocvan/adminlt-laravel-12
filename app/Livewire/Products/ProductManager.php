@@ -4,7 +4,8 @@ namespace App\Livewire\Products;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\WpProduct;
+//use App\Models\WpProduct;
+use Modules\Products\Models\WpProduct;
 use App\Models\Category;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
@@ -369,7 +370,7 @@ class ProductManager extends Component
         $categories = \App\Models\Category::select('id', 'name', 'slug', 'type', 'is_active')->get();
 
         // Nếu có chọn sản phẩm thì lấy theo id, ngược lại lấy tất cả
-        $query = \App\Models\WpProduct::with(['categories']);
+        $query = WpProduct::with(['categories']);
         if (!empty($this->selectedProducts)) {
             $query->whereIn('id', $this->selectedProducts);
         }

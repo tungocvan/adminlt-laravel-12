@@ -1,4 +1,4 @@
-@extends('layouts.hamada')
+@extends('Website::layouts.hamada')
 @section('plugins.Toastr', true)
 @section('plugins.Summernote', true)
 {{-- @section('plugins.Select2', true) --}}
@@ -16,7 +16,7 @@
 @section('content')
     
     <div class="container">  
-        <livewire:contactseller />              
+        {{-- <livewire:contactseller />               --}}
     </div>
 @stop
 

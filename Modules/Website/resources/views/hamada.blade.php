@@ -1,4 +1,5 @@
-@extends('layouts.hamada')
+@extends('Website::layouts.hamada')
+
 @section('plugins.Toastr', true)
 @section('plugins.Summernote', true)
 {{-- @section('plugins.Select2', true) --}}
@@ -20,7 +21,7 @@
     @include('Website::partials.homeHelpOrder')
     @include('Website::partials.homeSeller')   
     @include('Website::partials.homeFaq')   
-    @livewire('hamadagioithieu')
+    {{-- @livewire('hamadagioithieu') --}} 
 @stop
 
 @section('footer')

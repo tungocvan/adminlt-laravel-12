@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('Website::layouts.hamada')
 
 @section('content')
 <div class="container">
