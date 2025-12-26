@@ -7,13 +7,13 @@
 <!-- Menu -->
 <div id="menu" class="container-fluid bg-white">
   <div class="container">
-    <div class="row align-items-center" style="height:72px;">
+    <div class="row align-items-center" style="height:128px;">
       
       <!-- Logo -->
       <div class="col-md-2 d-flex align-items-center">
         <a href="{{ route('website.index') }}">
-          <img src="https://cdn-web-next.thuocsi.vn/images/logo/buymed-logo.svg" 
-               alt="Logo" height="40">
+          <img src="/images/logo-tnv.png" 
+               alt="Logo" height="128">
         </a>
       </div>
 
