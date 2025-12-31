@@ -12,4 +12,8 @@ Route::middleware(['web'])->prefix('/website')->name('website.')->group(function
     Route::get('/register', [WebsiteController::class,'register'])->name('register');
     Route::get('/product', [ProductController::class,'index'])->name('product.index');
     Route::get('/product/{id}', [ProductController::class,'productDetail'])->name('product.detail');
+    Route::prefix('products')->name('products.')->group(function () {    
+        Route::get('/', [ProductController::class, 'index'])->name('index');    
+        Route::get('/{slug}', [ProductController::class, 'show'])->name('show');
+    });
 });

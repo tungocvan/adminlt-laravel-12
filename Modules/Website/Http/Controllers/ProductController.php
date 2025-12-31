@@ -18,15 +18,18 @@ class ProductController extends Controller
     }
     public function index()
     {
-        dd(1);
-        //return view('Website::hamada');    
+        //dd(1);
+        //return view('Website::hamada');
+        return view('Website::index');
+    }
+    public function show(string $slug)
+    {
+        
+        return view('Website::show', ['slug' => $slug]);
     }
     public function productDetail($id)
     {
-        dd('productDetail:'.$id);
-        //return view('Website::hamada');    
+        dd('productDetail:' . $id);
+        //return view('Website::hamada');
     }
-
-
-    
 }

@@ -2,27 +2,42 @@
 
 namespace Modules\Website\Livewire;
 
+use App\Models\WpProduct;
 use Livewire\Component;
-use Illuminate\Support\Facades\Storage;
+use Livewire\WithPagination;
 
 class ProductList extends Component
 {
-    public array $products = [];
+    use WithPagination;
 
-    public function mount()
-    {
-        $path = public_path('data/products.json');
-        //dd($path);
-        if (!file_exists($path)) {
-            $this->products = [];
-            return;
-        }
+    protected $paginationTheme = 'bootstrap';
 
-        $this->products = json_decode(file_get_contents($path), true) ?? [];
-    }
+    public $perPage = 12;
+
+    // Ready for future filter expansion
+    public $minPrice;
+    public $maxPrice;
+    public $selectedTags = [];
 
     public function render()
     {
-        return view('Website::livewire.product-list');
+        $products = WpProduct::query()
+            ->orderBy('created_at', 'DESC')
+            ->paginate($this->perPage);
+
+        return view('Website::livewire.product-list', [
+            'products' => $products
+        ]);
+    }
+
+    /**
+     * Format price for display
+     */
+    public function formatPrice($price): string
+    {
+        if (is_null($price)) {
+            return 'Liên hệ';
+        }
+        return number_format($price, 0, ',', '.') . ' ₫';
     }
 }

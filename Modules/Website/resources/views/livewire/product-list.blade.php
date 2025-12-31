@@ -1,81 +1,110 @@
-<div class="container my-5">
+<div>
+    <div class="container py-5">
+        <!-- Header Section -->
+        <div class="text-center mb-5">
+            <h2 class="display-4 font-weight-bold">
+                <span class="text-success">🌿</span> Sản phẩm mới về
+            </h2>
+            <p class="lead text-muted">Khám phá bộ sưu tập sản phẩm chất lượng cao</p>
+        </div>
 
-    {{-- Header --}}
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <h4 class="font-weight-bold text-success mb-0">
-            🌿 Sản phẩm mới về
-        </h4>
+        <!-- Product Grid -->
+        <div class="row">
+            @forelse($products as $product)
+                <div class="col-md-4 col-sm-6 mb-4">
+                    <div class="card h-100 shadow-sm hover-shadow transition">
+                        <!-- Discount Badge -->
+                        @if($product->discount_percent)
+                            <div class="position-absolute" style="top: 10px; right: 10px; z-index: 10;">
+                                <span class="badge badge-danger badge-pill px-3 py-2">
+                                    -{{ $product->discount_percent }}%
+                                </span>
+                            </div>
+                        @endif
 
-        <a href="#" class="text-success font-weight-bold" style="text-decoration:none;">
-            Xem tất cả →
-        </a>
-    </div>
+                      <!-- Product Image -->
+                    <a href="{{ route('website.products.show', $product->slug) }}">
+                        <img 
+                            src="{{ $product->image_url }}" 
+                            class="card-img-top" 
+                            alt="{{ $product->title }}"
+                            style="height: 250px; object-fit: cover;"                           
+                        >
+                    </a>
 
-    {{-- Line phân cách --}}
-    <div class="mb-4" style="height:3px;width:80px;background:#28a745;border-radius:2px;"></div>
 
-    {{-- Danh sách sản phẩm --}}
-    <div class="row">
-        @foreach ($products as $product)
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 border-success" style="border-radius:12px;">
+                        <div class="card-body d-flex flex-column">
+                            <!-- Product Title -->
+                            <h5 class="card-title font-weight-bold">
+                                <a href="{{ route('website.products.show', $product->slug) }}" class="text-dark text-decoration-none">
+                                    {{ $product->title }}
+                                </a>
+                            </h5>
 
-                    {{-- Badge giảm giá --}}
-                    <span class="badge badge-danger position-absolute" style="top:10px;left:10px;">
-                        -{{ $product['discount_percent'] }}%
-                    </span>
+                            <!-- Short Description -->
+@if($product->short_description)
+<p class="card-text text-muted small flex-grow-1">
+    {!! Str::limit(strip_tags($product->short_description, '<b><strong><i><em><u>'), 100) !!}
+</p>
+@endif
 
-                    {{-- Ảnh --}}
-                    <div class="pt-4 text-center">
-                        <img src="{{ $product['image'] }}" class="img-fluid" style="max-height:160px;">
+
+                            <!-- Price Section -->
+                            <div class="mb-3">
+                                <span class="h4 text-danger font-weight-bold">
+                                    {{ $this->formatPrice($product->final_price) }}
+                                </span>
+                                
+                                @if($product->sale_price && $product->regular_price)
+                                    <span class="text-muted ml-2">
+                                        <del>{{ $this->formatPrice($product->regular_price) }}</del>
+                                    </span>
+                                @endif
+                            </div>
+
+                            <!-- Tags -->
+                            @if($product->tags && count($product->tags) > 0)
+                                <div class="mb-3">
+                                    @foreach($product->tags as $tag)
+                                        <span class="badge badge-secondary badge-pill mr-1 mb-1">
+                                            {{ $tag }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            <!-- Action Button -->
+                            <a 
+                                href="{{ route('website.products.show', $product->slug) }}" 
+                                class="btn btn-success btn-block mt-auto"
+                            >
+                                <i class="fas fa-eye"></i> Xem chi tiết
+                            </a>
+                        </div>
                     </div>
-
-                    {{-- Nhãn --}}
-                    <div class="mt-2 px-3">
-                        @foreach ($product['labels'] as $label)
-                            <span class="badge badge-danger">{{ $label }}</span>
-                        @endforeach
-                    </div>
-
-                    {{-- Giá --}}
-                    <div class="mt-3 px-3">
-                        <h5 class="text-success font-weight-bold mb-1">
-                            {{ number_format($product['price']) }}đ
-                        </h5>
-                        <small class="text-muted">
-                            <del>{{ number_format($product['old_price']) }}đ</del>
-                        </small>
-                    </div>
-
-                    {{-- Tên --}}
-                    <div class="mt-2 px-3">
-                        <strong>{{ $product['name'] }}</strong>
-                    </div>
-
-                    {{-- Quy cách --}}
-                    <div class="text-muted mt-1 px-3" style="font-size:14px;">
-                        {{ $product['specification'] }}
-                    </div>
-
-                    {{-- Nhà cung cấp --}}
-                    <div class="mt-2 px-3">
-                        <i class="fa fa-store text-primary"></i>
-                        <strong>{{ $product['supplier'] }}</strong>
-                    </div>
-
-                    {{-- Trạng thái --}}
-                    <div class="mt-2 px-3">
-                        <span class="badge badge-pill badge-danger">
-                            {{ $product['status'] }}
-                        </span>
-                    </div>
-
-                    <div class="text-muted mt-1 px-3" style="font-size:13px;">
-                        Đặt tối đa {{ $product['max_order'] }} sản phẩm
-                    </div>
-
                 </div>
-            </div>
-        @endforeach
+            @empty
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle"></i> Chưa có sản phẩm nào.
+                    </div>
+                </div>
+            @endforelse
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-4">
+            {{ $products->links() }}
+        </div>
     </div>
+
+    <style>
+        .hover-shadow {
+            transition: all 0.3s ease;
+        }
+        .hover-shadow:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+        }
+    </style>
 </div>
