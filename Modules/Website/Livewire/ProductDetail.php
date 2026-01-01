@@ -17,14 +17,15 @@ class ProductDetail extends Component
         $this->slug = $slug;
         
         $this->product = WpProduct::where('slug', $slug)->first();
-
+        
         // Handle 404
         if (!$this->product) {
             abort(404, 'Sản phẩm không tồn tại');
         }
 
         // Set default selected image
-        $this->selectedImage = $this->product->image;
+        $this->selectedImage = '/storage/'.$this->product->image;
+       // dd($this->selectedImage);
     }
 
     public function selectImage($image)

@@ -17,7 +17,7 @@
 @section('content')
     @include('Website::partials.homeCarousel')    
     @include('Website::partials.homeNews')
-    @livewire('website.product-list')
+    {{-- @livewire('website.product-list') --}}
     @include('Website::partials.homeHelpSeller')
     @include('Website::partials.homeHelpOrder')
     @include('Website::partials.homeSeller')   

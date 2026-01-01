@@ -24,6 +24,10 @@
              @class(['nav-link', 'active' => request()->routeIs('website.about')])>
             Về chúng tôi
           </a>
+          <a href="{{ route('website.products.index') }}"
+             @class(['nav-link', 'active' => request()->routeIs('website.products.index')])>
+            Sản phẩm
+          </a>
           <a href="{{ route('website.help-order') }}"
              @class(['nav-link', 'active' => request()->routeIs('website.help-order')])>
             Hướng dẫn đặt hàng
@@ -33,7 +37,7 @@
             Tin tức
           </a>
           <a href="{{ route('website.register') }}"
-             @class(['nav-link', 'active' => request()->routeIs('website.register')])>
+             @class(['nav-link', 'active' => request()->routeIs('website.register')])> 
             Đăng ký bán hàng
           </a>
         </nav>
@@ -42,8 +46,8 @@
       <!-- Login / Register -->
       <div class="col-md-3 d-flex justify-content-end">
         @guest
-          <livewire:registerform modalTitle="Đăng ký tài khoản" width="modal-md" />            
-          <livewire:hamada.loginform modalTitle="Đăng nhập" width="modal-md" />  
+          <livewire:register-form modalTitle="Đăng ký tài khoản" width="modal-md" />            
+          {{-- <livewire:hamada.loginform modalTitle="Đăng nhập" width="modal-md" />   --}}
         @else
         <ul class="navbar-nav ms-auto">
           <li class="nav-item dropdown">

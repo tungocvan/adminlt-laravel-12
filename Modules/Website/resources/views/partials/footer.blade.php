@@ -1,18 +1,18 @@
 <footer class="bg-white text-dark pt-5 pb-4">
   <div class="container">
-    <div class="row">
-
+    <div class="row"> 
       <!-- Logo + mô tả -->
       <div class="col-md-3 mb-4">
-        <img src="https://cdn-web-next.thuocsi.vn/images/logo/buymed-logo.svg" alt="Buymed" width="140">
+        <img src="/images/logo-tnv.png" 
+               alt="Logo" height="128">
         <p class="small mt-2">
-          <a href="https://thuocsi.vn" class="text-success">thuocsi.vn</a> là website thuộc sở hữu của công ty TNHH Buymed
+          <a href="https://tungocvan.com" class="text-success">tungocvan.com</a> là website thuộc sở hữu của tungocvan.com
         </p>
       </div>
 
       <!-- Thông tin công ty -->
       <div class="col-md-3 mb-4">
-        <h6 class="text-uppercase font-weight-bold">Công Ty TNHH Buymed</h6>
+        <h6 class="text-uppercase font-weight-bold">tungocvan.com</h6>
         <p class="mb-1"><strong>Địa chỉ:</strong></p>
         <p class="small">Tầng 8, Tòa Nhà Vincom Center Đồng Khởi, 72 Lê Thánh Tôn, P.Bến Nghé, Q.1, TP.HCM</p>
         <p class="small mb-1"><strong>Số chứng nhận ĐKKD:</strong><br>0314758651 (29/11/2017)</p>

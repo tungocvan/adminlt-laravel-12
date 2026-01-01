@@ -13,7 +13,7 @@
             <!-- Product Images -->
             <div class="col-md-6 mb-4">
                 <!-- Main Image -->
-                <div class="card mb-3 shadow-sm">
+                <div class="card mb-3 shadow-sm"> 
                     <img src="{{ $selectedImage ?? $product->image_url }}" class="card-img-top"
                         alt="{{ $product->title }}" style="height: 500px; object-fit: cover;"
                        >
