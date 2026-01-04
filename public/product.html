@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌿 Sản phẩm mới về - Laravel 12 + Livewire Prototype</title>
+    <!-- Bootstrap 4.6.1 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #28a745;
+            --dark-green: #1e7e34;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        /* Product Card */
+        .product-card {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            height: 100%;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .product-image-wrapper {
+            position: relative;
+            overflow: hidden;
+            height: 220px;
+            background: #f5f5f5;
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+        
+        .discount-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 10;
+        }
+        
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 52px;
+        }
+        
+        .product-title a {
+            color: inherit;
+            text-decoration: none;
+        }
+        
+        .product-title a:hover {
+            color: var(--primary-green);
+        }
+        
+        .price-wrapper {
+            margin-bottom: 0.75rem;
+        }
+        
+        .sale-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #dc3545;
+        }
+        
+        .regular-price {
+            font-size: 0.95rem;
+            color: #999;
+            text-decoration: line-through;
+            margin-left: 8px;
+        }
+        
+        .normal-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-green);
+        }
+        
+        .short-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 40px;
+        }
+        
+        .tags-wrapper {
+            margin-bottom: 1rem;
+            min-height: 28px;
+        }
+        
+        .tag-badge {
+            background: #e9ecef;
+            color: #495057;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+        
+        .btn-detail {
+            background: var(--primary-green);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-detail:hover {
+            background: var(--dark-green);
+            transform: scale(1.02);
+        }
+        
+        /* Section Header */
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .section-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #333;
+            margin: 0;
+        }
+        
+        .section-header .leaf-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+        
+        /* Pagination */
+        .pagination-wrapper {
+            margin-top: 2rem;
+        }
+        
+        .pagination .page-link {
+            color: var(--primary-green);
+            border-radius: 8px;
+            margin: 0 3px;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .pagination .page-item.active .page-link {
+            background: var(--primary-green);
+            border-color: var(--primary-green);
+        }
+        
+        /* Detail Page */
+        .detail-page {
+            display: none;
+        }
+        
+        .back-btn {
+            color: var(--primary-green);
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .back-btn:hover {
+            color: var(--dark-green);
+            text-decoration: none;
+        }
+        
+        .main-image-wrapper {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .main-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+        
+        .gallery-wrapper {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .gallery-thumb {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .gallery-thumb:hover,
+        .gallery-thumb.active {
+            border-color: var(--primary-green);
+        }
+        
+        .detail-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .detail-price-wrapper {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-sale-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #dc3545;
+        }
+        
+        .detail-regular-price {
+            font-size: 1.25rem;
+            color: #999;
+            text-decoration: line-through;
+            margin-left: 15px;
+        }
+        
+        .detail-discount-badge {
+            background: #dc3545;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+        
+        .detail-description {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-tags {
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-tag {
+            background: var(--primary-green);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+        
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-overlay.show {
+            display: flex;
+        }
+        
+        /* Footer */
+        footer {
+            background: #343a40;
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        /* Breadcrumb */
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--primary-green);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
+            <span class="sr-only">Đang tải...</span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-leaf"></i> Shop Sản Phẩm</h1>
+            <p class="mb-0 mt-2">Laravel 12 + Livewire 3.1 + Bootstrap 4.6.1 Prototype</p>
+        </div>
+    </header>
+
+    <!-- LISTING PAGE -->
+    <div id="listingPage" class="listing-page">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Trang chủ</a></li>
+                    <li class="breadcrumb-item active">Sản phẩm</li>
+                </ol>
+            </nav>
+            
+            <!-- Section Header -->
+            <div class="section-header">
+                <span class="leaf-icon">🌿</span>
+                <h2>Sản phẩm mới về</h2>
+            </div>
+
+            <!-- Filter Section (Prepared for extension) -->
+            <div class="filter-section mb-4">
+                <div class="row">
+                    <div class="col-md-3">
+                        <select class="form-control" id="filterPrice">
+                            <option value="">-- Lọc theo giá --</option>
+                            <option value="low">Giá thấp đến cao</option>
+                            <option value="high">Giá cao đến thấp</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" id="filterTag">
+                            <option value="">-- Lọc theo tag --</option>
+                            <option value="organic">Organic</option>
+                            <option value="new">Mới</option>
+                            <option value="bestseller">Bán chạy</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="row" id="productsGrid">
+                <!-- Products will be loaded here by JavaScript -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-wrapper d-flex justify-content-center">
+                <nav>
+                    <ul class="pagination" id="pagination">
+                        <!-- Pagination will be loaded here -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- DETAIL PAGE -->
+    <div id="detailPage" class="detail-page">
+        <div class="container">
+            <!-- Back Button -->
+            <a class="back-btn" onclick="showListingPage()">
+                <i class="fas fa-arrow-left mr-2"></i> Quay lại danh sách
+            </a>
+            
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="#" onclick="showListingPage()">Sản phẩm</a></li>
+                    <li class="breadcrumb-item active" id="detailBreadcrumb">Chi tiết</li>
+                </ol>
+            </nav>
+
+            <div class="row">
+                <!-- Image Column -->
+                <div class="col-lg-6 mb-4">
+                    <div class="main-image-wrapper">
+                        <img id="mainImage" src="" alt="" class="main-image">
+                    </div>
+                    <div class="gallery-wrapper" id="galleryWrapper">
+                        <!-- Gallery thumbnails -->
+                    </div>
+                </div>
+
+                <!-- Info Column -->
+                <div class="col-lg-6">
+                    <h1 class="detail-title" id="detailTitle"></h1>
+                    
+                    <div class="detail-price-wrapper" id="detailPriceWrapper">
+                        <!-- Price info -->
+                    </div>
+
+                    <div class="detail-tags" id="detailTags">
+                        <!-- Tags -->
+                    </div>
+
+                    <div class="short-desc mb-3" id="detailShortDesc">
+                        <!-- Short description -->
+                    </div>
+
+                    <hr>
+
+                    <h5><i class="fas fa-info-circle text-success mr-2"></i>Mô tả chi tiết</h5>
+                    <div class="detail-description" id="detailDescription">
+                        <!-- Full description -->
+                    </div>
+
+                    <div class="mt-4">
+                        <button class="btn btn-success btn-lg mr-2">
+                            <i class="fas fa-shopping-cart mr-2"></i>Thêm vào giỏ
+                        </button>
+                        <button class="btn btn-outline-success btn-lg">
+                            <i class="fas fa-heart mr-2"></i>Yêu thích
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container text-center">
+            <p class="mb-1"><strong>Laravel 12 + Livewire 3.1 + Bootstrap 4.6.1</strong></p>
+            <p class="mb-0 small">Prototype UI - Sẵn sàng chuyển đổi sang code thực tế</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 4.6.1 JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ========================================
+        // MOCK DATA (Simulating wp_products table)
+        // ========================================
+        const products = [
+            {
+                id: 1,
+                title: "Trà Xanh Thái Nguyên Premium",
+                slug: "tra-xanh-thai-nguyen-premium",
+                short_description: "Trà xanh hảo hạng từ vùng đất Thái Nguyên, hương thơm tự nhiên.",
+                description: "Trà Xanh Thái Nguyên Premium được thu hái từ những búp trà non nhất, trồng trên vùng đất có độ cao lý tưởng. Sản phẩm giữ nguyên hương vị tự nhiên, chứa nhiều chất chống oxy hóa tốt cho sức khỏe. Mỗi ngụm trà mang đến cảm giác thanh mát, thư thái. Đóng gói cẩn thận, bảo quản hương vị tốt nhất.",
+                regular_price: 350000,
+                sale_price: 280000,
+                image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop",
+                gallery: [
+                    "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1558160074-4d7d8bdf4256?w=400&h=300&fit=crop"
+                ],
+                tags: ["Organic", "Mới", "Bán chạy"],
+                created_at: "2024-01-15"
+            },
+            {
+                id: 2,
+                title: "Mật Ong Rừng Nguyên Chất 500ml",
+                slug: "mat-ong-rung-nguyen-chat-500ml",
+                short_description: "Mật ong rừng tự nhiên 100%, không pha trộn, giàu dinh dưỡng.",
+                description: "Mật ong rừng được khai thác từ các tổ ong hoang dã trong rừng nguyên sinh. Sản phẩm giữ nguyên độ tinh khiết, không qua xử lý nhiệt, bảo toàn các enzyme và vitamin tự nhiên. Vị ngọt thanh, màu vàng óng, có độ sánh đặc trưng của mật ong thật.",
+                regular_price: 450000,
+                sale_price: null,
+                image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=300&fit=crop",
+                gallery: [
+                    "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400&h=300&fit=crop"
+                ],
+                tags: ["Organic", "Premium"],
+                created_at: "2024-01-14"
+            },
+            {
+                id: 3,
+                title: "Hạt Điều Rang Muối Bình Phước",
+                slug: "hat-dieu-rang-muoi-binh-phuoc",
+                short_description: "Hạt điều béo bùi, rang muối vừa ăn, size lớn đều đẹp.",
+                description: "Hạt điều Bình Phước nổi tiếng với chất lượng hàng đầu Việt Nam. Hạt to đều, màu vàng ươm, được rang với công nghệ hiện đại giữ nguyên độ giòn và hương vị thơm ngon. Ăn liền hoặc làm quà biếu đều phù hợp.",
+                regular_price: 280000,
+                sale_price: 220000,
+                image: "https://images.unsplash.com/photo-1509828029024-ce4562aba8de?w=400&h=300&fit=crop",
+                gallery: [
+                    "https://images.unsplash.com/photo-1509828029024-ce4562aba8de?w=400&h=300&fit=crop"
+                ],
+                tags: ["Bán chạy", "Quà tặng"],
+                created_at: "2024-01-13"
+            },
+            {
+                id: 4,
+                title: "Cà Phê Robusta Đắk Lắk 500g",
+                slug: "ca-phe-robusta-dak-lak-500g",
+                short_description: "Cà phê nguyên chất rang mộc, hương thơm nồng nàn đặc trưng.",
+                description: "Cà phê Robusta được trồng tại cao nguyên Đắk Lắk, vùng đất với điều kiện thổ nhưỡng và khí hậu lý tưởng. Hạt cà phê được chọn lọc kỹ càng, rang mộc truyền thống, giữ nguyên hương vị đậm đà. Pha phin hay pha máy đều cho ra ly cà phê hoàn hảo.",
+                regular_price: 180000,
+                sale_price: 150000,
+                image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop",
+                gallery: [
+                    "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=300&fit=crop"
+                ],
+                tags: ["Mới", "Đặc sản"],
+                created_at: "2024-01-12"
+            },
+            {
+                id: 5,
+                title: "Nước Mắm Phú Quốc 40 Độ Đạm",
+                slug: "nuoc-mam-phu-quoc-40-do-dam",
+                short_description: "Nước mắm truyền thống Phú Quốc, ủ chượp 12 tháng tự nhiên.",
+                description: "Nước mắm Phú Quốc được làm từ cá cơm tươi đánh bắt tại vùng biển Phú Quốc, ủ chượp theo phương pháp truyền thống trong thùng gỗ bời lời suốt 12 tháng. Sản phẩm có màu cánh gián đẹp, vị mặn ngọt hài hòa, mùi thơm đặc trưng.",
+                regular_price: 120000,
+                sale_price: null,
+                image: "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?w=400&h=300&fit=crop",
+                gallery: [
+                    "https://images.unsplash.com/photo-1472476443507-c7a5948772fc?w=400&h=300&fit=crop"
+                ],
+                tags: ["Truyền thống", "Đặc sản"],
+                created_at: "2024-01-11"
+            },
+            {
+                id: 6,
+                title: "Gạo ST25 Sóc Trăng 5kg",
+                slug: "gao-st25-soc-trang-5kg",
+                short_description: "Gạo ngon nhất thế giới 2019, hạt dài thơm dẻo đặc biệt.",
+                description: "Gạo ST25 đạt giải gạo ngon nhất thế giới năm 2019, được trồng tại Sóc Trăng. Hạt gạo dài, trong, khi nấu có mùi thơm lá dứa tự nhiên, cơm dẻo mềm, để nguội vẫn ngon. Đây là lựa chọn hàng đầu cho bữa cơm gia đình.",
+                regular_price: 250000,
+                sale_price: 199000,
+                image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop",
+                gallery: [
+                    "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1594313305318-b860cf12d7c3?w=400&h=300&fit=crop"
+                ],
+                tags: ["Bán chạy", "Premium", "Mới"],
+                created_at: "2024-01-10"
+            }
+        ];
+
+        // ========================================
+        // HELPER FUNCTIONS (Simulating Accessors)
+        // ========================================
+        
+        // Get final price (sale_price if available, else regular_price)
+        function getFinalPrice(product) {
+            return product.sale_price || product.regular_price;
+        }
+
+        // Get discount percent
+        function getDiscountPercent(product) {
+            if (!product.sale_price || !product.regular_price) return 0;
+            return Math.round((1 - product.sale_price / product.regular_price) * 100);
+        }
+
+        // Format number as Vietnamese currency
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
+        }
+
+        // Fallback image
+        function getImage(image) {
+            return image || 'https://via.placeholder.com/400x300?text=No+Image';
+        }
+
+        // ========================================
+        // RENDER FUNCTIONS
+        // ========================================
+
+        // Render product card
+        function renderProductCard(product) {
+            const finalPrice = getFinalPrice(product);
+            const discountPercent = getDiscountPercent(product);
+            const hasDiscount = discountPercent > 0;
+
+            let priceHtml = '';
+            if (hasDiscount) {
+                priceHtml = `
+                    <span class="sale-price">${formatPrice(product.sale_price)}</span>
+                    <span class="regular-price">${formatPrice(product.regular_price)}</span>
+                `;
+            } else {
+                priceHtml = `<span class="normal-price">${formatPrice(product.regular_price)}</span>`;
+            }
+
+            let tagsHtml = '';
+            if (product.tags && product.tags.length > 0) {
+                tagsHtml = product.tags.map(tag => 
+                    `<span class="tag-badge">${tag}</span>`
+                ).join('');
+            }
+
+            return `
+                <div class="col-md-4 mb-4">
+                    <div class="card product-card">
+                        <div class="product-image-wrapper">
+                            ${hasDiscount ? `<span class="discount-badge">-${discountPercent}%</span>` : ''}
+                            <img src="${getImage(product.image)}" alt="${product.title}" class="product-image">
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="product-title">
+                                <a href="javascript:void(0)" onclick="showDetailPage('${product.slug}')">${product.title}</a>
+                            </h5>
+                            <div class="price-wrapper">
+                                ${priceHtml}
+                            </div>
+                            <p class="short-description">${product.short_description || ''}</p>
+                            <div class="tags-wrapper">
+                                ${tagsHtml}
+                            </div>
+                            <div class="mt-auto">
+                                <button class="btn btn-success btn-detail btn-block" onclick="showDetailPage('${product.slug}')">
+                                    <i class="fas fa-eye mr-2"></i>Xem chi tiết
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render products grid
+        function renderProducts(productsList) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = productsList.map(p => renderProductCard(p)).join('');
+        }
+
+        // Render pagination
+        function renderPagination(totalItems, currentPage, perPage) {
+            const totalPages = Math.ceil(totalItems / perPage);
+            const pagination = document.getElementById('pagination');
+            
+            let html = `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `
+                    <li class="page-item ${currentPage === i ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                    </li>
+                `;
+            }
+
+            html += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            `;
+
+            pagination.innerHTML = html;
+        }
+
+        // ========================================
+        // PAGE NAVIGATION
+        // ========================================
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+
+        function showListingPage() {
+            showLoading();
+            setTimeout(() => {
+                document.getElementById('listingPage').style.display = 'block';
+                document.getElementById('detailPage').style.display = 'none';
+                window.scrollTo(0, 0);
+                hideLoading();
+                // Update URL (SEO friendly)
+                history.pushState({}, '', '/products');
+            }, 300);
+        }
+
+        function showDetailPage(slug) {
+            showLoading();
+            setTimeout(() => {
+                const product = products.find(p => p.slug === slug);
+                
+                if (!product) {
+                    // Handle 404
+                    alert('Sản phẩm không tồn tại!');
+                    hideLoading();
+                    return;
+                }
+
+                // Render detail page
+                document.getElementById('detailTitle').textContent = product.title;
+                document.getElementById('detailBreadcrumb').textContent = product.title;
+                document.getElementById('mainImage').src = getImage(product.image);
+                document.getElementById('mainImage').alt = product.title;
+
+                // Price
+                const discountPercent = getDiscountPercent(product);
+                let priceHtml = '';
+                if (discountPercent > 0) {
+                    priceHtml = `
+                        <span class="detail-sale-price">${formatPrice(product.sale_price)}</span>
+                        <span class="detail-regular-price">${formatPrice(product.regular_price)}</span>
+                        <span class="detail-discount-badge">-${discountPercent}%</span>
+                    `;
+                } else {
+                    priceHtml = `<span class="detail-sale-price" style="color: var(--primary-green);">${formatPrice(product.regular_price)}</span>`;
+                }
+                document.getElementById('detailPriceWrapper').innerHTML = priceHtml;
+
+                // Tags
+                let tagsHtml = '';
+                if (product.tags && product.tags.length > 0) {
+                    tagsHtml = product.tags.map(tag => 
+                        `<span class="detail-tag">${tag}</span>`
+                    ).join('');
+                }
+                document.getElementById('detailTags').innerHTML = tagsHtml;
+
+                // Descriptions
+                document.getElementById('detailShortDesc').innerHTML = `<strong>${product.short_description || ''}</strong>`;
+                document.getElementById('detailDescription').textContent = product.description || 'Chưa có mô tả chi tiết.';
+
+                // Gallery
+                let galleryHtml = '';
+                if (product.gallery && product.gallery.length > 0) {
+                    galleryHtml = product.gallery.map((img, index) => 
+                        `<img src="${img}" alt="Gallery ${index + 1}" class="gallery-thumb ${index === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)">`
+                    ).join('');
+                }
+                document.getElementById('galleryWrapper').innerHTML = galleryHtml;
+
+                // Show page
+                document.getElementById('listingPage').style.display = 'none';
+                document.getElementById('detailPage').style.display = 'block';
+                window.scrollTo(0, 0);
+                hideLoading();
+
+                // Update URL (SEO friendly)
+                history.pushState({}, '', `/products/${slug}`);
+            }, 300);
+        }
+
+        function changeMainImage(src, element) {
+            document.getElementById('mainImage').src = src;
+            document.querySelectorAll('.gallery-thumb').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // ========================================
+        // PAGINATION & FILTERING
+        // ========================================
+
+        let currentPage = 1;
+        const perPage = 6;
+
+        function changePage(page) {
+            const totalPages = Math.ceil(products.length / perPage);
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            const start = (page - 1) * perPage;
+            const paginatedProducts = products.slice(start, start + perPage);
+            
+            renderProducts(paginatedProducts);
+            renderPagination(products.length, currentPage, perPage);
+            window.scrollTo(0, 0);
+        }
+
+        // ========================================
+        // INITIALIZE
+        // ========================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sort by created_at DESC (newest first)
+            products.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            
+            // Initial render
+            changePage(1);
+        });
+
+        // Handle browser back button
+        window.addEventListener('popstate', function() {
+            if (location.pathname === '/products' || location.pathname === '/') {
+                document.getElementById('listingPage').style.display = 'block';
+                document.getElementById('detailPage').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

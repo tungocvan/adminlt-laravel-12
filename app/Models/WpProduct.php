@@ -1,29 +1,16 @@
 <?php
+// app/Models/WpProduct.php
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class WpProduct extends Model
 {
-    use HasFactory;
-
     protected $table = 'wp_products';
 
-    protected $fillable = [
-        'title',
-        'slug',
-        'short_description',
-        'description',
-        'regular_price',
-        'sale_price',
-        'image',
-        'gallery',
-        'tags',
-    ];
+    protected $fillable = ['title', 'slug', 'short_description', 'description', 'regular_price', 'sale_price', 'image', 'gallery', 'tags'];
 
     protected $casts = [
         'gallery' => 'array',
@@ -33,82 +20,45 @@ class WpProduct extends Model
     ];
 
     /**
-     * Get final price (prioritize sale_price if exists)
+     * Accessor: Lấy giá cuối cùng (ưu tiên sale_price)
      */
-    public function getFinalPriceAttribute(): ?float
+    protected function finalPrice(): Attribute
     {
-        return $this->sale_price ?? $this->regular_price;
+        return Attribute::make(get: fn() => $this->sale_price ?? $this->regular_price);
     }
 
     /**
-     * Calculate discount percentage
+     * Accessor: Tính % giảm giá
      */
-    public function getDiscountPercentAttribute(): ?int
+    protected function discountPercent(): Attribute
     {
-        if (!$this->regular_price || !$this->sale_price) {
-            return null;
-        }
-
-        if ($this->sale_price >= $this->regular_price) {
-            return null;
-        }
-
-        return (int) round((($this->regular_price - $this->sale_price) / $this->regular_price) * 100);
+        return Attribute::make(
+            get: function () {
+                if (!$this->sale_price || !$this->regular_price || $this->regular_price == 0) {
+                    return 0;
+                }
+                return round((1 - $this->sale_price / $this->regular_price) * 100);
+            },
+        );
     }
 
     /**
-     * Get full image URL
+     * Scope: Sắp xếp mới nhất
+     */
+    public function scopeLatest($query)
+    {
+        return $query->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Lấy ảnh với fallback
      */
     public function getImageUrlAttribute(): string
     {
-        if (empty($this->image)) {
-            return 'https://via.placeholder.com/600x600/CCCCCC/FFFFFF?text=No+Image';
-        }
-
-        // Nếu là URL đầy đủ (http/https)
-        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
-            return $this->image;
-        }
-
-        // Nếu là đường dẫn storage
-        return Storage::url($this->image);
-    }
-
-    /**
-     * Get gallery URLs
-     */
-    public function getGalleryUrlsAttribute(): array
-    {
-        if (empty($this->gallery) || !is_array($this->gallery)) {
-            return [];
-        }
-
-        return array_map(function ($image) {
-            // Nếu là URL đầy đủ
-            if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://')) {
-                return $image;
-            }
-            // Nếu là đường dẫn storage
-            return Storage::url($image);
-        }, $this->gallery);
+        return $this->image ?? '/images/no-image.jpg';
     }
     public function categories()
     {
-        return $this->belongsToMany(Category::class, 'category_product', 'product_id', 'category_id')
-            ->withTimestamps();
-    }
-    /**
-     * Auto-generate slug from title
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($product) {
-            if (empty($product->slug)) {
-                $product->slug = Str::slug($product->title);
-            }
-        });
+        return $this->belongsToMany(Category::class, 'category_product', 'product_id', 'category_id')->withTimestamps();
     }
 }
-

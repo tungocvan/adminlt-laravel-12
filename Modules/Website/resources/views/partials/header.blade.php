@@ -1,117 +1,173 @@
 <!-- Banner -->
-<div class="container-fluid p-0">
-  <img src="/images/banner.webp" class="img-fluid w-100" 
-       style="height:80px; object-fit:cover;" alt="Banner">
+<!-- Banner -->
+<div class="container-fluid header-banner p-0">
+    <img src="/images/banner.webp" alt="Banner">
 </div>
 
 <!-- Menu -->
-<div id="menu" class="container-fluid bg-white">
-  <div class="container">
-    <div class="row align-items-center" style="height:128px;">
-      
-      <!-- Logo -->
-      <div class="col-md-2 d-flex align-items-center">
-        <a href="{{ route('website.index') }}">
-          <img src="/images/logo-tnv.png" 
-               alt="Logo" height="128">
-        </a>
-      </div>
+<header id="menu" class="site-header bg-white">
+    <div class="container">
+        <div class="row align-items-center">
 
-      <!-- Menu center -->
-      <div class="col-md-7 d-flex justify-content-center">
-        <nav class="nav">
-          <a href="{{ route('website.about') }}"
-             @class(['nav-link', 'active' => request()->routeIs('website.about')])>
-            Về chúng tôi
-          </a>
-          <a href="{{ route('website.products.index') }}"
-             @class(['nav-link', 'active' => request()->routeIs('website.products.index')])>
-            Sản phẩm
-          </a>
-          <a href="{{ route('website.help-order') }}"
-             @class(['nav-link', 'active' => request()->routeIs('website.help-order')])>
-            Hướng dẫn đặt hàng
-          </a>
-          <a href="{{ route('website.news') }}"
-             @class(['nav-link', 'active' => request()->routeIs('website.news')])>
-            Tin tức
-          </a>
-          <a href="{{ route('website.register') }}"
-             @class(['nav-link', 'active' => request()->routeIs('website.register')])> 
-            Đăng ký bán hàng
-          </a>
-        </nav>
-      </div>
-
-      <!-- Login / Register -->
-      <div class="col-md-3 d-flex justify-content-end">
-        @guest
-          <livewire:register-form modalTitle="Đăng ký tài khoản" width="modal-md" />            
-          {{-- <livewire:hamada.loginform modalTitle="Đăng nhập" width="modal-md" />   --}}
-        @else
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item dropdown">
-            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                {{ Auth::user()->name }}
-            </a>
-
-            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="{{ route('admin.index') }}">
-                    {{ __('Admin') }}
+            <!-- Logo -->
+            <div class="col-lg-2 col-md-3 col-6">
+                <a href="{{ route('website.index') }}" class="logo">
+                    <img src="/images/logo-tnv.png" alt="Logo">
                 </a>
-                <a class="dropdown-item" href="{{ route('logout') }}"
-                   onclick="event.preventDefault();
-                                 document.getElementById('logout-form').submit();">
-                    {{ __('Logout') }}
-                </a>
-
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                    @csrf
-                </form>
             </div>
-        </li>
-        </ul>
-        @endguest
-      </div>
+
+            <!-- Main menu -->
+            <div class="col-lg-7 d-none d-lg-flex justify-content-center">
+                <nav class="main-nav">
+                    <a href="{{ route('website.about') }}" @class(['active' => request()->routeIs('website.about')])>
+                        Về chúng tôi
+                    </a>
+
+                    <a href="{{ route('website.products.index') }}" @class(['active' => request()->routeIs('website.products.*')])>
+                        Sản phẩm
+                    </a>
+
+                    <a href="{{ route('website.help-order') }}" @class(['active' => request()->routeIs('website.help-order')])>
+                        Hướng dẫn đặt hàng
+                    </a>
+
+                    <a href="{{ route('website.news') }}" @class(['active' => request()->routeIs('website.news')])>
+                        Tin tức
+                    </a>
+
+                    <a href="{{ route('website.register') }}" class="highlight">
+                        Đăng ký bán hàng
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Right actions -->
+            <div class="col-lg-3 col-md-9 col-6 d-flex justify-content-end align-items-center gap-3">
+
+                {{-- 🔥 LUÔN LOAD LIVEWIRE MODAL --}}
+                @livewire('website.login-form')
+                @livewire('website.register-form')
+
+                {{-- 🔁 CHỈ ĐIỀU KHIỂN MENU --}}
+                @guest
+                    <a href="javascript:void(0)" class="btn btn-outline-primary btn-sm"
+                        onclick="Livewire.dispatch('openLoginModal')">
+                        Đăng nhập
+                    </a>
+                    <a href="javascript:void(0)" class="btn btn-primary btn-sm mx-2"
+                        onclick="Livewire.dispatch('openRegisterModal')">
+                        Đăng ký
+                    </a>
+                @else
+                    @livewire('website.cart.cart-icon')
+
+                    <div class="dropdown">
+                        <a class="user-dropdown dropdown-toggle" data-toggle="dropdown">
+                            {{ Auth::user()->name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ route('admin.index') }}">
+                                    Admin
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{{ route('logout') }}"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+                @endguest
+            </div>
+
+        </div>
     </div>
-  </div>
-</div>
+</header>
 
 <style>
-  .nav .nav-link {
-            position: relative;
-            padding-bottom: 5px; /* tạo khoảng cách cho gạch */
-  }
+    /* Banner */
+    .header-banner img {
+        width: 100%;
+        height: 70px;
+        object-fit: cover;
+    }
 
-  .nav .nav-link.active::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;               /* độ dày gạch */
-      background-color: #007bff; /* màu gạch */
-  }
-  .menu-fixed {
-    position: fixed;
-    top: 0; /* dính sát trên */
-    left: 0;
-    width: 100%;
-    z-index: 1030;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: top 0.3s;
-  }
+    /* Header */
+    .site-header {
+        height: 90px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    /* Logo */
+    .logo img {
+        height: 70px;
+        max-width: 100%;
+    }
+
+    /* Menu */
+    .main-nav {
+        display: flex;
+        gap: 28px;
+    }
+
+    .main-nav a {
+        position: relative;
+        font-weight: 500;
+        color: #333;
+        padding: 6px 0;
+        text-decoration: none;
+    }
+
+    .main-nav a:hover {
+        color: #0d6efd;
+    }
+
+    .main-nav a.active::after,
+    .main-nav a:hover::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 2px;
+        background: #0d6efd;
+    }
+
+    /* Highlight CTA */
+    .main-nav a.highlight {
+        color: #0d6efd;
+        font-weight: 600;
+    }
+
+    /* User */
+    .user-dropdown {
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    /* Sticky */
+    .menu-fixed {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1050;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+    }
 </style>
 
 <script>
-  const menu = document.getElementById('menu');
-  const bannerHeight = 80; // chiều cao banner
+    const menu = document.getElementById('menu');
+    const bannerHeight = document.querySelector('.header-banner').offsetHeight;
 
-  window.addEventListener('scroll', function () {
-    if (window.scrollY > bannerHeight) {
-      menu.classList.add('menu-fixed');
-    } else {
-      menu.classList.remove('menu-fixed');
-    }
-  });
+    window.addEventListener('scroll', () => {
+        menu.classList.toggle('menu-fixed', window.scrollY > bannerHeight);
+    });
 </script>

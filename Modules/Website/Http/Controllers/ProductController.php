@@ -3,6 +3,7 @@
 namespace Modules\Website\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\WpProduct;
 
 class ProductController extends Controller
 {
@@ -20,13 +21,21 @@ class ProductController extends Controller
     {
         //dd(1);
         //return view('Website::hamada');
-        return view('Website::index');
+        return view('Website::products.index');
     }
     public function show(string $slug)
     {
         
-        return view('Website::show', ['slug' => $slug]);
+        // Kiểm tra sản phẩm tồn tại
+        //$product = WpProduct::where('slug', $slug)->firstOrFail();        
+        $product = WpProduct::where('slug', $slug)->firstOrFail();
+
+        return view('Website::products.show', [
+            'product' => $product,
+            'slug' => $slug
+        ]);
     }
+    
     public function productDetail($id)
     {
         dd('productDetail:' . $id);

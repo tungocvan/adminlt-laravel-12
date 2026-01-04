@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Products\Http\Controllers\ProductsController;
 
 Route::middleware(['web','auth'])->prefix('/products')->name('products.')->group(function(){
-    Route::get('/', [ProductsController::class,'index'])->name('index');
+   // Route::get('/', [ProductsController::class,'index'])->name('index');
     Route::get('/product-cart', [ProductsController::class,'productCart'])->name('product-cart');
     Route::get('/add', [ProductsController::class,'create'])->name('create');
     Route::get('/add-more', [ProductsController::class, 'addMore']);
@@ -17,3 +17,4 @@ Route::middleware(['web','auth'])->prefix('/products')->name('products.')->group
     Route::delete('remove-from-cart', [ProductsController::class, 'remove'])->name('remove.from.cart');
     Route::get('/thank-you', [ProductsController::class,'thankyou'])->name('thankyou');    
 });
+ 
