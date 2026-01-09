@@ -71,6 +71,200 @@ Quy trình làm việc bắt buộc:
 
 ---
 
+## 3. DATABASE SCHEMA (BẮT BUỘC BÁM SÁT)
+
+### 3.1 wp_products 
+```php
+- id
+- title (string, indexed)
+- slug (string, unique)
+- short_description (nullable)
+- description (longText, nullable)
+- regular_price (decimal 10,2, nullable)
+- sale_price (decimal 10,2, nullable)
+- image (string, nullable)
+- gallery (json, nullable)
+- tags (json, nullable)
+- created_at
+- updated_at
+```
+
+### 3.2 carts
+```php
+- id
+- session_id
+- user_id (nullable)
+- created_at
+- updated_at
+```
+
+### 3.3 cart_items
+```php
+- id
+- cart_id
+- product_id
+- price
+- quantity
+- total
+- created_at
+- updated_at
+```
+
+### 3.4 orders
+```php
+- id
+- user_id (nullable)
+- order_code (unique)
+- customer_name
+- customer_phone
+- customer_email (nullable)
+- customer_address
+- note (nullable)
+- subtotal
+- discount (default 0)
+- total
+- status (pending, confirmed, shipping, completed, cancelled)
+- created_at
+- updated_at
+```
+
+### 3.5 order_items
+```php
+- id
+- order_id
+- product_id
+- product_name
+- price
+- quantity
+- total
+- created_at
+- updated_at
+```
+
+---
+## 3️⃣ DATABASE – ĐÃ ĐÓNG BĂNG (KHÔNG TỰ Ý THAY ĐỔI)
+
+### 🔹 Categories (taxonomy lõi hệ thống)
+
+```php
+Schema::create('categories', function (Blueprint $table) {
+    $table->id();
+
+    $table->string('name');
+    $table->string('slug')->nullable()->unique();
+    $table->string('url')->nullable();
+    $table->string('icon')->nullable();
+    $table->string('can')->nullable();
+    $table->string('type')->nullable()->index(); // product | post | menu | ...
+
+    $table->foreignId('parent_id')
+        ->nullable()
+        ->constrained('categories')
+        ->nullOnDelete();
+
+    $table->text('description')->nullable();
+    $table->string('image')->nullable();
+    $table->boolean('is_active')->default(true)->index();
+    $table->unsignedInteger('sort_order')->default(0);
+
+    // SEO
+    $table->string('meta_title')->nullable();
+    $table->string('meta_description')->nullable();
+
+    $table->timestamps();
+});
+```
+
+### 🔹 Pivot: category_product
+
+```php
+Schema::create('category_product', function (Blueprint $table) {
+    $table->foreignId('category_id')
+        ->constrained('categories')
+        ->cascadeOnDelete();
+
+    $table->foreignId('product_id')
+        ->constrained('wp_products')
+        ->cascadeOnDelete();
+
+    $table->timestamps();
+    $table->primary(['category_id', 'product_id']);
+});
+```
+
+📌 **Nguyên tắc bất biến**
+- Category dùng chung cho menu / product / post
+- Category đa cấp vô hạn (adjacency list)
+- Product N–N Category
+
+---
+## 4. MODELS & DOMAIN LOGIC
+
+### 4.1 WpProduct
+**Vị trí:** `Modules/Website/Models/WpProduct.php`
+
+- Cast:
+  - gallery → array
+  - tags → array
+
+- Accessor:
+  - final_price
+  - discount_percent
+
+- Relationship:
+```php
+belongsToMany(Category::class)
+```
+
+### 4.2 Cart, CartItem
+- Quan hệ: Cart hasMany CartItem
+- Lưu session-based cart
+
+### 4.3 Order, OrderItem
+- Order hasMany OrderItem
+- OrderItem belongsTo WpProduct
+
+## 4️⃣ MODEL CATEGORY – CHUẨN BẮT BUỘC
+
+### Relationships
+- `parent()`
+- `children()` (orderBy sort_order)
+- `childrenRecursive()`
+- `products()`
+
+### Scopes
+- `active()`
+- `ofType($type)`
+- `root()`
+
+### Helper
+- `getAllChildrenIds()`
+
+⛔ **CẤM**
+- Query category không dùng scope `active()`
+- Sort trong Blade / Livewire
+
+---
+
+## 5️⃣ QUERY PRODUCT THEO CATEGORY (DUY NHẤT ĐƯỢC PHÉP)
+
+```php
+$category->load('childrenRecursive');
+$categoryIds = $category->getAllChildrenIds();
+
+$products = WpProduct::query()
+    ->whereHas('categories', fn ($q) =>
+        $q->whereIn('categories.id', $categoryIds)
+    )
+    ->where('is_active', true)
+    ->paginate(12);
+```
+
+❌ CẤM dùng `$category->products()` khi có sub-category
+
+---
+
+
 ## 4️⃣ CẤU TRÚC THƯ MỤC MODULES/WEBSITE (BẮT BUỘC TUÂN THỦ)
 
 ```
@@ -154,7 +348,31 @@ Modules/
     │
     └── module.json
 ```
+# 6️⃣ CẤU TRÚC MODULES/WEBSITE (CỐ ĐỊNH)
 
+```
+Modules/
+└── Website/
+    ├── Config
+    ├── Database
+    │   ├── Migrations
+    │   └── Seeders
+    ├── Http
+    │   ├── Controllers
+    │   └── Requests
+    ├── Livewire
+    │   ├── Categories
+    │   ├── Products
+    │   ├── Cart
+    │   └── Checkout
+    ├── Models
+    ├── Resources
+    │   ├── views
+    │   └── assets
+    ├── Routes
+    ├── Providers
+    └── module.json
+```
 ---
 
 ## 5️⃣ QUY TRÌNH SINH CODE (KHÓA CỨNG)

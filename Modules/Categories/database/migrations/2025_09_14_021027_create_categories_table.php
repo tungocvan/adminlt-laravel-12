@@ -12,11 +12,11 @@ return new class extends Migration
             $table->id();
 
             $table->string('name');                         // Tên hiển thị
-            $table->string('slug')->nullable()->unique();  // Slug (chỉ cần cho type=category)
+            $table->string('slug')->nullable()->unique();  // Slug 
             $table->string('url')->nullable();             // Link (nếu là menu)
             $table->string('icon')->nullable();            // Icon (menu hiển thị)
             $table->string('can')->nullable();             // Permission key (có thể sau này tách bảng)
-            $table->string('type')->nullable()->index();   // Loại: category/menu/...
+            $table->string('type')->nullable()->index();   // Loại: product/post/category/menu/...
             $table->foreignId('parent_id')
                 ->nullable()
                 ->constrained('categories')
@@ -32,7 +32,7 @@ return new class extends Migration
 
             $table->timestamps();
         });
-    }
+    } 
 
     public function down(): void
     {

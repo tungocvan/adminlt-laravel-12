@@ -34,7 +34,7 @@ Nhiệm vụ: xây dựng **Website Ecommerce hoàn chỉnh** theo mô hình Mod
 
 ## 3. DATABASE SCHEMA (BẮT BUỘC BÁM SÁT)
 
-### 3.1 wp_products
+### 3.1 wp_products 
 ```php
 - id
 - title (string, indexed)
